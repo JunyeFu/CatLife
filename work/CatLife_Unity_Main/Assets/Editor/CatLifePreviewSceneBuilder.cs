@@ -39,14 +39,13 @@ public static class CatLifePreviewSceneBuilder
     private static readonly Color SliderHandle = new Color(1f, 0.78f, 0.22f, 0.36f);
     private static readonly Color SliderHandleOutline = new Color(1f, 0.88f, 0.44f, 1f);
     private static readonly Vector3 PlazaCameraPosition = new Vector3(0.1f, 2.88f, -0.58f);
-    private static readonly Vector3 PlazaOverheadLightPosition = new Vector3(0f, 9.5f, 0f);
+    private static readonly Vector3 SunLightPosition = new Vector3(0f, 9.5f, 0f);
+    private static readonly Vector3 SunLightRotation = new Vector3(41f, -33f, 8f);
     private const float PlazaCameraYaw = 180f;
     private const float PlazaCameraPitch = 8f;
     private const float PlazaCameraFov = 87f;
     private const float PlazaCameraMaxPitchOffset = 45f;
     private const float PlazaCameraDegreesPerSecond = 10f;
-    private const float PlazaOverheadLightIntensity = 150f;
-    private const float PlazaOverheadLightRange = 24f;
     private const float TownCatScale = 0.0275f;
 
     [MenuItem("CatLife/Build Preview Home Scene")]
@@ -140,14 +139,32 @@ public static class CatLifePreviewSceneBuilder
     {
         Light sun = null;
         GameObject lightGo = GameObject.Find("Main Directional Light");
+        if (lightGo == null)
+        {
+            GameObject lightingRoot = GameObject.Find("CatLifeMainRoot/Lighting");
+            lightGo = new GameObject("Main Directional Light");
+            if (lightingRoot != null)
+            {
+                lightGo.transform.SetParent(lightingRoot.transform, false);
+            }
+        }
+
         if (lightGo != null)
         {
             sun = lightGo.GetComponent<Light>();
-            lightGo.transform.rotation = Quaternion.Euler(41f, -33f, 8f);
+            if (sun == null)
+            {
+                sun = lightGo.AddComponent<Light>();
+            }
+
+            lightGo.name = "Main Directional Light";
+            lightGo.transform.position = SunLightPosition;
+            lightGo.transform.rotation = Quaternion.Euler(SunLightRotation);
         }
 
         if (sun != null)
         {
+            sun.enabled = true;
             sun.type = LightType.Directional;
             sun.color = new Color(1f, 0.91f, 0.74f, 1f);
             sun.intensity = 1.42f;
@@ -155,9 +172,10 @@ public static class CatLifePreviewSceneBuilder
             sun.shadowStrength = 0.62f;
             sun.shadowBias = 0.03f;
             sun.shadowNormalBias = 0.28f;
+            RenderSettings.sun = sun;
         }
 
-        ConfigurePlazaOverheadLight();
+        RemoveExtraSceneLights(sun);
 
         RenderSettings.ambientMode = AmbientMode.Trilight;
         RenderSettings.ambientSkyColor = new Color(0.58f, 0.78f, 1f, 1f);
@@ -167,59 +185,29 @@ public static class CatLifePreviewSceneBuilder
         RenderSettings.fog = false;
     }
 
-    private static void ConfigurePlazaOverheadLight()
+    private static void RemoveExtraSceneLights(Light sun)
     {
-        Light plazaLight = null;
-        GameObject town = GameObject.Find("CatLifeTownRoot");
-        if (town != null)
+        Scene activeScene = SceneManager.GetActiveScene();
+        Light[] lights = Object.FindObjectsByType<Light>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < lights.Length; i++)
         {
-            Transform existing = town.transform.Find("Plaza Overhead Light");
-            if (existing == null)
+            Light light = lights[i];
+            if (light == null || light == sun || light.gameObject.scene != activeScene)
             {
-                existing = town.transform.Find("Light");
+                continue;
             }
 
-            if (existing != null)
+            GameObject lightObject = light.gameObject;
+            Component[] components = lightObject.GetComponents<Component>();
+            if (lightObject.transform.childCount == 0 && components.Length <= 3)
             {
-                plazaLight = existing.GetComponent<Light>();
+                Object.DestroyImmediate(lightObject);
             }
-
-            if (plazaLight == null)
+            else
             {
-                Light[] townLights = town.GetComponentsInChildren<Light>(true);
-                for (int i = 0; i < townLights.Length; i++)
-                {
-                    if (townLights[i].type == LightType.Point)
-                    {
-                        plazaLight = townLights[i];
-                        break;
-                    }
-                }
+                Object.DestroyImmediate(light);
             }
         }
-
-        if (plazaLight == null)
-        {
-            GameObject lightingRoot = GameObject.Find("CatLifeMainRoot/Lighting");
-            GameObject plazaLightGo = new GameObject("Plaza Overhead Light");
-            if (lightingRoot != null)
-            {
-                plazaLightGo.transform.SetParent(lightingRoot.transform, false);
-            }
-
-            plazaLight = plazaLightGo.AddComponent<Light>();
-        }
-
-        plazaLight.gameObject.name = "Plaza Overhead Light";
-        plazaLight.enabled = true;
-        plazaLight.type = LightType.Point;
-        plazaLight.color = new Color(1f, 0.97f, 0.9f, 1f);
-        plazaLight.intensity = PlazaOverheadLightIntensity;
-        plazaLight.range = PlazaOverheadLightRange;
-        plazaLight.shadows = LightShadows.None;
-        plazaLight.renderMode = LightRenderMode.Auto;
-        plazaLight.transform.position = PlazaOverheadLightPosition;
-        plazaLight.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
     }
 
     private static void ConfigureVolume()
