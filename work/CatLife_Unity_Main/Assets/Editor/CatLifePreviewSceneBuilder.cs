@@ -39,11 +39,14 @@ public static class CatLifePreviewSceneBuilder
     private static readonly Color SliderHandle = new Color(1f, 0.78f, 0.22f, 0.36f);
     private static readonly Color SliderHandleOutline = new Color(1f, 0.88f, 0.44f, 1f);
     private static readonly Vector3 PlazaCameraPosition = new Vector3(0.1f, 2.88f, -0.58f);
+    private static readonly Vector3 PlazaOverheadLightPosition = new Vector3(0f, 9.5f, 0f);
     private const float PlazaCameraYaw = 180f;
     private const float PlazaCameraPitch = 8f;
     private const float PlazaCameraFov = 87f;
     private const float PlazaCameraMaxPitchOffset = 45f;
     private const float PlazaCameraDegreesPerSecond = 10f;
+    private const float PlazaOverheadLightIntensity = 150f;
+    private const float PlazaOverheadLightRange = 24f;
     private const float TownCatScale = 0.0275f;
 
     [MenuItem("CatLife/Build Preview Home Scene")]
@@ -154,12 +157,69 @@ public static class CatLifePreviewSceneBuilder
             sun.shadowNormalBias = 0.28f;
         }
 
+        ConfigurePlazaOverheadLight();
+
         RenderSettings.ambientMode = AmbientMode.Trilight;
         RenderSettings.ambientSkyColor = new Color(0.58f, 0.78f, 1f, 1f);
         RenderSettings.ambientEquatorColor = new Color(1f, 0.78f, 0.49f, 1f);
         RenderSettings.ambientGroundColor = new Color(0.45f, 0.31f, 0.19f, 1f);
         RenderSettings.reflectionIntensity = 0.22f;
         RenderSettings.fog = false;
+    }
+
+    private static void ConfigurePlazaOverheadLight()
+    {
+        Light plazaLight = null;
+        GameObject town = GameObject.Find("CatLifeTownRoot");
+        if (town != null)
+        {
+            Transform existing = town.transform.Find("Plaza Overhead Light");
+            if (existing == null)
+            {
+                existing = town.transform.Find("Light");
+            }
+
+            if (existing != null)
+            {
+                plazaLight = existing.GetComponent<Light>();
+            }
+
+            if (plazaLight == null)
+            {
+                Light[] townLights = town.GetComponentsInChildren<Light>(true);
+                for (int i = 0; i < townLights.Length; i++)
+                {
+                    if (townLights[i].type == LightType.Point)
+                    {
+                        plazaLight = townLights[i];
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (plazaLight == null)
+        {
+            GameObject lightingRoot = GameObject.Find("CatLifeMainRoot/Lighting");
+            GameObject plazaLightGo = new GameObject("Plaza Overhead Light");
+            if (lightingRoot != null)
+            {
+                plazaLightGo.transform.SetParent(lightingRoot.transform, false);
+            }
+
+            plazaLight = plazaLightGo.AddComponent<Light>();
+        }
+
+        plazaLight.gameObject.name = "Plaza Overhead Light";
+        plazaLight.enabled = true;
+        plazaLight.type = LightType.Point;
+        plazaLight.color = new Color(1f, 0.97f, 0.9f, 1f);
+        plazaLight.intensity = PlazaOverheadLightIntensity;
+        plazaLight.range = PlazaOverheadLightRange;
+        plazaLight.shadows = LightShadows.None;
+        plazaLight.renderMode = LightRenderMode.Auto;
+        plazaLight.transform.position = PlazaOverheadLightPosition;
+        plazaLight.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
     }
 
     private static void ConfigureVolume()
@@ -183,7 +243,7 @@ public static class CatLifePreviewSceneBuilder
         bloom.scatter.Override(0.48f);
 
         ColorAdjustments color = profile.Add<ColorAdjustments>(true);
-        color.postExposure.Override(0.08f);
+        color.postExposure.Override(-1f);
         color.contrast.Override(9f);
         color.saturation.Override(18f);
         color.colorFilter.Override(new Color(1f, 0.99f, 0.94f, 1f));
