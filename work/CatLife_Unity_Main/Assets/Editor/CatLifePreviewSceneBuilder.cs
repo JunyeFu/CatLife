@@ -372,10 +372,11 @@ public static class CatLifePreviewSceneBuilder
         pillText.supportRichText = true;
         AddTextShadow(pillText, 0.23f, new Vector2(0f, -1.5f));
 
-        GameObject catMenu = AddCircleMenu(canvasRect, sprites.cat, font, "\u732b\u54aa", -102f, -122f, sprites);
-        GameObject recordMenu = AddCircleMenu(canvasRect, sprites.record, font, "\u8bb0\u5f55", -102f, -272f, sprites);
-        GameObject settingsMenu = AddCircleMenu(canvasRect, sprites.settings, font, "\u8bbe\u7f6e", -102f, -572f, sprites);
-        AddRotationSliderMenu(canvasRect, sprites.rotate, font, "\u65cb\u8f6c", -102f, -422f, sprites, camera != null ? camera.GetComponent<CatLifePlazaCameraRotator>() : null, new[] { catMenu, recordMenu, settingsMenu });
+        const float rightMenuX = -108f;
+        GameObject catMenu = AddCircleMenu(canvasRect, sprites.cat, font, "\u732b\u54aa", rightMenuX, 834f, sprites);
+        GameObject recordMenu = AddCircleMenu(canvasRect, sprites.record, font, "\u8bb0\u5f55", rightMenuX, 661f, sprites);
+        GameObject settingsMenu = AddCircleMenu(canvasRect, sprites.settings, font, "\u8bbe\u7f6e", rightMenuX, 315f, sprites);
+        AddRotationSliderMenu(canvasRect, sprites.rotate, font, "\u65cb\u8f6c", rightMenuX, 488f, sprites, camera != null ? camera.GetComponent<CatLifePlazaCameraRotator>() : null, new[] { catMenu, recordMenu, settingsMenu });
 
         AddImage("PageDotActive", canvasRect, sprites.dot, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-28f, 194f), new Vector2(18f, 18f), AccentOrange);
         AddImage("PageDotA", canvasRect, sprites.dot, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(2f, 194f), new Vector2(14f, 14f), new Color(1f, 1f, 1f, 0.92f));
@@ -387,6 +388,9 @@ public static class CatLifePreviewSceneBuilder
         AddImage("ButtonSpark", button.transform, sprites.spark, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-126f, 0f), new Vector2(34f, 34f), White);
         Text buttonText = AddText("StartFocusText", button.transform, "\u5f00\u59cb\u4e13\u6ce8", font, 39, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(18f, 0f), new Vector2(260f, 60f));
         AddTextShadow(buttonText, 0.25f, new Vector2(0f, -2f));
+
+        PlaceholderUi placeholder = AddPlaceholderOverlay(canvasRect, sprites, font);
+        ConfigureHomeUiController(canvasGo, subtitle, pillText, button.GetComponent<Button>(), catMenu, recordMenu, settingsMenu, placeholder, sprites);
 
         canvasGo.GetComponent<CatLifeHomeFontBinder>().Apply();
         if (uiLayer >= 0)
@@ -400,8 +404,8 @@ public static class CatLifePreviewSceneBuilder
         GameObject root = new GameObject("MenuGroup_" + label, typeof(RectTransform));
         root.transform.SetParent(parent, false);
         RectTransform rootRect = root.GetComponent<RectTransform>();
-        rootRect.anchorMin = new Vector2(1f, 0.5f);
-        rootRect.anchorMax = new Vector2(1f, 0.5f);
+        rootRect.anchorMin = new Vector2(1f, 0f);
+        rootRect.anchorMax = new Vector2(1f, 0f);
         rootRect.pivot = new Vector2(0.5f, 0.5f);
         rootRect.anchoredPosition = new Vector2(x, y);
         rootRect.sizeDelta = new Vector2(132f, 118f);
@@ -421,8 +425,8 @@ public static class CatLifePreviewSceneBuilder
         GameObject root = new GameObject("MenuGroup_" + label, typeof(RectTransform));
         root.transform.SetParent(parent, false);
         RectTransform rootRect = root.GetComponent<RectTransform>();
-        rootRect.anchorMin = new Vector2(1f, 0.5f);
-        rootRect.anchorMax = new Vector2(1f, 0.5f);
+        rootRect.anchorMin = new Vector2(1f, 0f);
+        rootRect.anchorMax = new Vector2(1f, 0f);
         rootRect.pivot = new Vector2(0.5f, 0.5f);
         rootRect.anchoredPosition = new Vector2(x, y);
         rootRect.sizeDelta = new Vector2(260f, 260f);
@@ -493,6 +497,114 @@ public static class CatLifePreviewSceneBuilder
 
         Text text = AddText("Label", root.transform, label, font, 21, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -58f), new Vector2(132f, 28f));
         AddTextShadow(text, 0.24f, new Vector2(0f, -1.5f));
+    }
+
+    private static PlaceholderUi AddPlaceholderOverlay(Transform parent, SpriteSet sprites, Font font)
+    {
+        GameObject overlay = AddPanel("PlaceholderOverlay", parent, sprites.roundedSolid, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(ReferenceWidth, ReferenceHeight), new Color(0.97f, 0.91f, 0.73f, 0.98f));
+        Image overlayImage = overlay.GetComponent<Image>();
+        overlayImage.sprite = null;
+        overlayImage.type = Image.Type.Simple;
+        overlay.transform.SetAsLastSibling();
+
+        GameObject skyBand = AddPanel("PageSkyBand", overlay.transform, sprites.roundedSolid, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(ReferenceWidth, 430f), new Color(0.22f, 0.69f, 0.89f, 0.96f));
+        Image skyImage = skyBand.GetComponent<Image>();
+        skyImage.sprite = null;
+        skyImage.type = Image.Type.Simple;
+        AddPanel("PageSunGlow", skyBand.transform, sprites.circleSolid, new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(-126f, -120f), new Vector2(210f, 210f), new Color(1f, 0.86f, 0.35f, 0.22f));
+
+        Text eyebrow = AddText("PlaceholderEyebrow", overlay.transform, "CatLife", font, 28, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(72f, -62f), new Vector2(260f, 42f));
+        eyebrow.color = new Color(1f, 1f, 1f, 0.92f);
+        AddTextShadow(eyebrow, 0.18f, new Vector2(0f, -1.2f));
+
+        Text pageStatus = AddText("PlaceholderPageStatus", overlay.transform, "\u4eca\u5929\u5df2\u4e13\u6ce8 <color=#FFD14A>48</color> \u5206\u949f", font, 24, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(72f, -106f), new Vector2(360f, 42f));
+        pageStatus.color = White;
+        pageStatus.supportRichText = true;
+        AddTextShadow(pageStatus, 0.18f, new Vector2(0f, -1.2f));
+
+        GameObject pageBase = AddPanel("PlaceholderPageBase", overlay.transform, sprites.roundedSolid, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -148f), new Vector2(936f, 2130f), new Color(1f, 0.96f, 0.78f, 0.96f));
+        Image pageBaseImage = pageBase.GetComponent<Image>();
+        pageBaseImage.sprite = null;
+        pageBaseImage.type = Image.Type.Simple;
+
+        Text title = AddText("PlaceholderTitle", pageBase.transform, "\u732b\u54aa", font, 58, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(50f, -54f), new Vector2(620f, 82f));
+        title.color = new Color(0.42f, 0.25f, 0.12f, 1f);
+
+        GameObject headerChip = AddPanel("PlaceholderPageChip", pageBase.transform, sprites.roundedSolid, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(50f, -152f), new Vector2(410f, 62f), new Color(1f, 0.78f, 0.22f, 0.22f));
+        Image chipOutline = AddImage("PlaceholderChipOutline", headerChip.transform, sprites.roundedOutline, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(410f, 62f), new Color(1f, 0.88f, 0.44f, 0.92f));
+        chipOutline.type = Image.Type.Sliced;
+        Text chipText = AddText("PlaceholderChipText", headerChip.transform, "\u6e38\u620f\u6a21\u5757\u9884\u89c8", font, 25, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(360f, 44f));
+        chipText.color = White;
+
+        GameObject close = AddPanel("PlaceholderCloseButton", overlay.transform, sprites.circleSolid, new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(-78f, -94f), new Vector2(72f, 72f), new Color(1f, 0.77f, 0.22f, 0.18f));
+        Button closeButton = close.AddComponent<Button>();
+        AddImage("CloseOutline", close.transform, sprites.circleOutline, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(72f, 72f), new Color(1f, 0.9f, 0.48f, 1f));
+        Text closeText = AddText("CloseText", close.transform, "\u00d7", font, 38, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 1f), new Vector2(48f, 48f));
+        closeText.color = White;
+
+        GameObject heroPanel = AddPanel("PlaceholderHeroPanel", pageBase.transform, sprites.roundedSolid, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -270f), new Vector2(824f, 210f), new Color(1f, 0.78f, 0.27f, 0.30f));
+        Image heroOutline = AddImage("PlaceholderHeroOutline", heroPanel.transform, sprites.roundedOutline, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(824f, 210f), new Color(1f, 0.76f, 0.28f, 0.76f));
+        heroOutline.type = Image.Type.Sliced;
+        Image heroIcon = AddImage("PlaceholderHeroIcon", heroPanel.transform, sprites.cat, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(50f, 0f), new Vector2(108f, 108f), White);
+        Text heroText = AddText("PlaceholderHeroText", heroPanel.transform, "\u67e5\u770b\u5f53\u524d\u966a\u4f34\u72b6\u6001\u3001\u6210\u957f\u503c\u548c\u5df2\u89e3\u9501\u52a8\u4f5c\u3002", font, 28, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(182f, 0f), new Vector2(590f, 124f));
+        heroText.color = new Color(0.43f, 0.25f, 0.1f, 1f);
+        heroText.horizontalOverflow = HorizontalWrapMode.Wrap;
+
+        Text body = AddText("PlaceholderBody", pageBase.transform, "\u5f53\u524d\u72b6\u6001", font, 31, FontStyle.Bold, TextAnchor.UpperLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(60f, -540f), new Vector2(816f, 1320f));
+        body.color = new Color(0.35f, 0.22f, 0.12f, 1f);
+        body.horizontalOverflow = HorizontalWrapMode.Wrap;
+        body.verticalOverflow = VerticalWrapMode.Overflow;
+        body.lineSpacing = 1.22f;
+        body.supportRichText = true;
+
+        overlay.SetActive(false);
+        return new PlaceholderUi
+        {
+            overlay = overlay,
+            titleText = title,
+            chipText = chipText,
+            heroText = heroText,
+            heroIcon = heroIcon,
+            bodyText = body,
+            closeButton = closeButton
+        };
+    }
+
+    private static void ConfigureHomeUiController(GameObject canvasGo, Text todayFocusText, Text focusPillText, Button startFocusButton, GameObject catMenu, GameObject recordMenu, GameObject settingsMenu, PlaceholderUi placeholder, SpriteSet sprites)
+    {
+        CatLifeHomeUiController controller = canvasGo.GetComponent<CatLifeHomeUiController>();
+        if (controller == null)
+        {
+            controller = canvasGo.AddComponent<CatLifeHomeUiController>();
+        }
+
+        SerializedObject serialized = new SerializedObject(controller);
+        serialized.FindProperty("todayFocusText").objectReferenceValue = todayFocusText;
+        serialized.FindProperty("focusPillText").objectReferenceValue = focusPillText;
+        serialized.FindProperty("startFocusButton").objectReferenceValue = startFocusButton;
+        serialized.FindProperty("catButton").objectReferenceValue = FindMenuButton(catMenu);
+        serialized.FindProperty("recordButton").objectReferenceValue = FindMenuButton(recordMenu);
+        serialized.FindProperty("settingsButton").objectReferenceValue = FindMenuButton(settingsMenu);
+        serialized.FindProperty("closePlaceholderButton").objectReferenceValue = placeholder.closeButton;
+        serialized.FindProperty("placeholderOverlay").objectReferenceValue = placeholder.overlay;
+        serialized.FindProperty("placeholderTitleText").objectReferenceValue = placeholder.titleText;
+        serialized.FindProperty("placeholderChipText").objectReferenceValue = placeholder.chipText;
+        serialized.FindProperty("placeholderHeroText").objectReferenceValue = placeholder.heroText;
+        serialized.FindProperty("placeholderBodyText").objectReferenceValue = placeholder.bodyText;
+        serialized.FindProperty("placeholderHeroIcon").objectReferenceValue = placeholder.heroIcon;
+        serialized.FindProperty("catPageIcon").objectReferenceValue = sprites.cat;
+        serialized.FindProperty("recordPageIcon").objectReferenceValue = sprites.record;
+        serialized.FindProperty("settingsPageIcon").objectReferenceValue = sprites.settings;
+        serialized.FindProperty("initialTodayFocusMinutes").intValue = 48;
+        serialized.FindProperty("focusSessionSeconds").intValue = 1509;
+        serialized.FindProperty("startTimerOnEnable").boolValue = true;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(controller);
+    }
+
+    private static Button FindMenuButton(GameObject menuRoot)
+    {
+        return menuRoot != null ? menuRoot.GetComponentInChildren<Button>(true) : null;
     }
 
     private static void EnsureEventSystem()
@@ -1549,6 +1661,17 @@ public static class CatLifePreviewSceneBuilder
         Color color;
         ColorUtility.TryParseHtmlString("#" + hex, out color);
         return color;
+    }
+
+    private sealed class PlaceholderUi
+    {
+        public GameObject overlay;
+        public Text titleText;
+        public Text chipText;
+        public Text heroText;
+        public Text bodyText;
+        public Image heroIcon;
+        public Button closeButton;
     }
 
     private sealed class SpriteSet
