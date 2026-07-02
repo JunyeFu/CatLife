@@ -13,8 +13,8 @@ using UnityEngine.UI;
 
 public static class CatLifePreviewSceneBuilder
 {
-    private const int ReferenceWidth = 941;
-    private const int ReferenceHeight = 1672;
+    private const int ReferenceWidth = 1080;
+    private const int ReferenceHeight = 2400;
     private const string UiFolder = "Assets/UI/CatLifeHome";
     private const string EnvironmentFolder = "Assets/Art/Environment";
     private const string VolumeProfilePath = "Assets/Settings/CatLifePreviewVolumeProfile.asset";
@@ -1483,7 +1483,7 @@ public static class CatLifePreviewSceneBuilder
                 return;
             }
 
-            object newSize = constructor.Invoke(new object[] { fixedResolution, width, height, "CatLife Preview" });
+            object newSize = constructor.Invoke(new object[] { fixedResolution, width, height, "CatLife Preview 9:20" });
             addCustomSizeMethod.Invoke(group, new[] { newSize });
             selectedIndex = (int)getTotalCountMethod.Invoke(group, null) - 1;
         }
