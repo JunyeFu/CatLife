@@ -40,7 +40,7 @@ public static class CatLifePreviewSceneBuilder
     private static readonly Color SliderHandleOutline = new Color(1f, 0.88f, 0.44f, 1f);
     private static readonly Vector3 PlazaCameraPosition = new Vector3(0.1f, 2.88f, -0.58f);
     private static readonly Vector3 SunLightPosition = new Vector3(0f, 9.5f, 0f);
-    private static readonly Vector3 SunLightRotation = new Vector3(41f, -33f, 8f);
+    private static readonly Vector3 SunLightRayDirection = new Vector3(0.2f, -1f, -0.98f).normalized;
     private const float PlazaCameraYaw = 180f;
     private const float PlazaCameraPitch = 8f;
     private const float PlazaCameraFov = 87f;
@@ -159,7 +159,7 @@ public static class CatLifePreviewSceneBuilder
 
             lightGo.name = "Main Directional Light";
             lightGo.transform.position = SunLightPosition;
-            lightGo.transform.rotation = Quaternion.Euler(SunLightRotation);
+            lightGo.transform.rotation = Quaternion.LookRotation(SunLightRayDirection, Vector3.up);
         }
 
         if (sun != null)
