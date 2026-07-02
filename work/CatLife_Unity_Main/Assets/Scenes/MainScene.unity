@@ -8205,6 +8205,7 @@ MonoBehaviour:
   settingsButton: {fileID: 1897810674}
   closePlaceholderButton: {fileID: 283851088}
   placeholderOverlay: {fileID: 385714599}
+  placeholderPageStatusText: {fileID: 1373393968}
   placeholderTitleText: {fileID: 162757899}
   placeholderChipText: {fileID: 1730049933}
   placeholderHeroText: {fileID: 380515679}
@@ -8216,6 +8217,9 @@ MonoBehaviour:
   initialTodayFocusMinutes: 48
   focusSessionSeconds: 1509
   startTimerOnEnable: 1
+  bootstrapLocalDataWhenEmpty: 1
+  localRecognitionDefault: 1
+  smartExplanationDefault: 0
 --- !u!114 &1811579746
 MonoBehaviour:
   m_ObjectHideFlags: 0

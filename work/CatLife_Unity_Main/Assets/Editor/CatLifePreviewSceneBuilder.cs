@@ -572,6 +572,7 @@ public static class CatLifePreviewSceneBuilder
         return new PlaceholderUi
         {
             overlay = overlay,
+            pageStatusText = pageStatus,
             titleText = title,
             chipText = chipText,
             heroText = heroText,
@@ -598,6 +599,7 @@ public static class CatLifePreviewSceneBuilder
         serialized.FindProperty("settingsButton").objectReferenceValue = FindMenuButton(settingsMenu);
         serialized.FindProperty("closePlaceholderButton").objectReferenceValue = placeholder.closeButton;
         serialized.FindProperty("placeholderOverlay").objectReferenceValue = placeholder.overlay;
+        serialized.FindProperty("placeholderPageStatusText").objectReferenceValue = placeholder.pageStatusText;
         serialized.FindProperty("placeholderTitleText").objectReferenceValue = placeholder.titleText;
         serialized.FindProperty("placeholderChipText").objectReferenceValue = placeholder.chipText;
         serialized.FindProperty("placeholderHeroText").objectReferenceValue = placeholder.heroText;
@@ -1700,6 +1702,7 @@ public static class CatLifePreviewSceneBuilder
     private sealed class PlaceholderUi
     {
         public GameObject overlay;
+        public Text pageStatusText;
         public Text titleText;
         public Text chipText;
         public Text heroText;
