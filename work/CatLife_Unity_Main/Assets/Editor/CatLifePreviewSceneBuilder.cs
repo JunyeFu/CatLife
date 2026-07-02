@@ -231,10 +231,10 @@ public static class CatLifePreviewSceneBuilder
         bloom.scatter.Override(0.48f);
 
         ColorAdjustments color = profile.Add<ColorAdjustments>(true);
-        color.postExposure.Override(-1f);
-        color.contrast.Override(9f);
-        color.saturation.Override(18f);
-        color.colorFilter.Override(new Color(1f, 0.99f, 0.94f, 1f));
+        color.postExposure.Override(-0.22f);
+        color.contrast.Override(4f);
+        color.saturation.Override(-12f);
+        color.colorFilter.Override(new Color(1f, 0.995f, 0.98f, 1f));
 
         DepthOfField depth = profile.Add<DepthOfField>(true);
         depth.mode.Override(DepthOfFieldMode.Gaussian);
@@ -263,6 +263,7 @@ public static class CatLifePreviewSceneBuilder
             volume.isGlobal = true;
             volume.priority = 2f;
             volume.sharedProfile = profile;
+            volume.profile = profile;
         }
 
         EditorUtility.SetDirty(profile);
