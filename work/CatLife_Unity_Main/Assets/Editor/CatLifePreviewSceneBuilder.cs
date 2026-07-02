@@ -33,6 +33,11 @@ public static class CatLifePreviewSceneBuilder
     private static readonly Color WarmGold = Hex("F6C443");
     private static readonly Color AccentGold = Hex("FFC72F");
     private static readonly Color AccentOrange = Hex("FF9824");
+    private static readonly Color UiTextCream = Hex("FFF8E8");
+    private static readonly Color StartTextOutline = new Color(0.78f, 0.34f, 0.08f, 0.42f);
+    private static readonly Color MenuButtonFill = new Color(1f, 0.70f, 0.18f, 0.22f);
+    private static readonly Color MenuButtonOutline = new Color(1f, 0.90f, 0.46f, 1f);
+    private static readonly Color MenuTextShadow = new Color(0.46f, 0.27f, 0.06f, 0.34f);
     private static readonly Color SliderGlass = new Color(1f, 1f, 1f, 0.22f);
     private static readonly Color SliderHighlight = new Color(1f, 1f, 1f, 0.24f);
     private static readonly Color SliderOutline = new Color(1f, 0.92f, 0.54f, 0.9f);
@@ -372,7 +377,7 @@ public static class CatLifePreviewSceneBuilder
         pillText.supportRichText = true;
         AddTextShadow(pillText, 0.23f, new Vector2(0f, -1.5f));
 
-        const float rightMenuX = -108f;
+        const float rightMenuX = -116f;
         GameObject catMenu = AddCircleMenu(canvasRect, sprites.cat, font, "\u732b\u54aa", rightMenuX, 834f, sprites);
         GameObject recordMenu = AddCircleMenu(canvasRect, sprites.record, font, "\u8bb0\u5f55", rightMenuX, 661f, sprites);
         GameObject settingsMenu = AddCircleMenu(canvasRect, sprites.settings, font, "\u8bbe\u7f6e", rightMenuX, 315f, sprites);
@@ -382,12 +387,14 @@ public static class CatLifePreviewSceneBuilder
         AddImage("PageDotA", canvasRect, sprites.dot, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(2f, 194f), new Vector2(14f, 14f), new Color(1f, 1f, 1f, 0.92f));
         AddImage("PageDotB", canvasRect, sprites.dot, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(30f, 194f), new Vector2(14f, 14f), new Color(1f, 1f, 1f, 0.92f));
 
-        GameObject button = AddPanel("StartFocusButton", canvasRect, sprites.button, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 62f), new Vector2(660f, 112f), White);
+        GameObject button = AddPanel("StartFocusButton", canvasRect, sprites.button, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 62f), new Vector2(690f, 116f), White);
         button.GetComponent<Image>().type = Image.Type.Simple;
         button.AddComponent<Button>();
-        AddImage("ButtonSpark", button.transform, sprites.spark, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-126f, 0f), new Vector2(34f, 34f), White);
-        Text buttonText = AddText("StartFocusText", button.transform, "\u5f00\u59cb\u4e13\u6ce8", font, 39, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(18f, 0f), new Vector2(260f, 60f));
-        AddTextShadow(buttonText, 0.25f, new Vector2(0f, -2f));
+        AddImage("ButtonSpark", button.transform, sprites.spark, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-158f, 1f), new Vector2(40f, 40f), UiTextCream);
+        Text buttonText = AddText("StartFocusText", button.transform, "\u5f00\u59cb\u4e13\u6ce8", font, 47, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(24f, 1f), new Vector2(330f, 72f));
+        buttonText.color = UiTextCream;
+        AddTextOutline(buttonText, StartTextOutline, new Vector2(1.2f, -1.2f));
+        AddTextShadow(buttonText, 0.24f, new Vector2(0f, -2.2f));
 
         PlaceholderUi placeholder = AddPlaceholderOverlay(canvasRect, sprites, font);
         ConfigureHomeUiController(canvasGo, subtitle, pillText, button.GetComponent<Button>(), catMenu, recordMenu, settingsMenu, placeholder, sprites);
@@ -408,15 +415,17 @@ public static class CatLifePreviewSceneBuilder
         rootRect.anchorMax = new Vector2(1f, 0f);
         rootRect.pivot = new Vector2(0.5f, 0.5f);
         rootRect.anchoredPosition = new Vector2(x, y);
-        rootRect.sizeDelta = new Vector2(132f, 118f);
+        rootRect.sizeDelta = new Vector2(158f, 142f);
 
-        GameObject button = AddPanel("Menu_" + label, root.transform, sprites.circleSolid, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(78f, 78f), new Color(1f, 0.77f, 0.22f, 0.12f));
+        GameObject button = AddPanel("Menu_" + label, root.transform, sprites.circleSolid, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(94f, 94f), MenuButtonFill);
         button.AddComponent<Button>();
-        AddImage("Outline", button.transform, sprites.circleOutline, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(78f, 78f), new Color(1f, 0.88f, 0.44f, 1f));
-        AddImage("Icon", button.transform, icon, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(40f, 40f), White);
+        AddImage("Outline", button.transform, sprites.circleOutline, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(94f, 94f), MenuButtonOutline);
+        AddImage("Icon", button.transform, icon, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(48f, 48f), UiTextCream);
 
-        Text text = AddText("Label", root.transform, label, font, 21, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -53f), new Vector2(132f, 28f));
-        AddTextShadow(text, 0.24f, new Vector2(0f, -1.5f));
+        Text text = AddText("Label", root.transform, label, font, 25, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -66f), new Vector2(158f, 36f));
+        text.color = UiTextCream;
+        AddTextOutline(text, MenuTextShadow, new Vector2(0.8f, -0.8f));
+        AddTextShadow(text, 0.22f, new Vector2(0f, -1.6f));
         return root;
     }
 
@@ -471,10 +480,10 @@ public static class CatLifePreviewSceneBuilder
         verticalHandle.GetComponent<Image>().raycastTarget = false;
         AddImage("HandleOutline", verticalHandle.transform, sprites.circleOutline, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(70f, 70f), SliderHandleOutline);
 
-        GameObject button = AddPanel("Menu_" + label, root.transform, sprites.circleSolid, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(78f, 78f), new Color(1f, 0.77f, 0.22f, 0.12f));
+        GameObject button = AddPanel("Menu_" + label, root.transform, sprites.circleSolid, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(94f, 94f), MenuButtonFill);
         button.AddComponent<Button>();
-        AddImage("Outline", button.transform, sprites.circleOutline, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(78f, 78f), new Color(1f, 0.88f, 0.44f, 1f));
-        AddImage("Icon", button.transform, icon, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(39f, 39f), White);
+        AddImage("Outline", button.transform, sprites.circleOutline, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(94f, 94f), MenuButtonOutline);
+        AddImage("Icon", button.transform, icon, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(47f, 47f), UiTextCream);
 
         CatLifeCameraRotationSlider slider = button.AddComponent<CatLifeCameraRotationSlider>();
         SerializedObject serialized = new SerializedObject(slider);
@@ -495,8 +504,10 @@ public static class CatLifePreviewSceneBuilder
         serialized.ApplyModifiedPropertiesWithoutUndo();
         controls.SetActive(false);
 
-        Text text = AddText("Label", root.transform, label, font, 21, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -58f), new Vector2(132f, 28f));
-        AddTextShadow(text, 0.24f, new Vector2(0f, -1.5f));
+        Text text = AddText("Label", root.transform, label, font, 25, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -70f), new Vector2(158f, 36f));
+        text.color = UiTextCream;
+        AddTextOutline(text, MenuTextShadow, new Vector2(0.8f, -0.8f));
+        AddTextShadow(text, 0.22f, new Vector2(0f, -1.6f));
     }
 
     private static PlaceholderUi AddPlaceholderOverlay(Transform parent, SpriteSet sprites, Font font)
@@ -700,6 +711,14 @@ public static class CatLifePreviewSceneBuilder
         shadow.effectColor = new Color(0.27f, 0.1f, 0f, alpha);
         shadow.effectDistance = distance;
         shadow.useGraphicAlpha = true;
+    }
+
+    private static void AddTextOutline(Text text, Color color, Vector2 distance)
+    {
+        Outline outline = text.gameObject.AddComponent<Outline>();
+        outline.effectColor = color;
+        outline.effectDistance = distance;
+        outline.useGraphicAlpha = true;
     }
 
     private static Material BuildSkyMaterial()
@@ -1217,6 +1236,11 @@ public static class CatLifePreviewSceneBuilder
         Texture2D texture = ClearTexture(width, height);
         Vector2 center = new Vector2((width - 1) * 0.5f, (height - 1) * 0.5f);
         Vector2 half = new Vector2(width * 0.5f - radius - 1f, height * 0.5f - radius - 1f);
+        Color left = Hex("FF9734");
+        Color mid = Hex("FFBA3E");
+        Color right = Hex("FFD86A");
+        Color lowerWarmth = Hex("E87422");
+        Color rim = Hex("FFF0A8");
 
         for (int y = 0; y < height; y++)
         {
@@ -1233,16 +1257,26 @@ public static class CatLifePreviewSceneBuilder
                 }
 
                 float t = x / (float)(width - 1);
-                Color gradient = Color.Lerp(AccentOrange, AccentGold, t);
+                float vertical = y / (float)(height - 1);
+                Color gradient = t < 0.52f ? Color.Lerp(left, mid, t / 0.52f) : Color.Lerp(mid, right, (t - 0.52f) / 0.48f);
+                float topGlow = Mathf.Clamp01((vertical - 0.52f) / 0.42f);
+                float bottomShade = Mathf.Clamp01((0.34f - vertical) / 0.34f);
+                gradient = Color.Lerp(gradient, White, topGlow * 0.10f);
+                gradient = Color.Lerp(gradient, lowerWarmth, bottomShade * 0.08f);
                 Color result = new Color(gradient.r, gradient.g, gradient.b, fillAlpha);
-                if (d > -9f && fillAlpha > 0.1f)
+                if (d > -7f && fillAlpha > 0.1f)
                 {
-                    result = Color.Lerp(result, White, 0.34f);
+                    result = Color.Lerp(result, rim, 0.42f);
+                    result.a = fillAlpha;
+                }
+                if (vertical > 0.66f && fillAlpha > 0.1f && d < -12f)
+                {
+                    result = Color.Lerp(result, White, 0.10f * Mathf.Clamp01((vertical - 0.66f) / 0.18f));
                     result.a = fillAlpha;
                 }
                 if (fillAlpha <= 0f)
                 {
-                    result = new Color(1f, 0.84f, 0.28f, glowAlpha);
+                    result = new Color(1f, 0.78f, 0.22f, glowAlpha * 0.72f);
                 }
 
                 texture.SetPixel(x, y, result);

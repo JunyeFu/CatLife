@@ -99,8 +99,8 @@ namespace CatLife.UI
         public void ShowRecordPage()
         {
             ShowPlaceholder(
+                "记录",
                 "专注记录",
-                "今日专注",
                 "查看专注时长、奖励和最近 7 天趋势。",
                 recordPageIcon,
                 "<color=#8F541C>今日概览</color>\n已专注：" + todayFocusMinutes + " 分钟\n完成段数：2 段\n最长稳定：25 分钟\n中断次数：1 次\n\n<color=#8F541C>最近 7 天</color>\n周一 10m   周二 18m   周三 25m\n周四 48m   周五 --    周六 --    周日 --\n\n<color=#8F541C>游戏化反馈</color>\n奖励：星星果 x 2\n小镇变化：花丛轻微生长\n洞察：你在晚上更容易进入稳定状态");
