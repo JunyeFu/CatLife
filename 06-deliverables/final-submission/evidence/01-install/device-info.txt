@@ -1,0 +1,7 @@
+﻿Test date: TODO
+Tester: TODO
+Device source: local device / vivo cloud device
+Device model: TODO
+Android version: TODO
+CPU ABI: TODO
+Screen resolution: TODO

@@ -1,0 +1,10 @@
+﻿Unity version: TODO
+Build date: TODO
+Project path: TODO
+Scenes in build: TODO
+Package name: com.catlife.mvp
+Version: 0.1.0
+Scripting backend: TODO
+Target architecture: TODO
+Texture compression: TODO
+Signing: debug/release TODO

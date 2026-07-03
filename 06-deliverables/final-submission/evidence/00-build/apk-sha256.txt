@@ -1,0 +1,3 @@
+﻿APK file: TODO
+Size bytes: TODO
+SHA256: TODO
