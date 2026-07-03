@@ -18,8 +18,9 @@ public static class CatLifeCatTownWalkerSetup
     private const string WalkStateName = "CL_CAT_SRC_Walk_60fps";
     private const string IdleStateName = "CL_CAT_IdleBreath_v06_headsync_loop_108f";
 
-    private static readonly Vector3 TownCatPosition = new Vector3(0f, 0.03f, -8.5f);
-    private static readonly Vector3 TownCatRotation = new Vector3(0f, 180f, 0f);
+    private static readonly Vector3 TownCatPosition = new Vector3(-0.3f, 0.03f, -6.78f);
+    private static readonly Vector3 TownCatRotation = new Vector3(0f, -0.017f, 0f);
+    private static readonly Vector2 TownCatPatrolSize = new Vector2(2.6f, 1.6f);
     private const float TownCatScale = 0.0275f;
 
     [MenuItem("CatLife/Configure Cat Town Walker")]
@@ -248,16 +249,21 @@ public static class CatLifeCatTownWalkerSetup
         serialized.FindProperty("isWalkingParameter").stringValue = IsWalkingParameter;
         serialized.FindProperty("walkStateName").stringValue = WalkStateName;
         serialized.FindProperty("idleStateName").stringValue = IdleStateName;
-        serialized.FindProperty("xRange").vector2Value = new Vector2(-6.5f, 6.5f);
-        serialized.FindProperty("zRange").vector2Value = new Vector2(-12.5f, -4.0f);
+        serialized.FindProperty("xRange").vector2Value = new Vector2(-1.8f, 1.2f);
+        serialized.FindProperty("zRange").vector2Value = new Vector2(-7.8f, -5.8f);
+        serialized.FindProperty("localPatrolSize").vector2Value = TownCatPatrolSize;
         serialized.FindProperty("groundY").floatValue = TownCatPosition.y;
         serialized.FindProperty("walkSpeed").floatValue = 1.15f;
         serialized.FindProperty("turnSpeed").floatValue = 5.5f;
-        serialized.FindProperty("waitSecondsRange").vector2Value = new Vector2(1.0f, 2.8f);
+        serialized.FindProperty("waitSecondsRange").vector2Value = new Vector2(0.05f, 0.18f);
+        serialized.FindProperty("initialIdleSeconds").floatValue = 0.45f;
+        serialized.FindProperty("targetMinDistance").floatValue = 0.45f;
         serialized.FindProperty("targetTolerance").floatValue = 0.08f;
+        serialized.FindProperty("maxMovementDeltaTime").floatValue = 0.05f;
         serialized.FindProperty("walkTransitionSeconds").floatValue = 0.12f;
         serialized.FindProperty("idleTransitionSeconds").floatValue = 0.16f;
         serialized.FindProperty("startWalkingOnEnable").boolValue = true;
+        serialized.FindProperty("useCurrentPositionAsPatrolCenter").boolValue = true;
         serialized.ApplyModifiedPropertiesWithoutUndo();
 
         EditorUtility.SetDirty(cat);

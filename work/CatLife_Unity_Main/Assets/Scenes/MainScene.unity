@@ -6154,16 +6154,21 @@ MonoBehaviour:
   isWalkingParameter: IsWalking
   walkStateName: CL_CAT_SRC_Walk_60fps
   idleStateName: CL_CAT_IdleBreath_v06_headsync_loop_108f
-  xRange: {x: -6.5, y: 6.5}
-  zRange: {x: -12.5, y: -4}
+  xRange: {x: -1.8, y: 1.2}
+  zRange: {x: -7.8, y: -5.8}
+  localPatrolSize: {x: 2.6, y: 1.6}
   groundY: 0.03
   walkSpeed: 1.15
   turnSpeed: 5.5
-  waitSecondsRange: {x: 1, y: 2.8}
+  waitSecondsRange: {x: 0.05, y: 0.18}
+  initialIdleSeconds: 0.45
+  targetMinDistance: 0.45
   targetTolerance: 0.08
+  maxMovementDeltaTime: 0.05
   walkTransitionSeconds: 0.12
   idleTransitionSeconds: 0.16
   startWalkingOnEnable: 1
+  useCurrentPositionAsPatrolCenter: 1
 --- !u!95 &1340169612
 Animator:
   serializedVersion: 7
