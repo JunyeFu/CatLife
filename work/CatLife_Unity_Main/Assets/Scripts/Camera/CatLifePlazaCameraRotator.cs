@@ -9,10 +9,12 @@ namespace CatLife.CameraControls
         [SerializeField] private float yawDegrees = 180f;
         [SerializeField] private float basePitchDegrees = 8f;
         [SerializeField] private float pitchDegrees = 8f;
+        [SerializeField] private float rollDegrees;
         [SerializeField] private float pitchOffsetDegrees;
         [SerializeField] private float maxPitchOffsetDegrees = 45f;
         [SerializeField] private float degreesPerSecond = 10f;
         [SerializeField] private bool useUnscaledTime = true;
+        [SerializeField] private bool useSceneTransformOnAwake = true;
 
         private float rotationDirection;
 
@@ -43,6 +45,16 @@ namespace CatLife.CameraControls
             {
                 pitchDegrees = ClampPitch(value);
                 pitchOffsetDegrees = Mathf.Clamp(pitchDegrees - basePitchDegrees, -MaxPitchOffsetDegrees, MaxPitchOffsetDegrees);
+                ApplyPose();
+            }
+        }
+
+        public float RollDegrees
+        {
+            get { return rollDegrees; }
+            set
+            {
+                rollDegrees = NormalizeSignedAngle(value);
                 ApplyPose();
             }
         }
@@ -87,6 +99,11 @@ namespace CatLife.CameraControls
 
         private void Awake()
         {
+            if (useSceneTransformOnAwake)
+            {
+                CaptureCurrentTransformAsBaseline();
+            }
+
             ApplyPose();
         }
 
@@ -118,6 +135,17 @@ namespace CatLife.CameraControls
             rotationDirection = 0f;
         }
 
+        public void CaptureCurrentTransformAsBaseline()
+        {
+            fixedPosition = transform.position;
+            Vector3 euler = transform.eulerAngles;
+            yawDegrees = Mathf.Repeat(euler.y, 360f);
+            pitchDegrees = ClampPitch(NormalizeSignedAngle(euler.x));
+            rollDegrees = NormalizeSignedAngle(euler.z);
+            basePitchDegrees = pitchDegrees;
+            pitchOffsetDegrees = 0f;
+        }
+
         public void StepRotation(float deltaTime)
         {
             if (Mathf.Approximately(rotationDirection, 0f))
@@ -131,12 +159,18 @@ namespace CatLife.CameraControls
         public void ApplyPose()
         {
             transform.position = fixedPosition;
-            transform.rotation = Quaternion.Euler(pitchDegrees, yawDegrees, 0f);
+            transform.rotation = Quaternion.Euler(pitchDegrees, yawDegrees, rollDegrees);
         }
 
         private static float ClampPitch(float value)
         {
             return Mathf.Clamp(value, -89f, 89f);
+        }
+
+        private static float NormalizeSignedAngle(float value)
+        {
+            float normalized = Mathf.Repeat(value + 180f, 360f) - 180f;
+            return Mathf.Approximately(normalized, -180f) ? 180f : normalized;
         }
     }
 }

@@ -1846,7 +1846,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 257075987}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.0018352604, y: 0.99805677, z: -0.058089398, w: -0.022471635}
+  m_LocalRotation: {x: 0.0018352952, y: 0.99805677, z: -0.058089398, w: -0.02247144}
   m_LocalPosition: {x: 0.1, y: 1.9, z: 1.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1866,14 +1866,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66a894bbb6ffa3942849d34ca9617248, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CatLife.CameraControls.CatLifePlazaCameraRotator
-  fixedPosition: {x: 0.1, y: 2.88, z: -0.58}
-  yawDegrees: 180
-  basePitchDegrees: 8
-  pitchDegrees: 8
+  fixedPosition: {x: 0.1, y: 1.9, z: 1.2}
+  yawDegrees: 182.60066
+  basePitchDegrees: 6.653839
+  pitchDegrees: 6.653839
+  rollDegrees: 0.36192322
   pitchOffsetDegrees: 0
   maxPitchOffsetDegrees: 45
   degreesPerSecond: 10
   useUnscaledTime: 1
+  useSceneTransformOnAwake: 1
 --- !u!1 &283851084
 GameObject:
   m_ObjectHideFlags: 0

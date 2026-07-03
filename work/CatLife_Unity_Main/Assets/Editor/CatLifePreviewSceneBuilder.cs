@@ -43,12 +43,13 @@ public static class CatLifePreviewSceneBuilder
     private static readonly Color SliderOutline = new Color(1f, 0.92f, 0.54f, 0.9f);
     private static readonly Color SliderHandle = new Color(1f, 0.78f, 0.22f, 0.36f);
     private static readonly Color SliderHandleOutline = new Color(1f, 0.88f, 0.44f, 1f);
-    private static readonly Vector3 PlazaCameraPosition = new Vector3(0.1f, 2.88f, -0.58f);
+    private static readonly Vector3 PlazaCameraPosition = new Vector3(0.1f, 1.9f, 1.2f);
     private static readonly Vector3 SunLightPosition = new Vector3(0f, 9.5f, 0f);
     private static readonly Vector3 SunLightRayDirection = new Vector3(0.2f, -1f, -0.98f).normalized;
-    private const float PlazaCameraYaw = 180f;
-    private const float PlazaCameraPitch = 8f;
-    private const float PlazaCameraFov = 87f;
+    private const float PlazaCameraYaw = 182.601f;
+    private const float PlazaCameraPitch = 6.654f;
+    private const float PlazaCameraRoll = 0.362f;
+    private const float PlazaCameraFov = 80f;
     private const float PlazaCameraMaxPitchOffset = 45f;
     private const float PlazaCameraDegreesPerSecond = 10f;
     private const float TownCatScale = 0.0275f;
@@ -279,8 +280,8 @@ public static class CatLifePreviewSceneBuilder
         GameObject cat = EnsureCatCompanionModel();
         if (cat != null)
         {
-            cat.transform.position = new Vector3(0f, 0.03f, -8.5f);
-            cat.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+            cat.transform.position = new Vector3(-0.3f, 0.03f, -6.78f);
+            cat.transform.rotation = Quaternion.Euler(0f, -0.017f, 0f);
             cat.transform.localScale = Vector3.one * TownCatScale;
             ApplyCatMaterial(cat, catMaterial);
             CatLifeCatTownWalkerSetup.ConfigureSceneCat(cat);
@@ -293,10 +294,10 @@ public static class CatLifePreviewSceneBuilder
         }
 
         camera.transform.position = PlazaCameraPosition;
-        camera.transform.rotation = Quaternion.Euler(PlazaCameraPitch, PlazaCameraYaw, 0f);
+        camera.transform.rotation = Quaternion.Euler(PlazaCameraPitch, PlazaCameraYaw, PlazaCameraRoll);
         camera.fieldOfView = PlazaCameraFov;
         camera.nearClipPlane = 0.04f;
-        camera.farClipPlane = 140f;
+        camera.farClipPlane = 130f;
         camera.clearFlags = CameraClearFlags.SolidColor;
         camera.backgroundColor = Hex("76D7F3");
         camera.allowHDR = true;
@@ -313,6 +314,7 @@ public static class CatLifePreviewSceneBuilder
         rotator.MaxPitchOffsetDegrees = PlazaCameraMaxPitchOffset;
         rotator.YawDegrees = PlazaCameraYaw;
         rotator.PitchDegrees = PlazaCameraPitch;
+        rotator.RollDegrees = PlazaCameraRoll;
         rotator.DegreesPerSecond = PlazaCameraDegreesPerSecond;
         rotator.ApplyPose();
         EditorUtility.SetDirty(rotator);
