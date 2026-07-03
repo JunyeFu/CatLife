@@ -133,7 +133,7 @@ namespace CatLife.Cat
 
         public void NotifyCatTapped()
         {
-            recentEvents[0] = "cat_tap";
+            PushRecentEvent("cat_tap");
             if (featureEngine != null)
             {
                 featureEngine.RecordCatInteraction("cat_tap");
@@ -186,7 +186,7 @@ namespace CatLife.Cat
 
         public void NotifyCatLongPressed()
         {
-            recentEvents[0] = "cat_long_press";
+            PushRecentEvent("cat_long_press");
             if (featureEngine != null)
             {
                 featureEngine.RecordCatInteraction("cat_long_press");
@@ -216,7 +216,7 @@ namespace CatLife.Cat
                 return;
             }
 
-            recentEvents[0] = reason;
+            PushRecentEvent(reason);
             if (featureEngine != null)
             {
                 featureEngine.RecordUiEvent(reason);
@@ -235,7 +235,7 @@ namespace CatLife.Cat
 
         public void NotifyFocusSessionStarted()
         {
-            recentEvents[0] = "focus_started";
+            PushRecentEvent("focus_started");
             if (featureEngine != null)
             {
                 featureEngine.RecordFocusSessionStarted();
@@ -244,7 +244,7 @@ namespace CatLife.Cat
 
         public void NotifyFocusSessionEnded(bool completed)
         {
-            recentEvents[0] = completed ? "focus_completed" : "focus_unlocked";
+            PushRecentEvent(completed ? "focus_completed" : "focus_unlocked");
             if (featureEngine != null)
             {
                 featureEngine.RecordFocusSessionEnded(completed);
@@ -282,13 +282,26 @@ namespace CatLife.Cat
                 currentState,
                 navigationAgent != null ? navigationAgent.Speed01 : 0f,
                 llmSuggestion != null ? llmSuggestion.moodBias : "calm",
-                recentEvents);
+                recentEvents,
+                featureEngine != null ? featureEngine.Latest : default(RealtimeFeatureSnapshot),
+                featureEngine != null);
 
             llmClient.RequestSuggestion(
                 context,
                 promptBuilder,
                 suggestion => { llmSuggestion = LLMBehaviorSuggestion.ClampToWhitelist(suggestion); },
                 error => { llmSuggestion = LLMBehaviorSuggestion.Default(); });
+        }
+
+        private void PushRecentEvent(string eventName)
+        {
+            string safeEventName = string.IsNullOrEmpty(eventName) ? "unknown_event" : eventName;
+            for (int i = recentEvents.Length - 1; i > 0; i--)
+            {
+                recentEvents[i] = recentEvents[i - 1];
+            }
+
+            recentEvents[0] = safeEventName;
         }
 
         private void TickAnimation()

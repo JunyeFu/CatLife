@@ -47,13 +47,22 @@ namespace CatLife.LLM
             yield return new WaitForSecondsRealtime(Mathf.Max(0f, simulatedLatencySeconds));
 
             LLMBehaviorSuggestion suggestion = new LLMBehaviorSuggestion();
-            if (context != null && context.focusState == "Focused")
+            if (context != null && (context.focusSessionActive || context.focusState == "Focused"))
             {
                 suggestion.suggestedLine = "I will stay quiet nearby.";
                 suggestion.moodBias = "calm";
-                suggestion.roamWeightBias = -0.1f;
-                suggestion.quietIdleWeightBias = 0.2f;
-                suggestion.socialResponseWeightBias = -0.12f;
+                suggestion.roamWeightBias = context.distraction01 > 0.5f ? -0.26f : -0.12f;
+                suggestion.quietIdleWeightBias = context.focusScore01 > 0.65f ? 0.28f : 0.16f;
+                suggestion.socialResponseWeightBias = context.arousal01 > 0.45f ? -0.24f : -0.12f;
+                suggestion.showBubble = false;
+            }
+            else if (context != null && context.distraction01 >= 0.55f)
+            {
+                suggestion.suggestedLine = "Let's take it slowly.";
+                suggestion.moodBias = "calm";
+                suggestion.roamWeightBias = -0.18f;
+                suggestion.quietIdleWeightBias = 0.18f;
+                suggestion.socialResponseWeightBias = -0.08f;
                 suggestion.showBubble = false;
             }
             else if (context != null && context.userIntent == "WantsInteraction")
