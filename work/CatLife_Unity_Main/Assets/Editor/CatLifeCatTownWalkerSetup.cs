@@ -120,6 +120,11 @@ public static class CatLifeCatTownWalkerSetup
         {
             EditorCurveBinding binding = curveBindings[i];
             binding.path = RetargetPath(binding.path);
+            if (ShouldSkipRetargetedTransformCurve(binding))
+            {
+                continue;
+            }
+
             AnimationUtility.SetEditorCurve(retargeted, binding, AnimationUtility.GetEditorCurve(source, curveBindings[i]));
         }
 
@@ -140,6 +145,16 @@ public static class CatLifeCatTownWalkerSetup
         AssetDatabase.CreateAsset(retargeted, WalkClipPath);
         EditorUtility.SetDirty(retargeted);
         return AssetDatabase.LoadAssetAtPath<AnimationClip>(WalkClipPath);
+    }
+
+    private static bool ShouldSkipRetargetedTransformCurve(EditorCurveBinding binding)
+    {
+        if (binding.type != typeof(Transform))
+        {
+            return false;
+        }
+
+        return binding.propertyName.StartsWith("m_LocalPosition.") || binding.propertyName.StartsWith("m_LocalScale.");
     }
 
     private static AnimationClip FindWalkSourceClip()
@@ -237,6 +252,7 @@ public static class CatLifeCatTownWalkerSetup
         animator.runtimeAnimatorController = controller;
         animator.applyRootMotion = false;
         animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        ConfigureAnimatedRenderers(cat);
 
         CatTownWalker walker = cat.GetComponent<CatTownWalker>();
         if (walker == null)
@@ -264,10 +280,24 @@ public static class CatLifeCatTownWalkerSetup
         serialized.FindProperty("idleTransitionSeconds").floatValue = 0.16f;
         serialized.FindProperty("startWalkingOnEnable").boolValue = true;
         serialized.FindProperty("useCurrentPositionAsPatrolCenter").boolValue = true;
+        serialized.FindProperty("keepSkinnedMeshVisibleWhileAnimated").boolValue = true;
+        serialized.FindProperty("skinnedMeshLocalBounds").boundsValue = new Bounds(new Vector3(0f, 0.18f, 0f), new Vector3(1.2f, 1.2f, 1.2f));
         serialized.ApplyModifiedPropertiesWithoutUndo();
 
         EditorUtility.SetDirty(cat);
         EditorUtility.SetDirty(animator);
         EditorUtility.SetDirty(walker);
+    }
+
+    private static void ConfigureAnimatedRenderers(GameObject cat)
+    {
+        SkinnedMeshRenderer[] skinnedRenderers = cat.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+        for (int i = 0; i < skinnedRenderers.Length; i++)
+        {
+            SkinnedMeshRenderer skinnedRenderer = skinnedRenderers[i];
+            skinnedRenderer.updateWhenOffscreen = true;
+            skinnedRenderer.localBounds = new Bounds(new Vector3(0f, 0.18f, 0f), new Vector3(1.2f, 1.2f, 1.2f));
+            EditorUtility.SetDirty(skinnedRenderer);
+        }
     }
 }

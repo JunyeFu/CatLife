@@ -6119,6 +6119,34 @@ PrefabInstance:
       value: CatCompanionModel
       objectReference: {fileID: 0}
     - target: {fileID: 5842350356123325942, guid: 97a12b5c66a686b48b2a946557b290c5, type: 3}
+      propertyPath: m_AABB.m_Center.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842350356123325942, guid: 97a12b5c66a686b48b2a946557b290c5, type: 3}
+      propertyPath: m_AABB.m_Center.y
+      value: 0.18
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842350356123325942, guid: 97a12b5c66a686b48b2a946557b290c5, type: 3}
+      propertyPath: m_AABB.m_Center.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842350356123325942, guid: 97a12b5c66a686b48b2a946557b290c5, type: 3}
+      propertyPath: m_AABB.m_Extent.x
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842350356123325942, guid: 97a12b5c66a686b48b2a946557b290c5, type: 3}
+      propertyPath: m_AABB.m_Extent.y
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842350356123325942, guid: 97a12b5c66a686b48b2a946557b290c5, type: 3}
+      propertyPath: m_AABB.m_Extent.z
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842350356123325942, guid: 97a12b5c66a686b48b2a946557b290c5, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842350356123325942, guid: 97a12b5c66a686b48b2a946557b290c5, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 57efab7620e4873429a53e66fc25ee5e, type: 2}
@@ -6169,6 +6197,10 @@ MonoBehaviour:
   idleTransitionSeconds: 0.16
   startWalkingOnEnable: 1
   useCurrentPositionAsPatrolCenter: 1
+  keepSkinnedMeshVisibleWhileAnimated: 1
+  skinnedMeshLocalBounds:
+    m_Center: {x: 0, y: 0.18, z: 0}
+    m_Extent: {x: 0.6, y: 0.6, z: 0.6}
 --- !u!95 &1340169612
 Animator:
   serializedVersion: 7

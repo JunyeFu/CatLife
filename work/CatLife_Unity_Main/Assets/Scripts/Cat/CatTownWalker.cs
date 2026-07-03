@@ -24,6 +24,8 @@ namespace CatLife.Cat
         [SerializeField] private float idleTransitionSeconds = 0.16f;
         [SerializeField] private bool startWalkingOnEnable = true;
         [SerializeField] private bool useCurrentPositionAsPatrolCenter = true;
+        [SerializeField] private bool keepSkinnedMeshVisibleWhileAnimated = true;
+        [SerializeField] private Bounds skinnedMeshLocalBounds = new Bounds(new Vector3(0f, 0.18f, 0f), new Vector3(1.2f, 1.2f, 1.2f));
 
         private Vector3 targetPosition;
         private Vector3 patrolCenter;
@@ -32,8 +34,6 @@ namespace CatLife.Cat
         private float waitUntil;
         private bool isWalking;
         private int isWalkingParameterHash;
-        private int walkStateHash;
-        private int idleStateHash;
         private bool hasWalkingParameter;
 
         private void Awake()
@@ -48,6 +48,7 @@ namespace CatLife.Cat
                 animator.applyRootMotion = false;
             }
 
+            ConfigureAnimatedRenderers();
             CacheAnimatorBindings();
         }
 
@@ -55,6 +56,7 @@ namespace CatLife.Cat
         {
             SnapToGround(false);
             BuildRuntimeRanges();
+            ConfigureAnimatedRenderers();
             CacheAnimatorBindings();
             targetPosition = transform.position;
 
@@ -94,7 +96,7 @@ namespace CatLife.Cat
                 return;
             }
 
-            ApplyWalkingAnimator(true, false);
+            ApplyWalkingAnimator(true);
 
             Vector3 direction = toTarget.normalized;
             Quaternion lookRotation = Quaternion.LookRotation(direction, Vector3.up);
@@ -174,9 +176,8 @@ namespace CatLife.Cat
 
         private void SetWalking(bool walking)
         {
-            bool changed = isWalking != walking;
             isWalking = walking;
-            ApplyWalkingAnimator(walking, changed);
+            ApplyWalkingAnimator(walking);
         }
 
         private void CacheAnimatorBindings()
@@ -184,8 +185,6 @@ namespace CatLife.Cat
             if (animator == null)
             {
                 hasWalkingParameter = false;
-                walkStateHash = 0;
-                idleStateHash = 0;
                 return;
             }
 
@@ -200,29 +199,28 @@ namespace CatLife.Cat
                     break;
                 }
             }
-
-            walkStateHash = GetStateHash(walkStateName);
-            idleStateHash = GetStateHash(idleStateName);
         }
 
-        private int GetStateHash(string stateName)
+        private void ConfigureAnimatedRenderers()
         {
-            if (string.IsNullOrEmpty(stateName))
+            if (!keepSkinnedMeshVisibleWhileAnimated)
             {
-                return 0;
+                return;
             }
 
-            int fullPathHash = Animator.StringToHash("Base Layer." + stateName);
-            if (animator.HasState(0, fullPathHash))
+            SkinnedMeshRenderer[] skinnedRenderers = GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            for (int i = 0; i < skinnedRenderers.Length; i++)
             {
-                return fullPathHash;
+                SkinnedMeshRenderer skinnedRenderer = skinnedRenderers[i];
+                skinnedRenderer.updateWhenOffscreen = true;
+                if (skinnedMeshLocalBounds.size.sqrMagnitude > 0.001f)
+                {
+                    skinnedRenderer.localBounds = skinnedMeshLocalBounds;
+                }
             }
-
-            int shortNameHash = Animator.StringToHash(stateName);
-            return animator.HasState(0, shortNameHash) ? shortNameHash : 0;
         }
 
-        private void ApplyWalkingAnimator(bool walking, bool forceTransition)
+        private void ApplyWalkingAnimator(bool walking)
         {
             if (animator == null)
             {
@@ -234,31 +232,6 @@ namespace CatLife.Cat
             {
                 animator.SetBool(isWalkingParameterHash, walking);
             }
-
-            int stateHash = walking ? walkStateHash : idleStateHash;
-            string stateName = walking ? walkStateName : idleStateName;
-            if (stateHash == 0 || (!forceTransition && IsAnimatorInOrEnteringState(stateHash, stateName)))
-            {
-                return;
-            }
-
-            float transitionSeconds = walking ? walkTransitionSeconds : idleTransitionSeconds;
-            animator.CrossFadeInFixedTime(stateHash, transitionSeconds, 0);
-        }
-
-        private bool IsAnimatorInOrEnteringState(int stateHash, string stateName)
-        {
-            if (MatchesState(animator.GetCurrentAnimatorStateInfo(0), stateHash, stateName))
-            {
-                return true;
-            }
-
-            return animator.IsInTransition(0) && MatchesState(animator.GetNextAnimatorStateInfo(0), stateHash, stateName);
-        }
-
-        private static bool MatchesState(AnimatorStateInfo stateInfo, int stateHash, string stateName)
-        {
-            return stateInfo.fullPathHash == stateHash || stateInfo.shortNameHash == Animator.StringToHash(stateName) || stateInfo.IsName(stateName);
         }
 
         private void OnDrawGizmosSelected()
