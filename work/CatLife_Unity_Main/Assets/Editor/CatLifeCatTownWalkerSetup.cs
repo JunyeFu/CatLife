@@ -18,7 +18,7 @@ public static class CatLifeCatTownWalkerSetup
     private const string WalkStateName = "CL_CAT_SRC_Walk_60fps";
     private const string IdleStateName = "CL_CAT_IdleBreath_v06_headsync_loop_108f";
 
-    private static readonly Vector3 TownCatPosition = new Vector3(-0.3f, 0.23f, -6.78f);
+    private static readonly Vector3 TownCatPosition = new Vector3(-0.3f, -0.02f, -6.78f);
     private static readonly Vector3 TownCatRotation = new Vector3(0f, -0.017f, 0f);
     private static readonly Vector2 TownCatPatrolSize = new Vector2(2.6f, 1.6f);
     private const float TownCatScale = 0.0275f;

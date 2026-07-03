@@ -12,7 +12,7 @@ namespace CatLife.Cat
         [SerializeField] private Vector2 xRange = new Vector2(-6.5f, 6.5f);
         [SerializeField] private Vector2 zRange = new Vector2(-12.5f, -4.0f);
         [SerializeField] private Vector2 localPatrolSize = new Vector2(2.6f, 1.6f);
-        [SerializeField] private float groundY = 0.23f;
+        [SerializeField] private float groundY = -0.02f;
         [SerializeField] private float walkSpeed = 1.15f;
         [SerializeField] private float turnSpeed = 5.5f;
         [SerializeField] private Vector2 waitSecondsRange = new Vector2(0.05f, 0.18f);
