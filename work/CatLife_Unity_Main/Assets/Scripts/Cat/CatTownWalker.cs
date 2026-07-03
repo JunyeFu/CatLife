@@ -32,6 +32,8 @@ namespace CatLife.Cat
         private Vector2 runtimeXRange;
         private Vector2 runtimeZRange;
         private float waitUntil;
+        private float walkSpeedMultiplier = 1f;
+        private bool externallyPaused;
         private bool isWalking;
         private int isWalkingParameterHash;
         private int walkStateHash;
@@ -76,6 +78,16 @@ namespace CatLife.Cat
 
         private void Update()
         {
+            if (externallyPaused)
+            {
+                if (isWalking)
+                {
+                    SetWalking(false);
+                }
+
+                return;
+            }
+
             if (!isWalking)
             {
                 if (Time.time >= waitUntil)
@@ -104,9 +116,26 @@ namespace CatLife.Cat
             float deltaTime = Mathf.Min(Time.deltaTime, Mathf.Max(0.001f, maxMovementDeltaTime));
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, turnSpeed * deltaTime);
 
-            Vector3 next = Vector3.MoveTowards(current, targetPosition, walkSpeed * deltaTime);
+            Vector3 next = Vector3.MoveTowards(current, targetPosition, walkSpeed * walkSpeedMultiplier * deltaTime);
             next.y = groundY;
             transform.position = next;
+        }
+
+        public void SetContinuousWalking(bool walkingEnabled, float speedMultiplier)
+        {
+            walkSpeedMultiplier = Mathf.Clamp(speedMultiplier, 0f, 2f);
+            externallyPaused = !walkingEnabled || walkSpeedMultiplier <= 0f;
+            if (externallyPaused)
+            {
+                SetWalking(false);
+                return;
+            }
+
+            if (!isWalking)
+            {
+                PickTarget();
+                SetWalking(true);
+            }
         }
 
         public void Recenter(Vector3 center, Vector2 size)

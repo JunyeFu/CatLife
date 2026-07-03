@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Text;
+using CatLife.Cat;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,9 +33,12 @@ namespace CatLife.UI
         [SerializeField] private Sprite catPageIcon;
         [SerializeField] private Sprite recordPageIcon;
         [SerializeField] private Sprite settingsPageIcon;
+        [SerializeField] private CatTownWalker catWalker;
         [SerializeField] private int initialTodayFocusMinutes = 48;
         [SerializeField] private int focusSessionSeconds = 1509;
-        [SerializeField] private bool startTimerOnEnable = true;
+        [SerializeField] private float transitionSeconds = 6f;
+        [SerializeField] private float rewardSeconds = 4f;
+        [SerializeField] private bool startTimerOnEnable;
         [SerializeField] private bool bootstrapLocalDataWhenEmpty = true;
         [SerializeField] private bool localRecognitionDefault = true;
         [SerializeField] private bool smartExplanationDefault;
@@ -50,8 +54,10 @@ namespace CatLife.UI
         private bool smartExplanationEnabled;
         private string currentDateKey;
         private float nextStatusRefreshTime;
+        private float stateEnteredAt;
         private bool listenersBound;
         private HomePage activePage;
+        private FocusFlowState focusState = FocusFlowState.Normal;
 
         private enum HomePage
         {
@@ -61,12 +67,21 @@ namespace CatLife.UI
             Settings
         }
 
+        private enum FocusFlowState
+        {
+            Normal,
+            Transition,
+            Focus,
+            Reward
+        }
+
         private void Awake()
         {
             LoadRuntimeData();
             activeSessionSeconds = Mathf.Max(1, focusSessionSeconds);
             focusRemainingSeconds = activeSessionSeconds;
             SetPlaceholderVisible(false);
+            ApplyFocusState(FocusFlowState.Normal, true);
             UpdateStatusText(true);
         }
 
@@ -76,6 +91,11 @@ namespace CatLife.UI
             if (startTimerOnEnable && focusRemainingSeconds > 0f)
             {
                 focusRunning = true;
+                ApplyFocusState(FocusFlowState.Transition, true);
+            }
+            else
+            {
+                ApplyFocusState(focusState, true);
             }
 
             UpdateStatusText(true);
@@ -88,8 +108,15 @@ namespace CatLife.UI
 
         private void Update()
         {
+            UpdateFocusFlow();
+
             if (!focusRunning)
             {
+                if (Time.unscaledTime >= nextStatusRefreshTime)
+                {
+                    UpdateStatusText(false);
+                }
+
                 return;
             }
 
@@ -112,6 +139,7 @@ namespace CatLife.UI
             focusRemainingSeconds = activeSessionSeconds;
             focusRunning = true;
             SetPlaceholderVisible(false);
+            ApplyFocusState(FocusFlowState.Transition, false);
             UpdateStatusText(true);
         }
 
@@ -164,8 +192,69 @@ namespace CatLife.UI
             longestStableSeconds = Mathf.Max(longestStableSeconds, finishedSeconds);
             focusRemainingSeconds = Mathf.Max(1, focusSessionSeconds);
             SaveRuntimeData();
+            ApplyFocusState(FocusFlowState.Reward, false);
             UpdateStatusText(true);
             RefreshActivePage();
+        }
+
+        private void UpdateFocusFlow()
+        {
+            float elapsed = Time.unscaledTime - stateEnteredAt;
+            if (focusState == FocusFlowState.Transition && elapsed >= Mathf.Max(0.1f, transitionSeconds))
+            {
+                ApplyFocusState(FocusFlowState.Focus, false);
+            }
+            else if (focusState == FocusFlowState.Reward && elapsed >= Mathf.Max(0.1f, rewardSeconds))
+            {
+                ApplyFocusState(FocusFlowState.Normal, false);
+            }
+        }
+
+        private void ApplyFocusState(FocusFlowState nextState, bool force)
+        {
+            if (!force && focusState == nextState)
+            {
+                return;
+            }
+
+            focusState = nextState;
+            stateEnteredAt = Time.unscaledTime;
+            ApplyFocusStateUi();
+            ApplyCatBehaviorForState();
+            RefreshActivePage();
+        }
+
+        private void ApplyFocusStateUi()
+        {
+            bool hideSideButtons = focusState == FocusFlowState.Focus;
+            SetButtonVisible(catButton, !hideSideButtons);
+            SetButtonVisible(recordButton, !hideSideButtons);
+            SetButtonVisible(settingsButton, !hideSideButtons);
+        }
+
+        private void ApplyCatBehaviorForState()
+        {
+            CatTownWalker walker = ResolveCatWalker();
+            if (walker == null)
+            {
+                return;
+            }
+
+            switch (focusState)
+            {
+                case FocusFlowState.Transition:
+                    walker.SetContinuousWalking(true, 0.55f);
+                    break;
+                case FocusFlowState.Focus:
+                    walker.SetContinuousWalking(true, 0.25f);
+                    break;
+                case FocusFlowState.Reward:
+                    walker.SetContinuousWalking(true, 1.4f);
+                    break;
+                default:
+                    walker.SetContinuousWalking(true, 1f);
+                    break;
+            }
         }
 
         private void LoadRuntimeData()
@@ -220,7 +309,7 @@ namespace CatLife.UI
             if (focusPillText != null)
             {
                 focusPillText.supportRichText = true;
-                string status = focusRunning ? "专注中" : "准备中";
+                string status = GetFocusStateLabel();
                 focusPillText.text = status + " <color=" + HighlightColor + ">" + FormatClock(focusRemainingSeconds) + "</color>";
             }
         }
@@ -259,7 +348,52 @@ namespace CatLife.UI
                 return "未在当前场景找到猫咪模型，检查 CatCompanionModel 是否已加载。";
             }
 
-            return focusRunning ? "专注中保持低打扰陪伴，猫咪会慢速巡游。" : "查看当前陪伴状态、成长值和已解锁动作。";
+            return focusState == FocusFlowState.Focus ? "专注中保持低打扰陪伴，猫咪会慢速巡游。" : "查看当前陪伴状态、成长值和已解锁动作。";
+        }
+
+        private string GetFocusStateLabel()
+        {
+            switch (focusState)
+            {
+                case FocusFlowState.Transition:
+                    return "回收中";
+                case FocusFlowState.Focus:
+                    return "专注中";
+                case FocusFlowState.Reward:
+                    return "奖励中";
+                default:
+                    return "准备中";
+            }
+        }
+
+        private string GetCatMoodText()
+        {
+            switch (focusState)
+            {
+                case FocusFlowState.Transition:
+                    return "靠近陪伴";
+                case FocusFlowState.Focus:
+                    return "低打扰陪伴";
+                case FocusFlowState.Reward:
+                    return "开心反馈";
+                default:
+                    return "安静陪伴";
+            }
+        }
+
+        private string BuildCatActionText()
+        {
+            switch (focusState)
+            {
+                case FocusFlowState.Transition:
+                    return "慢速靠近 / Walk / 观察";
+                case FocusFlowState.Focus:
+                    return "低速巡游 / Walk / 呼吸 / 摆尾";
+                case FocusFlowState.Reward:
+                    return "快速巡游 / 开心反馈 / Walk";
+                default:
+                    return "连续行走 / Walk / 呼吸 / 摆尾";
+            }
         }
 
         private string BuildCatPageBody()
@@ -267,12 +401,12 @@ namespace CatLife.UI
             int growthValue = Mathf.Clamp(todayFocusMinutes, 0, 100);
             int companionLevel = Mathf.Max(1, 1 + GetRecentSevenDayTotalMinutes() / 120);
             string catPosition = ResolveCatPositionText();
-            string actionText = focusRunning ? "连续行走 / Walk / 呼吸 / 摆尾" : "待机呼吸 / 轻微摆尾 / 可被唤起";
+            string actionText = BuildCatActionText();
             string nextGoal = GetNextGoalText();
 
             StringBuilder body = new StringBuilder(512);
             body.AppendLine(ColorTitle("当前状态"));
-            body.AppendLine("心情：" + (focusRunning ? "专注陪伴" : "安静陪伴"));
+            body.AppendLine("心情：" + GetCatMoodText());
             body.AppendLine("位置：" + catPosition);
             body.AppendLine("动作：" + actionText);
             body.AppendLine();
@@ -445,6 +579,25 @@ namespace CatLife.UI
         private static GameObject FindCatObject()
         {
             return GameObject.Find("CatCompanionModel");
+        }
+
+        private CatTownWalker ResolveCatWalker()
+        {
+            if (catWalker != null)
+            {
+                return catWalker;
+            }
+
+            catWalker = FindObjectOfType<CatTownWalker>();
+            return catWalker;
+        }
+
+        private static void SetButtonVisible(Button button, bool visible)
+        {
+            if (button != null)
+            {
+                button.gameObject.SetActive(visible);
+            }
         }
 
         private string BuildUnlockedActionText()
