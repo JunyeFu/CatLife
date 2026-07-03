@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using CatLife.Cat;
 using CatLife.LLM;
 using CatLife.Recognition;
@@ -20,6 +21,7 @@ namespace CatLife.EditorTools
         private const string SystemsName = "CatBehaviorSystems";
         private const string AnchorRootName = "CatDestinationAnchors";
         private const string ControllerPath = "Assets/Art/Cat/Animator/CatLife_TownWalker.controller";
+        private const string ProjectStructurePath = "Assets/PROJECT_STRUCTURE.md";
 
         private static readonly string[] RequiredWalkAreas =
         {
@@ -27,6 +29,47 @@ namespace CatLife.EditorTools
             "CatWalkableArea_LeftGardenPath",
             "CatWalkableArea_RightGardenPath",
             "CatWalkableArea_FrontStoneRing"
+        };
+
+        private static readonly string[] RequiredRootDirectories =
+        {
+            "Art",
+            "Editor",
+            "Materials",
+            "Prefabs",
+            "Scenes",
+            "Scripts",
+            "Settings",
+            "UI"
+        };
+
+        private static readonly string[] RequiredScriptDirectories =
+        {
+            "Camera",
+            "Cat",
+            "Core",
+            "LLM",
+            "Recognition",
+            "UI"
+        };
+
+        private static readonly string[] RequiredArtDirectories =
+        {
+            "Cat",
+            "Town"
+        };
+
+        private static readonly string[] ForbiddenRootExtensions =
+        {
+            ".blend",
+            ".fbx",
+            ".glb",
+            ".gltf",
+            ".mp4",
+            ".mov",
+            ".zip",
+            ".rar",
+            ".7z"
         };
 
         private static readonly string[] RequiredAnimatorParameters =
@@ -101,6 +144,7 @@ namespace CatLife.EditorTools
         public static string ValidateCurrentSceneReport()
         {
             List<string> issues = new List<string>();
+            ValidateProjectStructure(issues);
             ValidateSceneObjects(issues);
             ValidateAnimatorAssets(issues);
 
@@ -110,6 +154,62 @@ namespace CatLife.EditorTools
             }
 
             return "FAIL CatLife runtime assembly validation:\n- " + string.Join("\n- ", issues.ToArray());
+        }
+
+        private static void ValidateProjectStructure(List<string> issues)
+        {
+            if (AssetDatabase.LoadAssetAtPath<TextAsset>(ProjectStructurePath) == null)
+            {
+                issues.Add("Missing Unity project structure guide: " + ProjectStructurePath);
+            }
+
+            for (int i = 0; i < RequiredRootDirectories.Length; i++)
+            {
+                string path = "Assets/" + RequiredRootDirectories[i];
+                if (!AssetDatabase.IsValidFolder(path))
+                {
+                    issues.Add("Missing required Assets root directory: " + path);
+                }
+            }
+
+            for (int i = 0; i < RequiredScriptDirectories.Length; i++)
+            {
+                string path = "Assets/Scripts/" + RequiredScriptDirectories[i];
+                if (!AssetDatabase.IsValidFolder(path))
+                {
+                    issues.Add("Missing required runtime script domain directory: " + path);
+                }
+            }
+
+            for (int i = 0; i < RequiredArtDirectories.Length; i++)
+            {
+                string path = "Assets/Art/" + RequiredArtDirectories[i];
+                if (!AssetDatabase.IsValidFolder(path))
+                {
+                    issues.Add("Missing required art domain directory: " + path);
+                }
+            }
+
+            string fullAssetsPath = Path.GetFullPath(Application.dataPath);
+            string[] rootFiles = Directory.GetFiles(fullAssetsPath);
+            for (int i = 0; i < rootFiles.Length; i++)
+            {
+                string file = rootFiles[i];
+                if (file.EndsWith(".meta"))
+                {
+                    continue;
+                }
+
+                string extension = Path.GetExtension(file).ToLowerInvariant();
+                for (int j = 0; j < ForbiddenRootExtensions.Length; j++)
+                {
+                    if (extension == ForbiddenRootExtensions[j])
+                    {
+                        issues.Add("Large/source binary must not live directly under Assets root: " + Path.GetFileName(file));
+                        break;
+                    }
+                }
+            }
         }
 
         private static void ValidateSceneObjects(List<string> issues)
