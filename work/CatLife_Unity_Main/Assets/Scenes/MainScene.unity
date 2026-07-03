@@ -499,7 +499,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 52
     m_FontStyle: 1
     m_BestFit: 0
@@ -1526,7 +1526,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 58
     m_FontStyle: 1
     m_BestFit: 0
@@ -1930,7 +1930,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 27
     m_FontStyle: 0
     m_BestFit: 0
@@ -2349,7 +2349,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 25
     m_FontStyle: 1
     m_BestFit: 0
@@ -2536,7 +2536,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 28
     m_FontStyle: 1
     m_BestFit: 0
@@ -2862,7 +2862,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 28
     m_FontStyle: 1
     m_BestFit: 0
@@ -3198,7 +3198,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 25
     m_FontStyle: 1
     m_BestFit: 0
@@ -3309,7 +3309,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 47
     m_FontStyle: 1
     m_BestFit: 0
@@ -3480,6 +3480,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 621329868}
   m_CullTransparentMesh: 1
+--- !u!28 &640445957
+Texture2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Microsoft YaHei UI
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 4
+  m_Width: 0
+  m_Height: 0
+  m_CompleteImageSize: 0
+  m_MipsStripped: 0
+  m_TextureFormat: 4
+  m_MipCount: 1
+  m_IsReadable: 1
+  m_IsPreProcessed: 0
+  m_IgnoreMipmapLimit: 0
+  m_MipmapLimitGroupName: 
+  m_StreamingMipmaps: 0
+  m_StreamingMipmapsPriority: 0
+  m_VTOnly: 0
+  m_AlphaIsTransparency: 0
+  m_ImageCount: 1
+  m_TextureDimension: 2
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 0
+    m_WrapV: 0
+    m_WrapW: 0
+  m_LightmapFormat: 0
+  m_ColorSpace: 1
+  m_PlatformBlob: 
+  image data: 0
+  _typelessdata: 
+  m_StreamData:
+    serializedVersion: 2
+    offset: 0
+    size: 0
+    path: 
 --- !u!1001 &674697254
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4278,39 +4324,6 @@ RectTransform:
   m_AnchoredPosition: {x: -116, y: 315}
   m_SizeDelta: {x: 158, y: 142}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!128 &723849693
-Font:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Microsoft YaHei UI
-  serializedVersion: 5
-  m_LineSpacing: 81.28125
-  m_DefaultMaterial: {fileID: 1267406852}
-  m_FontSize: 64
-  m_Texture: {fileID: 2115519698}
-  m_AsciiStartOffset: 0
-  m_Tracking: 1
-  m_CharacterSpacing: 0
-  m_CharacterPadding: 1
-  m_ConvertCase: -2
-  m_CharacterRects: []
-  m_KerningValues: []
-  m_PixelScale: 0.1
-  m_FontData:
-  m_Ascent: 65
-  m_Descent: 0
-  m_DefaultStyle: 0
-  m_FontNames:
-  - Microsoft YaHei UI
-  - Microsoft YaHei
-  - SimHei
-  - Arial
-  m_FallbackFonts: []
-  m_FontRenderingMode: 0
-  m_UseLegacyBoundsCalculation: 0
-  m_ShouldRoundAdvanceValue: 1
 --- !u!1 &725305643
 GameObject:
   m_ObjectHideFlags: 0
@@ -4477,7 +4490,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 25
     m_FontStyle: 1
     m_BestFit: 0
@@ -4839,6 +4852,39 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 911168825}
   m_CullTransparentMesh: 1
+--- !u!21 &926408705
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Microsoft YaHei UI
+  m_Shader: {fileID: 10101, guid: 0000000000000000e000000000000000, type: 0}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 640445957}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats: []
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1 &959019433
 GameObject:
   m_ObjectHideFlags: 0
@@ -5169,7 +5215,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 25
     m_FontStyle: 1
     m_BestFit: 0
@@ -5248,7 +5294,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 38
     m_FontStyle: 1
     m_BestFit: 0
@@ -5529,39 +5575,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1264073784}
   m_CullTransparentMesh: 1
---- !u!21 &1267406852
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Microsoft YaHei UI
-  m_Shader: {fileID: 10101, guid: 0000000000000000e000000000000000, type: 0}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties:
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 2115519698}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats: []
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-  m_BuildTextureStacks: []
-  m_AllowLocking: 1
 --- !u!1 &1297797804
 GameObject:
   m_ObjectHideFlags: 0
@@ -6154,7 +6167,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 24
     m_FontStyle: 1
     m_BestFit: 0
@@ -7406,7 +7419,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 31
     m_FontStyle: 1
     m_BestFit: 0
@@ -7758,7 +7771,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 25
     m_FontStyle: 1
     m_BestFit: 0
@@ -7898,7 +7911,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 723849693}
+    m_Font: {fileID: 2080092592}
     m_FontSize: 25
     m_FontStyle: 1
     m_BestFit: 0
@@ -7976,6 +7989,8 @@ MonoBehaviour:
   catWalker: {fileID: 0}
   startFocusButtonGroup: {fileID: 0}
   focusPillGroup: {fileID: 0}
+  focusUnlockSliderGroup: {fileID: 0}
+  focusUnlockSlider: {fileID: 0}
   focusSessionSeconds: 1509
   transitionSeconds: 6
   rewardSeconds: 4
@@ -8732,7 +8747,7 @@ RectTransform:
   m_GameObject: {fileID: 2060285624}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: -1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1297797808}
@@ -8855,6 +8870,39 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2074305575}
   m_CullTransparentMesh: 1
+--- !u!128 &2080092592
+Font:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Microsoft YaHei UI
+  serializedVersion: 5
+  m_LineSpacing: 81.28125
+  m_DefaultMaterial: {fileID: 926408705}
+  m_FontSize: 64
+  m_Texture: {fileID: 640445957}
+  m_AsciiStartOffset: 0
+  m_Tracking: 1
+  m_CharacterSpacing: 0
+  m_CharacterPadding: 1
+  m_ConvertCase: -2
+  m_CharacterRects: []
+  m_KerningValues: []
+  m_PixelScale: 0.1
+  m_FontData: 
+  m_Ascent: 65
+  m_Descent: 0
+  m_DefaultStyle: 0
+  m_FontNames:
+  - Microsoft YaHei UI
+  - Microsoft YaHei
+  - SimHei
+  - Arial
+  m_FallbackFonts: []
+  m_FontRenderingMode: 0
+  m_UseLegacyBoundsCalculation: 0
+  m_ShouldRoundAdvanceValue: 1
 --- !u!1 &2084984017
 GameObject:
   m_ObjectHideFlags: 0
@@ -9005,52 +9053,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2098163846}
   m_CullTransparentMesh: 1
---- !u!28 &2115519698
-Texture2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Microsoft YaHei UI
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 4
-  m_Width: 0
-  m_Height: 0
-  m_CompleteImageSize: 0
-  m_MipsStripped: 0
-  m_TextureFormat: 4
-  m_MipCount: 1
-  m_IsReadable: 1
-  m_IsPreProcessed: 0
-  m_IgnoreMipmapLimit: 0
-  m_MipmapLimitGroupName:
-  m_StreamingMipmaps: 0
-  m_StreamingMipmapsPriority: 0
-  m_VTOnly: 0
-  m_AlphaIsTransparency: 0
-  m_ImageCount: 1
-  m_TextureDimension: 2
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 0
-    m_WrapV: 0
-    m_WrapW: 0
-  m_LightmapFormat: 0
-  m_ColorSpace: 1
-  m_PlatformBlob:
-  image data: 0
-  _typelessdata:
-  m_StreamData:
-    serializedVersion: 2
-    offset: 0
-    size: 0
-    path:
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -422,7 +422,11 @@ public static class CatLifePreviewSceneBuilder
         GameObject button = AddPanel("Menu_" + label, root.transform, sprites.circleSolid, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(94f, 94f), MenuButtonFill);
         button.AddComponent<Button>();
         AddImage("Outline", button.transform, sprites.circleOutline, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(94f, 94f), MenuButtonOutline);
-        AddImage("Icon", button.transform, icon, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(48f, 48f), UiTextCream);
+        Image iconImage = AddImage("Icon", button.transform, icon, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(48f, 48f), UiTextCream);
+        if (label == "\u8bb0\u5f55")
+        {
+            iconImage.rectTransform.localScale = new Vector3(1f, -1f, 1f);
+        }
 
         Text text = AddText("Label", root.transform, label, font, 25, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -66f), new Vector2(158f, 36f));
         text.color = UiTextCream;
