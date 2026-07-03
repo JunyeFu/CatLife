@@ -14,6 +14,7 @@ namespace CatLife.Cat
         [SerializeField] private CatAnimationController animationController;
         [SerializeField] private CatDestinationPlanner destinationPlanner;
         [SerializeField] private CatActionRouter actionRouter;
+        [SerializeField] private RealtimeFeatureEngine featureEngine;
 
         [Header("Timing")]
         [SerializeField] private float decisionInterval = 0.5f;
@@ -86,6 +87,7 @@ namespace CatLife.Cat
                 actionRouter = gameObject.AddComponent<CatActionRouter>();
             }
 
+            ResolveFeatureEngine();
             recognitionProvider = recognitionProviderComponent as IRecognitionProvider;
             llmClient = llmClientComponent as ICatLLMClient;
             promptBuilder = new CatPromptBuilder();
@@ -132,6 +134,11 @@ namespace CatLife.Cat
         public void NotifyCatTapped()
         {
             recentEvents[0] = "cat_tap";
+            if (featureEngine != null)
+            {
+                featureEngine.RecordCatInteraction("cat_tap");
+            }
+
             MockRecognitionProvider mock = recognitionProvider as MockRecognitionProvider;
             if (mock != null)
             {
@@ -180,6 +187,11 @@ namespace CatLife.Cat
         public void NotifyCatLongPressed()
         {
             recentEvents[0] = "cat_long_press";
+            if (featureEngine != null)
+            {
+                featureEngine.RecordCatInteraction("cat_long_press");
+            }
+
             MockRecognitionProvider mock = recognitionProvider as MockRecognitionProvider;
             if (mock != null)
             {
@@ -205,6 +217,11 @@ namespace CatLife.Cat
             }
 
             recentEvents[0] = reason;
+            if (featureEngine != null)
+            {
+                featureEngine.RecordUiEvent(reason);
+            }
+
             RouteAction(CatActionRequest.Create(
                 state,
                 CatActionSource.Ui,
@@ -214,6 +231,42 @@ namespace CatLife.Cat
                 2f,
                 CatActionInterruptPolicy.QueueIfMoving,
                 false));
+        }
+
+        public void NotifyFocusSessionStarted()
+        {
+            recentEvents[0] = "focus_started";
+            if (featureEngine != null)
+            {
+                featureEngine.RecordFocusSessionStarted();
+            }
+        }
+
+        public void NotifyFocusSessionEnded(bool completed)
+        {
+            recentEvents[0] = completed ? "focus_completed" : "focus_unlocked";
+            if (featureEngine != null)
+            {
+                featureEngine.RecordFocusSessionEnded(completed);
+            }
+        }
+
+        private void ResolveFeatureEngine()
+        {
+            if (featureEngine != null)
+            {
+                return;
+            }
+
+            if (recognitionProviderComponent != null)
+            {
+                featureEngine = recognitionProviderComponent.GetComponent<RealtimeFeatureEngine>();
+            }
+
+            if (featureEngine == null)
+            {
+                featureEngine = FindAnyObjectByType<RealtimeFeatureEngine>();
+            }
         }
 
         private void TickLlm()

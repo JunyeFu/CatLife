@@ -66,7 +66,9 @@ namespace CatLife.EditorTools
             };
 
             MockRecognitionProvider recognitionProvider = GetOrAdd<MockRecognitionProvider>(systemsRoot.gameObject);
+            RealtimeFeatureEngine featureEngine = GetOrAdd<RealtimeFeatureEngine>(systemsRoot.gameObject);
             MockCatLLMClient llmClient = GetOrAdd<MockCatLLMClient>(systemsRoot.gameObject);
+            AssignObject(recognitionProvider, "featureEngine", featureEngine);
 
             NavMeshAgent agent = GetOrAdd<NavMeshAgent>(cat);
             agent.radius = 0.18f;
@@ -90,7 +92,7 @@ namespace CatLife.EditorTools
             AssignObject(navigationAgent, "agent", agent);
             AssignPlanner(destinationPlanner, anchors);
             AssignObject(animationController, "animator", animator);
-            AssignDriver(behaviorDriver, recognitionProvider, llmClient, navigationAgent, animationController, destinationPlanner, actionRouter);
+            AssignDriver(behaviorDriver, recognitionProvider, llmClient, navigationAgent, animationController, destinationPlanner, actionRouter, featureEngine);
 
             CatTownWalker legacyWalker = cat.GetComponent<CatTownWalker>();
             if (legacyWalker != null)
@@ -203,7 +205,8 @@ namespace CatLife.EditorTools
             CatNavigationAgent navigationAgent,
             CatAnimationController animationController,
             CatDestinationPlanner destinationPlanner,
-            CatActionRouter actionRouter)
+            CatActionRouter actionRouter,
+            RealtimeFeatureEngine featureEngine)
         {
             SerializedObject serialized = new SerializedObject(driver);
             serialized.FindProperty("recognitionProviderComponent").objectReferenceValue = recognitionProvider;
@@ -212,6 +215,7 @@ namespace CatLife.EditorTools
             serialized.FindProperty("animationController").objectReferenceValue = animationController;
             serialized.FindProperty("destinationPlanner").objectReferenceValue = destinationPlanner;
             serialized.FindProperty("actionRouter").objectReferenceValue = actionRouter;
+            serialized.FindProperty("featureEngine").objectReferenceValue = featureEngine;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(driver);
         }

@@ -152,6 +152,7 @@ namespace CatLife.UI
         public void StartFocusSession()
         {
             NotifyCatUiAction(CatBehaviorState.HeadTiltListen, "ui_start_focus");
+            NotifyCatFocusSessionStarted();
             activeSessionSeconds = Mathf.Max(1, focusSessionSeconds);
             focusRemainingSeconds = activeSessionSeconds;
             focusRunning = true;
@@ -176,6 +177,7 @@ namespace CatLife.UI
             }
 
             focusRunning = false;
+            NotifyCatFocusSessionEnded(false);
             autoFocusConsumed = true;
             focusRemainingSeconds = Mathf.Max(1, focusSessionSeconds);
             SaveRuntimeData();
@@ -256,6 +258,7 @@ namespace CatLife.UI
         private void CompleteFocusSession()
         {
             focusRunning = false;
+            NotifyCatFocusSessionEnded(true);
             int finishedSeconds = Mathf.Max(1, activeSessionSeconds);
             int gainedMinutes = Mathf.Max(1, Mathf.RoundToInt(finishedSeconds / 60f));
             todayFocusMinutes += gainedMinutes;
@@ -739,6 +742,24 @@ namespace CatLife.UI
             if (behaviorDriver != null && behaviorDriver.isActiveAndEnabled)
             {
                 behaviorDriver.NotifyUiAction(state, reason);
+            }
+        }
+
+        private void NotifyCatFocusSessionStarted()
+        {
+            CatBehaviorDriver behaviorDriver = ResolveCatBehaviorDriver();
+            if (behaviorDriver != null && behaviorDriver.isActiveAndEnabled)
+            {
+                behaviorDriver.NotifyFocusSessionStarted();
+            }
+        }
+
+        private void NotifyCatFocusSessionEnded(bool completed)
+        {
+            CatBehaviorDriver behaviorDriver = ResolveCatBehaviorDriver();
+            if (behaviorDriver != null && behaviorDriver.isActiveAndEnabled)
+            {
+                behaviorDriver.NotifyFocusSessionEnded(completed);
             }
         }
 
