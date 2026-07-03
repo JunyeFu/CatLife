@@ -38,6 +38,14 @@ Run these Unity menu items before committing scene/runtime changes:
 2. `CatLife/Runtime/Validate Play Mode Behavior Smoke`
    - Run in Play Mode. Checks NavMesh runtime, safety guard, realtime recognition features, prompt context, and animation state responsiveness.
 
+For command-line or handoff validation, run the Edit Mode gate through Unity batchmode:
+
+```powershell
+Unity.exe -batchmode -quit -projectPath "C:\Users\fujunye\Desktop\Agent\05-AIGC\work\CatLife_Unity_Main" -executeMethod CatLife.EditorTools.CatLifeBatchValidationRunner.RunEditModeValidationAndExit
+```
+
+The batch entrypoint exits with `0` on PASS and `1` on FAIL. The Play Mode smoke gate still requires an interactive Editor or an automation harness that can enter Play Mode first.
+
 ## Import And Storage Rules
 
 - Do not place `.blend`, `.fbx`, `.glb`, `.mp4`, `.zip`, or other large source binaries directly under `Assets/`.
