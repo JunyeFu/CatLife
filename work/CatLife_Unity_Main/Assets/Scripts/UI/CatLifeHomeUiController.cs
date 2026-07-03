@@ -22,6 +22,10 @@ namespace CatLife.UI
         [SerializeField] private Button catButton;
         [SerializeField] private Button recordButton;
         [SerializeField] private Button settingsButton;
+        [SerializeField] private GameObject catButtonGroup;
+        [SerializeField] private GameObject recordButtonGroup;
+        [SerializeField] private GameObject settingsButtonGroup;
+        [SerializeField] private GameObject rotateButtonGroup;
         [SerializeField] private Button closePlaceholderButton;
         [SerializeField] private GameObject placeholderOverlay;
         [SerializeField] private Text placeholderPageStatusText;
@@ -34,12 +38,13 @@ namespace CatLife.UI
         [SerializeField] private Sprite recordPageIcon;
         [SerializeField] private Sprite settingsPageIcon;
         [SerializeField] private CatTownWalker catWalker;
-        [SerializeField] private int initialTodayFocusMinutes = 48;
+        [SerializeField] private GameObject startFocusButtonGroup;
+        [SerializeField] private GameObject focusPillGroup;
         [SerializeField] private int focusSessionSeconds = 1509;
         [SerializeField] private float transitionSeconds = 6f;
         [SerializeField] private float rewardSeconds = 4f;
-        [SerializeField] private bool startTimerOnEnable;
-        [SerializeField] private bool bootstrapLocalDataWhenEmpty = true;
+        [SerializeField] private float autoFocusDelaySeconds = 10f;
+        [SerializeField] private bool autoEnterFocusAfterDelay = true;
         [SerializeField] private bool localRecognitionDefault = true;
         [SerializeField] private bool smartExplanationDefault;
 
@@ -50,11 +55,13 @@ namespace CatLife.UI
         private int activeSessionSeconds;
         private float focusRemainingSeconds;
         private bool focusRunning;
+        private bool autoFocusConsumed;
         private bool localRecognitionEnabled;
         private bool smartExplanationEnabled;
         private string currentDateKey;
         private float nextStatusRefreshTime;
         private float stateEnteredAt;
+        private float playModeStartedAt;
         private bool listenersBound;
         private HomePage activePage;
         private FocusFlowState focusState = FocusFlowState.Normal;
@@ -81,23 +88,20 @@ namespace CatLife.UI
             activeSessionSeconds = Mathf.Max(1, focusSessionSeconds);
             focusRemainingSeconds = activeSessionSeconds;
             SetPlaceholderVisible(false);
-            ApplyFocusState(FocusFlowState.Normal, true);
+            BeginRuntimeFocusDelay();
             UpdateStatusText(true);
         }
 
         private void OnEnable()
         {
             BindListeners();
-            if (startTimerOnEnable && focusRemainingSeconds > 0f)
-            {
-                focusRunning = true;
-                ApplyFocusState(FocusFlowState.Transition, true);
-            }
-            else
-            {
-                ApplyFocusState(focusState, true);
-            }
+            BeginRuntimeFocusDelay();
+            UpdateStatusText(true);
+        }
 
+        private void Start()
+        {
+            BeginRuntimeFocusDelay();
             UpdateStatusText(true);
         }
 
@@ -108,6 +112,12 @@ namespace CatLife.UI
 
         private void Update()
         {
+            if (playModeStartedAt <= 0f)
+            {
+                BeginRuntimeFocusDelay();
+            }
+
+            UpdateAutoFocusDelay();
             UpdateFocusFlow();
 
             if (!focusRunning)
@@ -138,8 +148,9 @@ namespace CatLife.UI
             activeSessionSeconds = Mathf.Max(1, focusSessionSeconds);
             focusRemainingSeconds = activeSessionSeconds;
             focusRunning = true;
+            autoFocusConsumed = true;
             SetPlaceholderVisible(false);
-            ApplyFocusState(FocusFlowState.Transition, false);
+            ApplyFocusState(FocusFlowState.Focus, false);
             UpdateStatusText(true);
         }
 
@@ -210,6 +221,29 @@ namespace CatLife.UI
             }
         }
 
+        private void UpdateAutoFocusDelay()
+        {
+            if (!autoEnterFocusAfterDelay || autoFocusConsumed || focusRunning || focusState != FocusFlowState.Normal)
+            {
+                return;
+            }
+
+            if (Time.realtimeSinceStartup - playModeStartedAt >= Mathf.Max(0f, autoFocusDelaySeconds))
+            {
+                StartFocusSession();
+            }
+        }
+
+        private void BeginRuntimeFocusDelay()
+        {
+            playModeStartedAt = Time.realtimeSinceStartup;
+            autoFocusConsumed = false;
+            focusRunning = false;
+            activeSessionSeconds = Mathf.Max(1, focusSessionSeconds);
+            focusRemainingSeconds = activeSessionSeconds;
+            ApplyFocusState(FocusFlowState.Normal, true);
+        }
+
         private void ApplyFocusState(FocusFlowState nextState, bool force)
         {
             if (!force && focusState == nextState)
@@ -227,9 +261,12 @@ namespace CatLife.UI
         private void ApplyFocusStateUi()
         {
             bool hideSideButtons = focusState == FocusFlowState.Focus;
-            SetButtonVisible(catButton, !hideSideButtons);
-            SetButtonVisible(recordButton, !hideSideButtons);
-            SetButtonVisible(settingsButton, !hideSideButtons);
+            SetGameObjectVisible(ResolveMenuGroup(ref rotateButtonGroup, "MenuGroup_旋转", null), !hideSideButtons);
+            SetGameObjectVisible(ResolveMenuGroup(ref startFocusButtonGroup, "StartFocusButton", startFocusButton), !hideSideButtons);
+            SetGameObjectVisible(ResolveMenuGroup(ref focusPillGroup, "FocusPill", null), focusState == FocusFlowState.Focus);
+            SetGameObjectVisible(ResolveMenuGroup(ref catButtonGroup, "MenuGroup_猫咪", catButton), !hideSideButtons);
+            SetGameObjectVisible(ResolveMenuGroup(ref recordButtonGroup, "MenuGroup_记录", recordButton), !hideSideButtons);
+            SetGameObjectVisible(ResolveMenuGroup(ref settingsButtonGroup, "MenuGroup_设置", settingsButton), !hideSideButtons);
         }
 
         private void ApplyCatBehaviorForState()
@@ -263,19 +300,12 @@ namespace CatLife.UI
             currentDateKey = FormatDateKey(today);
 
             string todayMinutesKey = DailyMinutesKey(currentDateKey);
-            bool hasTodayRecord = PlayerPrefs.HasKey(todayMinutesKey);
-            int bootstrapMinutes = bootstrapLocalDataWhenEmpty ? Mathf.Max(0, initialTodayFocusMinutes) : 0;
-            todayFocusMinutes = PlayerPrefs.GetInt(todayMinutesKey, bootstrapMinutes);
+            todayFocusMinutes = PlayerPrefs.GetInt(todayMinutesKey, 0);
             completedSessions = PlayerPrefs.GetInt(DailySessionsKey(currentDateKey), EstimateCompletedSessions(todayFocusMinutes));
             interruptionCount = PlayerPrefs.GetInt(DailyInterruptionsKey(currentDateKey), 0);
             longestStableSeconds = PlayerPrefs.GetInt(DailyLongestKey(currentDateKey), EstimateLongestStableSeconds(todayFocusMinutes));
             localRecognitionEnabled = PlayerPrefs.GetInt(LocalRecognitionKey, localRecognitionDefault ? 1 : 0) == 1;
             smartExplanationEnabled = PlayerPrefs.GetInt(SmartExplanationKey, smartExplanationDefault ? 1 : 0) == 1;
-
-            if (!hasTodayRecord && bootstrapLocalDataWhenEmpty)
-            {
-                SaveRuntimeData();
-            }
         }
 
         private void SaveRuntimeData()
@@ -588,15 +618,53 @@ namespace CatLife.UI
                 return catWalker;
             }
 
-            catWalker = FindObjectOfType<CatTownWalker>();
+            catWalker = FindAnyObjectByType<CatTownWalker>();
             return catWalker;
         }
 
-        private static void SetButtonVisible(Button button, bool visible)
+        private GameObject ResolveMenuGroup(ref GameObject cachedGroup, string groupName, Button fallbackButton)
         {
-            if (button != null)
+            if (cachedGroup != null)
             {
-                button.gameObject.SetActive(visible);
+                return cachedGroup;
+            }
+
+            cachedGroup = FindSceneObjectByName(groupName);
+            if (cachedGroup != null)
+            {
+                return cachedGroup;
+            }
+
+            if (fallbackButton != null)
+            {
+                cachedGroup = fallbackButton.transform.parent != null
+                    ? fallbackButton.transform.parent.gameObject
+                    : fallbackButton.gameObject;
+            }
+
+            return cachedGroup;
+        }
+
+        private static GameObject FindSceneObjectByName(string objectName)
+        {
+            Transform[] transforms = Resources.FindObjectsOfTypeAll<Transform>();
+            for (int i = 0; i < transforms.Length; i++)
+            {
+                Transform candidate = transforms[i];
+                if (candidate != null && candidate.name == objectName && candidate.gameObject.scene.IsValid())
+                {
+                    return candidate.gameObject;
+                }
+            }
+
+            return null;
+        }
+
+        private static void SetGameObjectVisible(GameObject target, bool visible)
+        {
+            if (target != null)
+            {
+                target.SetActive(visible);
             }
         }
 
