@@ -40,6 +40,8 @@ namespace CatLife.UI
         [SerializeField] private CatTownWalker catWalker;
         [SerializeField] private GameObject startFocusButtonGroup;
         [SerializeField] private GameObject focusPillGroup;
+        [SerializeField] private GameObject focusUnlockSliderGroup;
+        [SerializeField] private FocusUnlockSlider focusUnlockSlider;
         [SerializeField] private int focusSessionSeconds = 1509;
         [SerializeField] private float transitionSeconds = 6f;
         [SerializeField] private float rewardSeconds = 4f;
@@ -85,6 +87,7 @@ namespace CatLife.UI
         private void Awake()
         {
             LoadRuntimeData();
+            EnsureFocusUnlockSlider();
             activeSessionSeconds = Mathf.Max(1, focusSessionSeconds);
             focusRemainingSeconds = activeSessionSeconds;
             SetPlaceholderVisible(false);
@@ -95,12 +98,14 @@ namespace CatLife.UI
         private void OnEnable()
         {
             BindListeners();
+            EnsureFocusUnlockSlider();
             BeginRuntimeFocusDelay();
             UpdateStatusText(true);
         }
 
         private void Start()
         {
+            EnsureFocusUnlockSlider();
             BeginRuntimeFocusDelay();
             UpdateStatusText(true);
         }
@@ -152,6 +157,29 @@ namespace CatLife.UI
             SetPlaceholderVisible(false);
             ApplyFocusState(FocusFlowState.Focus, false);
             UpdateStatusText(true);
+        }
+
+        public void UnlockFocusSession()
+        {
+            if (focusState != FocusFlowState.Focus && !focusRunning)
+            {
+                ApplyFocusState(FocusFlowState.Normal, false);
+                UpdateStatusText(true);
+                return;
+            }
+
+            if (focusRunning)
+            {
+                interruptionCount += 1;
+            }
+
+            focusRunning = false;
+            autoFocusConsumed = true;
+            focusRemainingSeconds = Mathf.Max(1, focusSessionSeconds);
+            SaveRuntimeData();
+            ApplyFocusState(FocusFlowState.Normal, false);
+            UpdateStatusText(true);
+            RefreshActivePage();
         }
 
         public void ShowCatPage()
@@ -260,13 +288,21 @@ namespace CatLife.UI
 
         private void ApplyFocusStateUi()
         {
+            EnsureFocusUnlockSlider();
+
             bool hideSideButtons = focusState == FocusFlowState.Focus;
             SetGameObjectVisible(ResolveMenuGroup(ref rotateButtonGroup, "MenuGroup_旋转", null), !hideSideButtons);
             SetGameObjectVisible(ResolveMenuGroup(ref startFocusButtonGroup, "StartFocusButton", startFocusButton), !hideSideButtons);
             SetGameObjectVisible(ResolveMenuGroup(ref focusPillGroup, "FocusPill", null), focusState == FocusFlowState.Focus);
+            SetGameObjectVisible(ResolveMenuGroup(ref focusUnlockSliderGroup, "FocusUnlockSliderGroup", null), focusState == FocusFlowState.Focus);
             SetGameObjectVisible(ResolveMenuGroup(ref catButtonGroup, "MenuGroup_猫咪", catButton), !hideSideButtons);
             SetGameObjectVisible(ResolveMenuGroup(ref recordButtonGroup, "MenuGroup_记录", recordButton), !hideSideButtons);
             SetGameObjectVisible(ResolveMenuGroup(ref settingsButtonGroup, "MenuGroup_设置", settingsButton), !hideSideButtons);
+
+            if (focusState == FocusFlowState.Focus && focusUnlockSliderGroup != null)
+            {
+                focusUnlockSliderGroup.transform.SetAsLastSibling();
+            }
         }
 
         private void ApplyCatBehaviorForState()
@@ -666,6 +702,157 @@ namespace CatLife.UI
             {
                 target.SetActive(visible);
             }
+        }
+
+        private void EnsureFocusUnlockSlider()
+        {
+            if (focusUnlockSliderGroup == null)
+            {
+                focusUnlockSliderGroup = FindSceneObjectByName("FocusUnlockSliderGroup");
+            }
+
+            if (focusUnlockSliderGroup != null)
+            {
+                if (focusUnlockSlider == null)
+                {
+                    focusUnlockSlider = focusUnlockSliderGroup.GetComponentInChildren<FocusUnlockSlider>(true);
+                }
+
+                if (focusUnlockSlider != null)
+                {
+                    return;
+                }
+            }
+
+            RectTransform canvasRect = transform as RectTransform;
+            if (canvasRect == null)
+            {
+                return;
+            }
+
+            Sprite roundedSprite = FindSpriteFromImage("FocusPill");
+            Sprite roundedOutlineSprite = FindSpriteFromImage("SlotOutline");
+            Sprite circleSprite = FindSpriteFromImage("Menu_旋转");
+            Sprite circleOutlineSprite = FindSpriteFromImage("Outline");
+            Font font = todayFocusText != null ? todayFocusText.font : null;
+            if (font == null && focusPillText != null)
+            {
+                font = focusPillText.font;
+            }
+
+            if (font == null)
+            {
+                font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            }
+
+            focusUnlockSliderGroup = new GameObject("FocusUnlockSliderGroup", typeof(RectTransform));
+            focusUnlockSliderGroup.transform.SetParent(canvasRect, false);
+            RectTransform rootRect = focusUnlockSliderGroup.GetComponent<RectTransform>();
+            rootRect.anchorMin = new Vector2(0.5f, 0f);
+            rootRect.anchorMax = new Vector2(0.5f, 0f);
+            rootRect.pivot = new Vector2(0.5f, 0f);
+            rootRect.anchoredPosition = new Vector2(0f, 54f);
+            rootRect.sizeDelta = new Vector2(260f, 420f);
+
+            GameObject track = AddRuntimePanel("FocusUnlockTrack", focusUnlockSliderGroup.transform, roundedSprite, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 156f), new Vector2(86f, 238f), new Color(1f, 1f, 1f, 0.22f));
+            track.GetComponent<Image>().raycastTarget = false;
+            RectTransform trackRect = track.GetComponent<RectTransform>();
+            AddRuntimeImage("UnlockTrackHighlight", track.transform, roundedSprite, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -28f), new Vector2(54f, 154f), new Color(1f, 1f, 1f, 0.20f));
+            AddRuntimeImage("UnlockTrackOutline", track.transform, roundedOutlineSprite, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(86f, 238f), new Color(1f, 0.92f, 0.54f, 0.90f));
+            AddRuntimeImage("UnlockTopTick", track.transform, circleSprite, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -32f), new Vector2(9f, 9f), new Color(1f, 1f, 1f, 0.58f));
+            AddRuntimeImage("UnlockMidTick", track.transform, circleSprite, new Vector2(0.5f, 0.55f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(8f, 8f), new Color(1f, 1f, 1f, 0.45f));
+
+            GameObject handle = AddRuntimePanel("FocusUnlockHandle", focusUnlockSliderGroup.transform, circleSprite, new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 156f), new Vector2(98f, 98f), new Color(1f, 0.70f, 0.18f, 0.32f));
+            Image handleImage = handle.GetComponent<Image>();
+            handleImage.raycastTarget = true;
+            RectTransform handleRect = handle.GetComponent<RectTransform>();
+            AddRuntimeImage("FocusUnlockHandleOutline", handle.transform, circleOutlineSprite, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(98f, 98f), new Color(1f, 0.90f, 0.46f, 1f));
+            AddRuntimeText("FocusUnlockArrow", handle.transform, "↑", font, 38, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), new Vector2(64f, 64f), new Color(1f, 0.97f, 0.91f, 1f));
+
+            Text label = AddRuntimeText("FocusUnlockLabel", focusUnlockSliderGroup.transform, "解锁", font, 28, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 72f), new Vector2(140f, 44f), new Color(1f, 0.97f, 0.91f, 1f));
+            AddRuntimeTextShadow(label, 0.24f, new Vector2(0f, -1.6f));
+
+            focusUnlockSlider = handle.AddComponent<FocusUnlockSlider>();
+            focusUnlockSlider.Configure(this, trackRect, handleRect, 0.72f);
+            focusUnlockSliderGroup.SetActive(false);
+        }
+
+        private static GameObject AddRuntimePanel(string name, Transform parent, Sprite sprite, Vector2 anchor, Vector2 pivot, Vector2 position, Vector2 size, Color color)
+        {
+            GameObject go = new GameObject(name, typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(parent, false);
+            RectTransform rect = go.GetComponent<RectTransform>();
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = pivot;
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+
+            Image image = go.GetComponent<Image>();
+            image.sprite = sprite;
+            image.type = sprite != null ? Image.Type.Sliced : Image.Type.Simple;
+            image.color = color;
+            return go;
+        }
+
+        private static Image AddRuntimeImage(string name, Transform parent, Sprite sprite, Vector2 anchor, Vector2 pivot, Vector2 position, Vector2 size, Color color)
+        {
+            GameObject go = AddRuntimePanel(name, parent, sprite, anchor, pivot, position, size, color);
+            Image image = go.GetComponent<Image>();
+            image.raycastTarget = false;
+            return image;
+        }
+
+        private static Text AddRuntimeText(string name, Transform parent, string value, Font font, int size, FontStyle style, TextAnchor alignment, Vector2 anchor, Vector2 pivot, Vector2 position, Vector2 dimensions, Color color)
+        {
+            GameObject go = new GameObject(name, typeof(RectTransform), typeof(Text));
+            go.transform.SetParent(parent, false);
+            RectTransform rect = go.GetComponent<RectTransform>();
+            rect.anchorMin = anchor;
+            rect.anchorMax = anchor;
+            rect.pivot = pivot;
+            rect.anchoredPosition = position;
+            rect.sizeDelta = dimensions;
+
+            Text text = go.GetComponent<Text>();
+            text.text = value;
+            text.font = font;
+            text.fontSize = size;
+            text.fontStyle = style;
+            text.alignment = alignment;
+            text.color = color;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.raycastTarget = false;
+            return text;
+        }
+
+        private static void AddRuntimeTextShadow(Text text, float alpha, Vector2 distance)
+        {
+            if (text == null)
+            {
+                return;
+            }
+
+            Shadow shadow = text.gameObject.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0.27f, 0.1f, 0f, alpha);
+            shadow.effectDistance = distance;
+            shadow.useGraphicAlpha = true;
+        }
+
+        private static Sprite FindSpriteFromImage(string objectName)
+        {
+            Image[] images = Resources.FindObjectsOfTypeAll<Image>();
+            for (int i = 0; i < images.Length; i++)
+            {
+                Image image = images[i];
+                if (image != null && image.name == objectName && image.sprite != null && image.gameObject.scene.IsValid())
+                {
+                    return image.sprite;
+                }
+            }
+
+            return null;
         }
 
         private string BuildUnlockedActionText()
