@@ -1,5 +1,6 @@
 using System.IO;
 using CatLife.Cat;
+using CatLife.EditorTools;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEditor.SceneManagement;
@@ -207,26 +208,8 @@ public static class CatLifeCatTownWalkerSetup
 
     private static AnimatorController BuildAnimatorController(AnimationClip walkClip)
     {
-        AnimatorController controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath);
-        if (controller == null)
-        {
-            controller = AnimatorController.CreateAnimatorControllerAtPath(ControllerPath);
-        }
-
-        if (!HasParameter(controller, IsWalkingParameter, AnimatorControllerParameterType.Bool))
-        {
-            controller.AddParameter(IsWalkingParameter, AnimatorControllerParameterType.Bool);
-        }
-
-        AnimatorStateMachine stateMachine = controller.layers[0].stateMachine;
-        ClearStateMachine(stateMachine);
-
-        AnimatorState walk = stateMachine.AddState("CL_CAT_SRC_Walk_60fps");
-        walk.motion = walkClip;
-        walk.speed = 1f;
-        stateMachine.defaultState = walk;
-
-        EditorUtility.SetDirty(controller);
+        AnimatorController controller = CatLifeRuntimeAnimatorSetup.EnsureController();
+        CatLifeRuntimeAnimatorSetup.RebuildControllerStates(controller);
         return controller;
     }
 

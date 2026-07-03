@@ -90,16 +90,17 @@ namespace CatLife.Cat
                 return;
             }
 
-            if (!HasAnimatorState(stateName))
+            string statePath = ToStatePath(stateName);
+            if (!HasAnimatorState(statePath))
             {
                 busyUntil = 0f;
                 return;
             }
 
-            animator.CrossFadeInFixedTime(stateName, actionFade, 0);
+            animator.CrossFadeInFixedTime(statePath, actionFade, 0);
             busyUntil = Time.time + Mathf.Max(0f, holdSeconds);
             interruptibleByMove = canInterruptByMove;
-            lastPlayedState = stateName;
+            lastPlayedState = statePath;
         }
 
         public void ForceLocomotion(bool isMoving)
@@ -185,23 +186,34 @@ namespace CatLife.Cat
         private void EnsureLocomotion(bool isMoving)
         {
             string targetState = isMoving ? walkStateName : idleStateName;
-            if (string.IsNullOrEmpty(targetState) || lastPlayedState == targetState)
+            string statePath = ToStatePath(targetState);
+            if (string.IsNullOrEmpty(targetState) || lastPlayedState == statePath)
             {
                 return;
             }
 
-            if (!HasAnimatorState(targetState))
+            if (!HasAnimatorState(statePath))
             {
                 return;
             }
 
-            animator.CrossFadeInFixedTime(targetState, locomotionFade, 0);
-            lastPlayedState = targetState;
+            animator.CrossFadeInFixedTime(statePath, locomotionFade, 0);
+            lastPlayedState = statePath;
         }
 
-        private bool HasAnimatorState(string stateName)
+        private bool HasAnimatorState(string statePath)
         {
-            return animator != null && animator.HasState(0, Animator.StringToHash(stateName));
+            return animator != null && animator.HasState(0, Animator.StringToHash(statePath));
+        }
+
+        private static string ToStatePath(string stateName)
+        {
+            if (string.IsNullOrEmpty(stateName) || stateName.Contains("."))
+            {
+                return stateName;
+            }
+
+            return "Base Layer." + stateName;
         }
 
         private string StateToName(CatBehaviorState state)
