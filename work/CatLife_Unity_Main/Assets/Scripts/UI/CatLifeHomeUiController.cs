@@ -37,6 +37,7 @@ namespace CatLife.UI
         [SerializeField] private Sprite catPageIcon;
         [SerializeField] private Sprite recordPageIcon;
         [SerializeField] private Sprite settingsPageIcon;
+        [SerializeField] private CatBehaviorDriver catBehaviorDriver;
         [SerializeField] private CatTownWalker catWalker;
         [SerializeField] private GameObject startFocusButtonGroup;
         [SerializeField] private GameObject focusPillGroup;
@@ -307,27 +308,39 @@ namespace CatLife.UI
 
         private void ApplyCatBehaviorForState()
         {
+            float speedMultiplier = 1f;
+            bool focused = false;
+
+            switch (focusState)
+            {
+                case FocusFlowState.Transition:
+                    speedMultiplier = 0.55f;
+                    focused = true;
+                    break;
+                case FocusFlowState.Focus:
+                    speedMultiplier = 0.25f;
+                    focused = true;
+                    break;
+                case FocusFlowState.Reward:
+                    speedMultiplier = 1.4f;
+                    break;
+            }
+
+            CatBehaviorDriver behaviorDriver = ResolveCatBehaviorDriver();
+            if (behaviorDriver != null && behaviorDriver.isActiveAndEnabled)
+            {
+                behaviorDriver.SetFocusMode(focused);
+                behaviorDriver.SetContinuousWalking(true, speedMultiplier);
+                return;
+            }
+
             CatTownWalker walker = ResolveCatWalker();
             if (walker == null)
             {
                 return;
             }
 
-            switch (focusState)
-            {
-                case FocusFlowState.Transition:
-                    walker.SetContinuousWalking(true, 0.55f);
-                    break;
-                case FocusFlowState.Focus:
-                    walker.SetContinuousWalking(true, 0.25f);
-                    break;
-                case FocusFlowState.Reward:
-                    walker.SetContinuousWalking(true, 1.4f);
-                    break;
-                default:
-                    walker.SetContinuousWalking(true, 1f);
-                    break;
-            }
+            walker.SetContinuousWalking(true, speedMultiplier);
         }
 
         private void LoadRuntimeData()
@@ -675,6 +688,17 @@ namespace CatLife.UI
         private static GameObject FindCatObject()
         {
             return GameObject.Find("CatCompanionModel");
+        }
+
+        private CatBehaviorDriver ResolveCatBehaviorDriver()
+        {
+            if (catBehaviorDriver != null)
+            {
+                return catBehaviorDriver;
+            }
+
+            catBehaviorDriver = FindAnyObjectByType<CatBehaviorDriver>();
+            return catBehaviorDriver;
         }
 
         private CatTownWalker ResolveCatWalker()

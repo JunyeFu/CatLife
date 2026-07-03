@@ -46,6 +46,8 @@ namespace CatLife.Cat
         private float nextDecisionTime;
         private float nextLlmTime;
         private float actionHoldUntil;
+        private bool walkingEnabled = true;
+        private float navigationSpeedMultiplier = 1f;
         private readonly string[] recentEvents = new string[4];
 
         private void Reset()
@@ -124,6 +126,34 @@ namespace CatLife.Cat
             }
 
             PlayImmediateInteraction(WeightedInteractionPick());
+        }
+
+        public void SetFocusMode(bool focused)
+        {
+            MockRecognitionProvider mock = recognitionProvider as MockRecognitionProvider;
+            if (mock != null)
+            {
+                mock.SetFocusState(focused ? FocusState.Focused : FocusState.NonFocus);
+                snapshot = mock.Latest;
+                return;
+            }
+
+            snapshot.focusState = focused ? FocusState.Focused : FocusState.NonFocus;
+        }
+
+        public void SetContinuousWalking(bool enabled, float speedMultiplier)
+        {
+            walkingEnabled = enabled;
+            navigationSpeedMultiplier = Mathf.Clamp(speedMultiplier, 0.1f, 3f);
+
+            if (navigationAgent != null)
+            {
+                navigationAgent.SetSpeedMultiplier(navigationSpeedMultiplier);
+                if (!walkingEnabled)
+                {
+                    navigationAgent.StopSoft();
+                }
+            }
         }
 
         public void NotifyCatLongPressed()
@@ -228,11 +258,18 @@ namespace CatLife.Cat
 
             if (navigationAgent != null)
             {
+                navigationAgent.SetSpeedMultiplier(navigationSpeedMultiplier);
                 navigationAgent.Configure(focused);
             }
 
             if (state == CatBehaviorState.Roam || state == CatBehaviorState.FocusedRoam)
             {
+                if (!walkingEnabled)
+                {
+                    PlayIdleFallback();
+                    return;
+                }
+
                 TryStartMove(state);
                 return;
             }

@@ -90,6 +90,12 @@ namespace CatLife.Cat
                 return;
             }
 
+            if (!HasAnimatorState(stateName))
+            {
+                busyUntil = 0f;
+                return;
+            }
+
             animator.CrossFadeInFixedTime(stateName, actionFade, 0);
             busyUntil = Time.time + Mathf.Max(0f, holdSeconds);
             interruptibleByMove = canInterruptByMove;
@@ -184,8 +190,18 @@ namespace CatLife.Cat
                 return;
             }
 
+            if (!HasAnimatorState(targetState))
+            {
+                return;
+            }
+
             animator.CrossFadeInFixedTime(targetState, locomotionFade, 0);
             lastPlayedState = targetState;
+        }
+
+        private bool HasAnimatorState(string stateName)
+        {
+            return animator != null && animator.HasState(0, Animator.StringToHash(stateName));
         }
 
         private string StateToName(CatBehaviorState state)

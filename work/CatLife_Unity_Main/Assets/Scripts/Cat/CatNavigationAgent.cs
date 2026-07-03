@@ -17,6 +17,8 @@ namespace CatLife.Cat
         [SerializeField] private float focusedStoppingDistance = 0.22f;
         [SerializeField] private bool drawDebugPath = true;
 
+        private float speedMultiplier = 1f;
+
         public bool IsOnNavMesh
         {
             get { return agent != null && agent.enabled && agent.isOnNavMesh; }
@@ -60,6 +62,11 @@ namespace CatLife.Cat
             }
         }
 
+        public void SetSpeedMultiplier(float multiplier)
+        {
+            speedMultiplier = Mathf.Clamp(multiplier, 0.1f, 3f);
+        }
+
         public void Configure(bool focused)
         {
             if (agent == null)
@@ -67,7 +74,7 @@ namespace CatLife.Cat
                 return;
             }
 
-            agent.speed = focused ? focusedRoamSpeed : freeRoamSpeed;
+            agent.speed = (focused ? focusedRoamSpeed : freeRoamSpeed) * speedMultiplier;
             agent.acceleration = focused ? focusedAcceleration : freeAcceleration;
             agent.stoppingDistance = focused ? focusedStoppingDistance : freeStoppingDistance;
         }
