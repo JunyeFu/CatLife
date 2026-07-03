@@ -9,7 +9,7 @@ namespace CatLife.UI
         [SerializeField] private CatLifeHomeUiController homeUiController;
         [SerializeField] private RectTransform track;
         [SerializeField] private RectTransform handle;
-        [SerializeField] private float unlockThreshold = 0.72f;
+        [SerializeField] private float unlockThreshold = 0.96f;
 
         private bool dragging;
         private float maxOffset;
@@ -70,14 +70,16 @@ namespace CatLife.UI
             }
 
             float halfHandle = handle.rect.height * 0.5f;
-            maxOffset = Mathf.Max(1f, track.rect.height - halfHandle);
-            float offset = Mathf.Clamp(localPoint.y, 0f, maxOffset);
+            maxOffset = Mathf.Max(1f, track.rect.height - handle.rect.height);
+            float localOffset = localPoint.y - halfHandle;
+            float offset = Mathf.Clamp(localOffset, 0f, maxOffset);
             CacheHandleBasePosition();
             Vector2 handlePosition = handleBasePosition;
             handlePosition.y += offset;
             handle.anchoredPosition = handlePosition;
 
-            if (offset / maxOffset >= unlockThreshold)
+            float trackProgress = Mathf.Clamp01(localOffset / Mathf.Max(1f, maxOffset));
+            if (trackProgress >= unlockThreshold)
             {
                 Unlock();
             }

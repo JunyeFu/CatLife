@@ -543,27 +543,13 @@ public static class CatLifePreviewSceneBuilder
         Text title = AddText("PlaceholderTitle", pageBase.transform, "\u732b\u54aa", font, 58, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(50f, -54f), new Vector2(620f, 82f));
         title.color = new Color(0.42f, 0.25f, 0.12f, 1f);
 
-        GameObject headerChip = AddPanel("PlaceholderPageChip", pageBase.transform, sprites.roundedSolid, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(50f, -152f), new Vector2(410f, 62f), new Color(1f, 0.78f, 0.22f, 0.22f));
-        Image chipOutline = AddImage("PlaceholderChipOutline", headerChip.transform, sprites.roundedOutline, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(410f, 62f), new Color(1f, 0.88f, 0.44f, 0.92f));
-        chipOutline.type = Image.Type.Sliced;
-        Text chipText = AddText("PlaceholderChipText", headerChip.transform, "\u6e38\u620f\u6a21\u5757\u9884\u89c8", font, 25, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(360f, 44f));
-        chipText.color = White;
-
         GameObject close = AddPanel("PlaceholderCloseButton", overlay.transform, sprites.circleSolid, new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(-78f, -94f), new Vector2(72f, 72f), new Color(1f, 0.77f, 0.22f, 0.18f));
         Button closeButton = close.AddComponent<Button>();
         AddImage("CloseOutline", close.transform, sprites.circleOutline, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(72f, 72f), new Color(1f, 0.9f, 0.48f, 1f));
         Text closeText = AddText("CloseText", close.transform, "\u00d7", font, 38, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 1f), new Vector2(48f, 48f));
         closeText.color = White;
 
-        GameObject heroPanel = AddPanel("PlaceholderHeroPanel", pageBase.transform, sprites.roundedSolid, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -270f), new Vector2(824f, 210f), new Color(1f, 0.78f, 0.27f, 0.30f));
-        Image heroOutline = AddImage("PlaceholderHeroOutline", heroPanel.transform, sprites.roundedOutline, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(824f, 210f), new Color(1f, 0.76f, 0.28f, 0.76f));
-        heroOutline.type = Image.Type.Sliced;
-        Image heroIcon = AddImage("PlaceholderHeroIcon", heroPanel.transform, sprites.cat, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(50f, 0f), new Vector2(108f, 108f), White);
-        Text heroText = AddText("PlaceholderHeroText", heroPanel.transform, "\u67e5\u770b\u5f53\u524d\u966a\u4f34\u72b6\u6001\u3001\u6210\u957f\u503c\u548c\u5df2\u89e3\u9501\u52a8\u4f5c\u3002", font, 28, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(182f, 0f), new Vector2(590f, 124f));
-        heroText.color = new Color(0.43f, 0.25f, 0.1f, 1f);
-        heroText.horizontalOverflow = HorizontalWrapMode.Wrap;
-
-        Text body = AddText("PlaceholderBody", pageBase.transform, "\u5f53\u524d\u72b6\u6001", font, 31, FontStyle.Bold, TextAnchor.UpperLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(60f, -540f), new Vector2(816f, 1320f));
+        Text body = AddText("PlaceholderBody", pageBase.transform, "\u5f53\u524d\u72b6\u6001", font, 31, FontStyle.Bold, TextAnchor.UpperLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(60f, -170f), new Vector2(816f, 1690f));
         body.color = new Color(0.35f, 0.22f, 0.12f, 1f);
         body.horizontalOverflow = HorizontalWrapMode.Wrap;
         body.verticalOverflow = VerticalWrapMode.Overflow;
@@ -576,9 +562,6 @@ public static class CatLifePreviewSceneBuilder
             overlay = overlay,
             pageStatusText = pageStatus,
             titleText = title,
-            chipText = chipText,
-            heroText = heroText,
-            heroIcon = heroIcon,
             bodyText = body,
             closeButton = closeButton
         };

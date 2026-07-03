@@ -531,6 +531,8 @@ namespace CatLife.UI
 
         private void ShowPlaceholder(string title, string chip, string hero, Sprite icon, string body)
         {
+            ApplyPlaceholderCompactLayout();
+
             if (placeholderTitleText != null)
             {
                 placeholderTitleText.supportRichText = true;
@@ -561,6 +563,32 @@ namespace CatLife.UI
             }
 
             SetPlaceholderVisible(true);
+        }
+
+        private void ApplyPlaceholderCompactLayout()
+        {
+            SetGameObjectVisible(GetPlaceholderCardRoot(placeholderChipText), false);
+            SetGameObjectVisible(GetPlaceholderCardRoot(placeholderHeroText), false);
+            SetGameObjectVisible(GetPlaceholderCardRoot(placeholderHeroIcon), false);
+
+            if (placeholderBodyText == null)
+            {
+                return;
+            }
+
+            RectTransform bodyRect = placeholderBodyText.rectTransform;
+            bodyRect.anchoredPosition = new Vector2(60f, -170f);
+            bodyRect.sizeDelta = new Vector2(816f, 1690f);
+        }
+
+        private static GameObject GetPlaceholderCardRoot(Component component)
+        {
+            if (component == null || component.transform.parent == null)
+            {
+                return null;
+            }
+
+            return component.transform.parent.gameObject;
         }
 
         private void SetPlaceholderVisible(bool visible)
@@ -754,26 +782,26 @@ namespace CatLife.UI
             rootRect.anchoredPosition = new Vector2(0f, 54f);
             rootRect.sizeDelta = new Vector2(260f, 420f);
 
-            GameObject track = AddRuntimePanel("FocusUnlockTrack", focusUnlockSliderGroup.transform, roundedSprite, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 156f), new Vector2(86f, 238f), new Color(1f, 1f, 1f, 0.22f));
+            GameObject track = AddRuntimePanel("FocusUnlockTrack", focusUnlockSliderGroup.transform, roundedSprite, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 96f), new Vector2(116f, 312f), new Color(1f, 1f, 1f, 0.22f));
             track.GetComponent<Image>().raycastTarget = false;
             RectTransform trackRect = track.GetComponent<RectTransform>();
-            AddRuntimeImage("UnlockTrackHighlight", track.transform, roundedSprite, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -28f), new Vector2(54f, 154f), new Color(1f, 1f, 1f, 0.20f));
-            AddRuntimeImage("UnlockTrackOutline", track.transform, roundedOutlineSprite, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(86f, 238f), new Color(1f, 0.92f, 0.54f, 0.90f));
+            AddRuntimeImage("UnlockTrackHighlight", track.transform, roundedSprite, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -40f), new Vector2(72f, 190f), new Color(1f, 1f, 1f, 0.20f));
+            AddRuntimeImage("UnlockTrackOutline", track.transform, roundedOutlineSprite, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(116f, 312f), new Color(1f, 0.92f, 0.54f, 0.90f));
             AddRuntimeImage("UnlockTopTick", track.transform, circleSprite, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, -32f), new Vector2(9f, 9f), new Color(1f, 1f, 1f, 0.58f));
             AddRuntimeImage("UnlockMidTick", track.transform, circleSprite, new Vector2(0.5f, 0.55f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(8f, 8f), new Color(1f, 1f, 1f, 0.45f));
 
-            GameObject handle = AddRuntimePanel("FocusUnlockHandle", focusUnlockSliderGroup.transform, circleSprite, new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 156f), new Vector2(98f, 98f), new Color(1f, 0.70f, 0.18f, 0.32f));
+            GameObject handle = AddRuntimePanel("FocusUnlockHandle", focusUnlockSliderGroup.transform, circleSprite, new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 154f), new Vector2(116f, 116f), new Color(1f, 0.70f, 0.18f, 0.32f));
             Image handleImage = handle.GetComponent<Image>();
             handleImage.raycastTarget = true;
             RectTransform handleRect = handle.GetComponent<RectTransform>();
-            AddRuntimeImage("FocusUnlockHandleOutline", handle.transform, circleOutlineSprite, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(98f, 98f), new Color(1f, 0.90f, 0.46f, 1f));
+            AddRuntimeImage("FocusUnlockHandleOutline", handle.transform, circleOutlineSprite, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(116f, 116f), new Color(1f, 0.90f, 0.46f, 1f));
             AddRuntimeText("FocusUnlockArrow", handle.transform, "↑", font, 38, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), new Vector2(64f, 64f), new Color(1f, 0.97f, 0.91f, 1f));
 
             Text label = AddRuntimeText("FocusUnlockLabel", focusUnlockSliderGroup.transform, "解锁", font, 28, FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 72f), new Vector2(140f, 44f), new Color(1f, 0.97f, 0.91f, 1f));
             AddRuntimeTextShadow(label, 0.24f, new Vector2(0f, -1.6f));
 
             focusUnlockSlider = handle.AddComponent<FocusUnlockSlider>();
-            focusUnlockSlider.Configure(this, trackRect, handleRect, 0.72f);
+            focusUnlockSlider.Configure(this, trackRect, handleRect, 0.96f);
             focusUnlockSliderGroup.SetActive(false);
         }
 
