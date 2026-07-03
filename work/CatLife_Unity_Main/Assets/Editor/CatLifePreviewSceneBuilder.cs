@@ -526,15 +526,6 @@ public static class CatLifePreviewSceneBuilder
         skyImage.type = Image.Type.Simple;
         AddPanel("PageSunGlow", skyBand.transform, sprites.circleSolid, new Vector2(1f, 1f), new Vector2(0.5f, 0.5f), new Vector2(-126f, -120f), new Vector2(210f, 210f), new Color(1f, 0.86f, 0.35f, 0.22f));
 
-        Text eyebrow = AddText("PlaceholderEyebrow", overlay.transform, "CatLife", font, 28, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(72f, -62f), new Vector2(260f, 42f));
-        eyebrow.color = new Color(1f, 1f, 1f, 0.92f);
-        AddTextShadow(eyebrow, 0.18f, new Vector2(0f, -1.2f));
-
-        Text pageStatus = AddText("PlaceholderPageStatus", overlay.transform, "\u4eca\u5929\u5df2\u4e13\u6ce8 <color=#FFD14A>48</color> \u5206\u949f", font, 24, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(72f, -106f), new Vector2(360f, 42f));
-        pageStatus.color = White;
-        pageStatus.supportRichText = true;
-        AddTextShadow(pageStatus, 0.18f, new Vector2(0f, -1.2f));
-
         GameObject pageBase = AddPanel("PlaceholderPageBase", overlay.transform, sprites.roundedSolid, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -148f), new Vector2(936f, 2130f), new Color(1f, 0.96f, 0.78f, 0.96f));
         Image pageBaseImage = pageBase.GetComponent<Image>();
         pageBaseImage.sprite = null;
@@ -560,7 +551,6 @@ public static class CatLifePreviewSceneBuilder
         return new PlaceholderUi
         {
             overlay = overlay,
-            pageStatusText = pageStatus,
             titleText = title,
             bodyText = body,
             closeButton = closeButton

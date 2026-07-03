@@ -567,6 +567,8 @@ namespace CatLife.UI
 
         private void ApplyPlaceholderCompactLayout()
         {
+            SetGameObjectVisible(FindSceneObjectByName("PlaceholderEyebrow"), false);
+            SetGameObjectVisible(FindSceneObjectByName("PlaceholderPageStatus"), false);
             SetGameObjectVisible(GetPlaceholderCardRoot(placeholderChipText), false);
             SetGameObjectVisible(GetPlaceholderCardRoot(placeholderHeroText), false);
             SetGameObjectVisible(GetPlaceholderCardRoot(placeholderHeroIcon), false);
