@@ -12,13 +12,13 @@ public static class CatLifeCatTownWalkerSetup
     private const string WalkClipPath = "Assets/Art/Cat/Animations/Clips/CL_CAT_SRC_Walk_60fps.anim";
     private const string IdleClipPath = "Assets/Art/Cat/Animations/Clips/CL_CAT_IdleBreath_v06_headsync_loop_108f.anim";
     private const string ControllerPath = "Assets/Art/Cat/Animator/CatLife_TownWalker.controller";
-    private const string SourceWalkRoot = "CL_CAT_Armature";
+    private static readonly string[] SourceWalkRoots = { "Armature", "CL_CAT_Armature" };
     private const string RuntimeWalkRoot = "CL_CAT_CORRECTED_Armature";
     private const string IsWalkingParameter = "IsWalking";
     private const string WalkStateName = "CL_CAT_SRC_Walk_60fps";
     private const string IdleStateName = "CL_CAT_IdleBreath_v06_headsync_loop_108f";
 
-    private static readonly Vector3 TownCatPosition = new Vector3(-0.3f, 0.03f, -6.78f);
+    private static readonly Vector3 TownCatPosition = new Vector3(-0.3f, 0.23f, -6.78f);
     private static readonly Vector3 TownCatRotation = new Vector3(0f, -0.017f, 0f);
     private static readonly Vector2 TownCatPatrolSize = new Vector2(2.6f, 1.6f);
     private const float TownCatScale = 0.0275f;
@@ -114,6 +114,7 @@ public static class CatLifeCatTownWalkerSetup
         AnimationClip retargeted = new AnimationClip();
         retargeted.name = "CL_CAT_SRC_Walk_60fps";
         retargeted.frameRate = source.frameRate;
+        retargeted.wrapMode = WrapMode.Loop;
 
         EditorCurveBinding[] curveBindings = AnimationUtility.GetCurveBindings(source);
         for (int i = 0; i < curveBindings.Length; i++)
@@ -138,6 +139,7 @@ public static class CatLifeCatTownWalkerSetup
 
         AnimationClipSettings settings = AnimationUtility.GetAnimationClipSettings(retargeted);
         settings.loopTime = true;
+        settings.loopBlend = true;
         settings.keepOriginalPositionY = true;
         settings.keepOriginalOrientation = true;
         AnimationUtility.SetAnimationClipSettings(retargeted, settings);
@@ -154,7 +156,8 @@ public static class CatLifeCatTownWalkerSetup
             return false;
         }
 
-        return binding.propertyName.StartsWith("m_LocalPosition.") || binding.propertyName.StartsWith("m_LocalScale.");
+        return binding.propertyName.StartsWith("m_LocalPosition.") ||
+            binding.propertyName.StartsWith("m_LocalScale.");
     }
 
     private static AnimationClip FindWalkSourceClip()
@@ -185,14 +188,18 @@ public static class CatLifeCatTownWalkerSetup
 
     private static string RetargetPath(string path)
     {
-        if (path == SourceWalkRoot)
+        for (int i = 0; i < SourceWalkRoots.Length; i++)
         {
-            return RuntimeWalkRoot;
-        }
+            string sourceWalkRoot = SourceWalkRoots[i];
+            if (path == sourceWalkRoot)
+            {
+                return RuntimeWalkRoot;
+            }
 
-        if (path.StartsWith(SourceWalkRoot + "/"))
-        {
-            return RuntimeWalkRoot + path.Substring(SourceWalkRoot.Length);
+            if (path.StartsWith(sourceWalkRoot + "/"))
+            {
+                return RuntimeWalkRoot + path.Substring(sourceWalkRoot.Length);
+            }
         }
 
         return path;
@@ -200,41 +207,62 @@ public static class CatLifeCatTownWalkerSetup
 
     private static AnimatorController BuildAnimatorController(AnimationClip walkClip)
     {
-        AnimationClip idleClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(IdleClipPath);
-        if (idleClip == null)
+        AnimatorController controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath);
+        if (controller == null)
         {
-            Debug.LogWarning("[CatLifeCatTownWalkerSetup] Missing idle clip: " + IdleClipPath);
+            controller = AnimatorController.CreateAnimatorControllerAtPath(ControllerPath);
         }
 
-        if (AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath) != null)
+        if (!HasParameter(controller, IsWalkingParameter, AnimatorControllerParameterType.Bool))
         {
-            AssetDatabase.DeleteAsset(ControllerPath);
+            controller.AddParameter(IsWalkingParameter, AnimatorControllerParameterType.Bool);
         }
-
-        AnimatorController controller = AnimatorController.CreateAnimatorControllerAtPath(ControllerPath);
-        controller.AddParameter(IsWalkingParameter, AnimatorControllerParameterType.Bool);
 
         AnimatorStateMachine stateMachine = controller.layers[0].stateMachine;
-        AnimatorState idle = stateMachine.AddState("CL_CAT_IdleBreath_v06_headsync_loop_108f");
+        ClearStateMachine(stateMachine);
+
         AnimatorState walk = stateMachine.AddState("CL_CAT_SRC_Walk_60fps");
-        idle.motion = idleClip;
         walk.motion = walkClip;
-        idle.speed = 1f;
         walk.speed = 1f;
-        stateMachine.defaultState = idle;
-
-        AnimatorStateTransition toWalk = idle.AddTransition(walk);
-        toWalk.hasExitTime = false;
-        toWalk.duration = 0.12f;
-        toWalk.AddCondition(AnimatorConditionMode.If, 0f, IsWalkingParameter);
-
-        AnimatorStateTransition toIdle = walk.AddTransition(idle);
-        toIdle.hasExitTime = false;
-        toIdle.duration = 0.16f;
-        toIdle.AddCondition(AnimatorConditionMode.IfNot, 0f, IsWalkingParameter);
+        stateMachine.defaultState = walk;
 
         EditorUtility.SetDirty(controller);
         return controller;
+    }
+
+    private static bool HasParameter(AnimatorController controller, string parameterName, AnimatorControllerParameterType parameterType)
+    {
+        AnimatorControllerParameter[] parameters = controller.parameters;
+        for (int i = 0; i < parameters.Length; i++)
+        {
+            if (parameters[i].name == parameterName && parameters[i].type == parameterType)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static void ClearStateMachine(AnimatorStateMachine stateMachine)
+    {
+        ChildAnimatorState[] states = stateMachine.states;
+        for (int i = states.Length - 1; i >= 0; i--)
+        {
+            stateMachine.RemoveState(states[i].state);
+        }
+
+        AnimatorStateTransition[] anyStateTransitions = stateMachine.anyStateTransitions;
+        for (int i = anyStateTransitions.Length - 1; i >= 0; i--)
+        {
+            stateMachine.RemoveAnyStateTransition(anyStateTransitions[i]);
+        }
+
+        AnimatorTransition[] entryTransitions = stateMachine.entryTransitions;
+        for (int i = entryTransitions.Length - 1; i >= 0; i--)
+        {
+            stateMachine.RemoveEntryTransition(entryTransitions[i]);
+        }
     }
 
     private static void ConfigureCatObject(GameObject cat, RuntimeAnimatorController controller)
@@ -272,7 +300,7 @@ public static class CatLifeCatTownWalkerSetup
         serialized.FindProperty("walkSpeed").floatValue = 1.15f;
         serialized.FindProperty("turnSpeed").floatValue = 5.5f;
         serialized.FindProperty("waitSecondsRange").vector2Value = new Vector2(0.05f, 0.18f);
-        serialized.FindProperty("initialIdleSeconds").floatValue = 0.45f;
+        serialized.FindProperty("initialIdleSeconds").floatValue = 0f;
         serialized.FindProperty("targetMinDistance").floatValue = 0.45f;
         serialized.FindProperty("targetTolerance").floatValue = 0.08f;
         serialized.FindProperty("maxMovementDeltaTime").floatValue = 0.05f;

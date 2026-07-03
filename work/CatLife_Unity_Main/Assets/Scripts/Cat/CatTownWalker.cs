@@ -12,7 +12,7 @@ namespace CatLife.Cat
         [SerializeField] private Vector2 xRange = new Vector2(-6.5f, 6.5f);
         [SerializeField] private Vector2 zRange = new Vector2(-12.5f, -4.0f);
         [SerializeField] private Vector2 localPatrolSize = new Vector2(2.6f, 1.6f);
-        [SerializeField] private float groundY = 0.03f;
+        [SerializeField] private float groundY = 0.23f;
         [SerializeField] private float walkSpeed = 1.15f;
         [SerializeField] private float turnSpeed = 5.5f;
         [SerializeField] private Vector2 waitSecondsRange = new Vector2(0.05f, 0.18f);
@@ -34,6 +34,7 @@ namespace CatLife.Cat
         private float waitUntil;
         private bool isWalking;
         private int isWalkingParameterHash;
+        private int walkStateHash;
         private bool hasWalkingParameter;
 
         private void Awake()
@@ -54,6 +55,7 @@ namespace CatLife.Cat
 
         private void OnEnable()
         {
+            groundY = transform.position.y;
             SnapToGround(false);
             BuildRuntimeRanges();
             ConfigureAnimatedRenderers();
@@ -62,8 +64,8 @@ namespace CatLife.Cat
 
             if (startWalkingOnEnable)
             {
-                waitUntil = Time.time + Mathf.Max(0f, initialIdleSeconds);
-                SetWalking(false);
+                PickTarget();
+                SetWalking(true);
             }
             else
             {
@@ -91,8 +93,7 @@ namespace CatLife.Cat
 
             if (toTarget.sqrMagnitude <= targetTolerance * targetTolerance)
             {
-                waitUntil = Time.time + Random.Range(waitSecondsRange.x, waitSecondsRange.y);
-                SetWalking(false);
+                PickTarget();
                 return;
             }
 
@@ -188,7 +189,14 @@ namespace CatLife.Cat
                 return;
             }
 
+            if (animator.runtimeAnimatorController == null)
+            {
+                hasWalkingParameter = false;
+                return;
+            }
+
             isWalkingParameterHash = Animator.StringToHash(isWalkingParameter);
+            walkStateHash = Animator.StringToHash(walkStateName);
             hasWalkingParameter = false;
             AnimatorControllerParameter[] parameters = animator.parameters;
             for (int i = 0; i < parameters.Length; i++)
@@ -228,9 +236,23 @@ namespace CatLife.Cat
             }
 
             animator.applyRootMotion = false;
+            if (animator.runtimeAnimatorController == null)
+            {
+                return;
+            }
+
             if (hasWalkingParameter)
             {
                 animator.SetBool(isWalkingParameterHash, walking);
+            }
+
+            if (walking && walkStateHash != 0)
+            {
+                AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(0);
+                if (!current.IsName(walkStateName) && current.shortNameHash != walkStateHash)
+                {
+                    animator.Play(walkStateName, 0, 0f);
+                }
             }
         }
 

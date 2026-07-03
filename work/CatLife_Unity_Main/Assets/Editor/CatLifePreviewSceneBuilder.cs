@@ -280,7 +280,7 @@ public static class CatLifePreviewSceneBuilder
         GameObject cat = EnsureCatCompanionModel();
         if (cat != null)
         {
-            cat.transform.position = new Vector3(-0.3f, 0.03f, -6.78f);
+            cat.transform.position = new Vector3(-0.3f, 0.23f, -6.78f);
             cat.transform.rotation = Quaternion.Euler(0f, -0.017f, 0f);
             cat.transform.localScale = Vector3.one * TownCatScale;
             ApplyCatMaterial(cat, catMaterial);
