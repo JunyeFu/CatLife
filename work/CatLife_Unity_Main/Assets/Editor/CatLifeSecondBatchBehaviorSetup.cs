@@ -83,13 +83,14 @@ namespace CatLife.EditorTools
             CatNavigationAgent navigationAgent = GetOrAdd<CatNavigationAgent>(cat);
             CatDestinationPlanner destinationPlanner = GetOrAdd<CatDestinationPlanner>(cat);
             CatAnimationController animationController = GetOrAdd<CatAnimationController>(cat);
+            CatActionRouter actionRouter = GetOrAdd<CatActionRouter>(cat);
             CatBehaviorDriver behaviorDriver = GetOrAdd<CatBehaviorDriver>(cat);
             Animator animator = cat.GetComponent<Animator>();
 
             AssignObject(navigationAgent, "agent", agent);
             AssignPlanner(destinationPlanner, anchors);
             AssignObject(animationController, "animator", animator);
-            AssignDriver(behaviorDriver, recognitionProvider, llmClient, navigationAgent, animationController, destinationPlanner);
+            AssignDriver(behaviorDriver, recognitionProvider, llmClient, navigationAgent, animationController, destinationPlanner, actionRouter);
 
             CatTownWalker legacyWalker = cat.GetComponent<CatTownWalker>();
             if (legacyWalker != null)
@@ -201,7 +202,8 @@ namespace CatLife.EditorTools
             MockCatLLMClient llmClient,
             CatNavigationAgent navigationAgent,
             CatAnimationController animationController,
-            CatDestinationPlanner destinationPlanner)
+            CatDestinationPlanner destinationPlanner,
+            CatActionRouter actionRouter)
         {
             SerializedObject serialized = new SerializedObject(driver);
             serialized.FindProperty("recognitionProviderComponent").objectReferenceValue = recognitionProvider;
@@ -209,6 +211,7 @@ namespace CatLife.EditorTools
             serialized.FindProperty("navigationAgent").objectReferenceValue = navigationAgent;
             serialized.FindProperty("animationController").objectReferenceValue = animationController;
             serialized.FindProperty("destinationPlanner").objectReferenceValue = destinationPlanner;
+            serialized.FindProperty("actionRouter").objectReferenceValue = actionRouter;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(driver);
         }

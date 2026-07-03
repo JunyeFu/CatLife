@@ -13,6 +13,7 @@ namespace CatLife.Cat
         [SerializeField] private CatNavigationAgent navigationAgent;
         [SerializeField] private CatAnimationController animationController;
         [SerializeField] private CatDestinationPlanner destinationPlanner;
+        [SerializeField] private CatActionRouter actionRouter;
 
         [Header("Timing")]
         [SerializeField] private float decisionInterval = 0.5f;
@@ -55,6 +56,7 @@ namespace CatLife.Cat
             navigationAgent = GetComponent<CatNavigationAgent>();
             animationController = GetComponent<CatAnimationController>();
             destinationPlanner = GetComponent<CatDestinationPlanner>();
+            actionRouter = GetComponent<CatActionRouter>();
         }
 
         private void Awake()
@@ -72,6 +74,16 @@ namespace CatLife.Cat
             if (destinationPlanner == null)
             {
                 destinationPlanner = GetComponent<CatDestinationPlanner>();
+            }
+
+            if (actionRouter == null)
+            {
+                actionRouter = GetComponent<CatActionRouter>();
+            }
+
+            if (actionRouter == null)
+            {
+                actionRouter = gameObject.AddComponent<CatActionRouter>();
             }
 
             recognitionProvider = recognitionProviderComponent as IRecognitionProvider;
@@ -106,6 +118,7 @@ namespace CatLife.Cat
 
             TickLlm();
             TickAnimation();
+            TryPlayQueuedAction();
 
             if (Time.time < nextDecisionTime)
             {
@@ -125,7 +138,15 @@ namespace CatLife.Cat
                 mock.NotifyCatTapped();
             }
 
-            PlayImmediateInteraction(WeightedInteractionPick());
+            RouteAction(CatActionRequest.Create(
+                WeightedInteractionPick(),
+                CatActionSource.User,
+                "cat_tap",
+                70,
+                8f,
+                2f,
+                CatActionInterruptPolicy.QueueIfMoving,
+                false));
         }
 
         public void SetFocusMode(bool focused)
@@ -165,7 +186,34 @@ namespace CatLife.Cat
                 mock.NotifyCatLongPressed();
             }
 
-            PlayImmediateInteraction(snapshot.IsFocused ? CatBehaviorState.HeadTiltListen : CatBehaviorState.TailWagHappy);
+            RouteAction(CatActionRequest.Create(
+                snapshot.IsFocused ? CatBehaviorState.HeadTiltListen : CatBehaviorState.TailWagHappy,
+                CatActionSource.User,
+                "cat_long_press",
+                70,
+                12f,
+                2f,
+                CatActionInterruptPolicy.QueueIfMoving,
+                false));
+        }
+
+        public void NotifyUiAction(CatBehaviorState state, string reason)
+        {
+            if (state == CatBehaviorState.None)
+            {
+                return;
+            }
+
+            recentEvents[0] = reason;
+            RouteAction(CatActionRequest.Create(
+                state,
+                CatActionSource.Ui,
+                reason,
+                60,
+                10f,
+                2f,
+                CatActionInterruptPolicy.QueueIfMoving,
+                false));
         }
 
         private void TickLlm()
@@ -279,12 +327,15 @@ namespace CatLife.Cat
                 navigationAgent.StopSoft();
             }
 
-            float holdSeconds = GetHoldSeconds(state, focused);
-            actionHoldUntil = Time.time + holdSeconds;
-            if (animationController != null)
-            {
-                animationController.PlayAction(state, holdSeconds, false);
-            }
+            RouteAction(CatActionRequest.Create(
+                state,
+                focused ? CatActionSource.Recognition : CatActionSource.Ambient,
+                focused ? "focused_state" : "ambient_state",
+                focused ? 50 : 10,
+                focused ? 12f : 6f,
+                1f,
+                CatActionInterruptPolicy.DropIfBusy,
+                false));
         }
 
         private void TryStartMove(CatBehaviorState state)
@@ -315,19 +366,55 @@ namespace CatLife.Cat
             }
         }
 
-        private void PlayImmediateInteraction(CatBehaviorState state)
+        private void TryPlayQueuedAction()
         {
-            currentState = state;
+            if (actionRouter == null)
+            {
+                return;
+            }
+
+            CatActionRequest playableRequest;
+            if (actionRouter.TryPopReady(
+                    navigationAgent != null && navigationAgent.IsMoving,
+                    Time.time < actionHoldUntil,
+                    out playableRequest))
+            {
+                PlayRoutedAction(playableRequest);
+            }
+        }
+
+        private void RouteAction(CatActionRequest request)
+        {
+            if (actionRouter == null)
+            {
+                PlayRoutedAction(request);
+                return;
+            }
+
+            CatActionRequest playableRequest;
+            if (actionRouter.TryRoute(
+                    request,
+                    navigationAgent != null && navigationAgent.IsMoving,
+                    Time.time < actionHoldUntil,
+                    out playableRequest))
+            {
+                PlayRoutedAction(playableRequest);
+            }
+        }
+
+        private void PlayRoutedAction(CatActionRequest request)
+        {
+            currentState = request.state;
             if (navigationAgent != null)
             {
                 navigationAgent.StopSoft();
             }
 
-            float holdSeconds = GetHoldSeconds(state, snapshot.IsFocused);
+            float holdSeconds = GetHoldSeconds(request.state, snapshot.IsFocused);
             actionHoldUntil = Time.time + holdSeconds;
             if (animationController != null)
             {
-                animationController.PlayAction(state, holdSeconds, false);
+                animationController.PlayAction(request.state, holdSeconds, request.canInterruptByMove);
             }
         }
 

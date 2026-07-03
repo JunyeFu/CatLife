@@ -151,6 +151,7 @@ namespace CatLife.UI
 
         public void StartFocusSession()
         {
+            NotifyCatUiAction(CatBehaviorState.HeadTiltListen, "ui_start_focus");
             activeSessionSeconds = Mathf.Max(1, focusSessionSeconds);
             focusRemainingSeconds = activeSessionSeconds;
             focusRunning = true;
@@ -185,7 +186,17 @@ namespace CatLife.UI
 
         public void ShowCatPage()
         {
+            ShowCatPage(true);
+        }
+
+        private void ShowCatPage(bool notifyCatAction)
+        {
             activePage = HomePage.Cat;
+            if (notifyCatAction)
+            {
+                NotifyCatUiAction(CatBehaviorState.TailWagHappy, "ui_cat_page");
+            }
+
             ShowPlaceholder(
                 "猫咪",
                 "猫咪状态",
@@ -196,7 +207,17 @@ namespace CatLife.UI
 
         public void ShowRecordPage()
         {
+            ShowRecordPage(true);
+        }
+
+        private void ShowRecordPage(bool notifyCatAction)
+        {
             activePage = HomePage.Record;
+            if (notifyCatAction)
+            {
+                NotifyCatUiAction(CatBehaviorState.HeadTiltListen, "ui_record_page");
+            }
+
             ShowPlaceholder(
                 "记录",
                 "专注记录",
@@ -207,7 +228,17 @@ namespace CatLife.UI
 
         public void ShowSettingsPage()
         {
+            ShowSettingsPage(true);
+        }
+
+        private void ShowSettingsPage(bool notifyCatAction)
+        {
             activePage = HomePage.Settings;
+            if (notifyCatAction)
+            {
+                NotifyCatUiAction(CatBehaviorState.AlertLook, "ui_settings_page");
+            }
+
             ShowPlaceholder(
                 "设置",
                 "识别与隐私",
@@ -233,6 +264,7 @@ namespace CatLife.UI
             focusRemainingSeconds = Mathf.Max(1, focusSessionSeconds);
             SaveRuntimeData();
             ApplyFocusState(FocusFlowState.Reward, false);
+            NotifyCatUiAction(CatBehaviorState.PawWave, "session_completed");
             UpdateStatusText(true);
             RefreshActivePage();
         }
@@ -397,15 +429,15 @@ namespace CatLife.UI
         {
             if (activePage == HomePage.Cat)
             {
-                ShowCatPage();
+                ShowCatPage(false);
             }
             else if (activePage == HomePage.Record)
             {
-                ShowRecordPage();
+                ShowRecordPage(false);
             }
             else if (activePage == HomePage.Settings)
             {
-                ShowSettingsPage();
+                ShowSettingsPage(false);
             }
         }
 
@@ -699,6 +731,15 @@ namespace CatLife.UI
 
             catBehaviorDriver = FindAnyObjectByType<CatBehaviorDriver>();
             return catBehaviorDriver;
+        }
+
+        private void NotifyCatUiAction(CatBehaviorState state, string reason)
+        {
+            CatBehaviorDriver behaviorDriver = ResolveCatBehaviorDriver();
+            if (behaviorDriver != null && behaviorDriver.isActiveAndEnabled)
+            {
+                behaviorDriver.NotifyUiAction(state, reason);
+            }
         }
 
         private CatTownWalker ResolveCatWalker()
