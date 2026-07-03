@@ -83,6 +83,7 @@ namespace CatLife.EditorTools
             agent.updateRotation = true;
 
             CatNavigationAgent navigationAgent = GetOrAdd<CatNavigationAgent>(cat);
+            CatNavMeshSafetyGuard safetyGuard = GetOrAdd<CatNavMeshSafetyGuard>(cat);
             CatDestinationPlanner destinationPlanner = GetOrAdd<CatDestinationPlanner>(cat);
             CatAnimationController animationController = GetOrAdd<CatAnimationController>(cat);
             CatActionRouter actionRouter = GetOrAdd<CatActionRouter>(cat);
@@ -90,6 +91,7 @@ namespace CatLife.EditorTools
             Animator animator = cat.GetComponent<Animator>();
 
             AssignObject(navigationAgent, "agent", agent);
+            AssignObject(safetyGuard, "agent", agent);
             AssignPlanner(destinationPlanner, anchors);
             AssignObject(animationController, "animator", animator);
             AssignDriver(behaviorDriver, recognitionProvider, llmClient, navigationAgent, animationController, destinationPlanner, actionRouter, featureEngine);
@@ -113,7 +115,7 @@ namespace CatLife.EditorTools
             EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
             EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
 
-            Debug.Log("CatLife second batch setup completed: NavMeshSurface, walk areas, cat NavMeshAgent, behavior driver, recognition mock, LLM mock, and UI binding are installed.");
+            Debug.Log("CatLife second batch setup completed: NavMeshSurface, walk areas, cat NavMeshAgent, NavMesh safety guard, behavior driver, recognition mock, LLM mock, and UI binding are installed.");
         }
 
         private static Transform GetOrCreateRoot(string name)
