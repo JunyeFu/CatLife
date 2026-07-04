@@ -156,13 +156,72 @@ namespace CatLife.EditorTools
             ValidateProjectStructure(issues);
             ValidateSceneObjects(issues);
             ValidateAnimatorAssets(issues);
+            ValidateLlmRuntimeAdapters(issues);
 
             if (issues.Count == 0)
             {
-                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, config schemas, UI binding, and 11 animator states are present.";
+                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, BlueLM Unity adapter, config schemas, UI binding, and 11 animator states are present.";
             }
 
             return "FAIL CatLife runtime assembly validation:\n- " + string.Join("\n- ", issues.ToArray());
+        }
+
+        private static void ValidateLlmRuntimeAdapters(List<string> issues)
+        {
+            CatPromptContext context = CatPromptContext.Create(
+                RecognitionSnapshot.CreateDefault(),
+                CatBehaviorState.Roam,
+                0.25f,
+                "curious",
+                new[] { "stage1_bluelm" },
+                default(RealtimeFeatureSnapshot),
+                false);
+
+            BlueLmUnityRequest request = BlueLmUnityRequest.Create(
+                string.Empty,
+                context,
+                new CatPromptBuilder(),
+                1.25f);
+            if (string.IsNullOrEmpty(request.requestId) || request.requestId.Length != 32)
+            {
+                issues.Add("BlueLmUnityRequest must generate a 32-char Guid N requestId.");
+            }
+
+            if (request.timeoutMs < 1000 || string.IsNullOrEmpty(request.userContextJson))
+            {
+                issues.Add("BlueLmUnityRequest did not preserve timeout or user context JSON.");
+            }
+
+            BlueLmAndroidEvent successEvent;
+            string reason;
+            string successJson = "{\"requestId\":\"stage1_success\",\"ok\":true,\"suggestion\":{\"suggestedLine\":\"Stay close.\",\"moodBias\":\"curious\",\"roamWeightBias\":0.1,\"quietIdleWeightBias\":0.0,\"socialResponseWeightBias\":0.0,\"showBubble\":true}}";
+            if (!BlueLmAndroidEvent.TryParse(successJson, out successEvent, out reason))
+            {
+                issues.Add("BlueLmAndroidEvent rejected valid success JSON: " + reason);
+            }
+            else
+            {
+                LLMBehaviorSuggestion suggestion;
+                if (!successEvent.TryBuildSuggestion(out suggestion, out reason))
+                {
+                    issues.Add("BlueLmAndroidEvent could not build success suggestion: " + reason);
+                }
+                else if (suggestion.moodBias != "curious" || !suggestion.showBubble)
+                {
+                    issues.Add("BlueLmAndroidEvent success suggestion fields were not preserved.");
+                }
+            }
+
+            BlueLmAndroidEvent failureEvent;
+            string failureJson = "{\"requestId\":\"stage1_failure\",\"ok\":false,\"error\":\"model_not_ready\"}";
+            if (!BlueLmAndroidEvent.TryParse(failureJson, out failureEvent, out reason))
+            {
+                issues.Add("BlueLmAndroidEvent rejected valid failure JSON: " + reason);
+            }
+            else if (failureEvent.IsSuccess || failureEvent.ErrorText != "model_not_ready")
+            {
+                issues.Add("BlueLmAndroidEvent failure status was not preserved.");
+            }
         }
 
         private static void ValidateProjectStructure(List<string> issues)
