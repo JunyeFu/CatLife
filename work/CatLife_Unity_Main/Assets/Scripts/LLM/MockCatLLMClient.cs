@@ -15,6 +15,12 @@ namespace CatLife.LLM
 
         public bool Enabled { get { return enableClient; } }
         public bool IsBusy { get; private set; }
+        public string LastSource { get; private set; } = "not_requested";
+        public string LastFailureReason { get; private set; } = "";
+        public string LastCloudRequestId { get; private set; } = "";
+        public long LastCloudStatusCode { get; private set; }
+        public string LastCloudAppIdRedacted { get; private set; } = "missing_app_id";
+        public bool LastCloudConfigUsable { get; private set; }
 
         public void RequestSuggestion(
             CatPromptContext context,
@@ -50,6 +56,12 @@ namespace CatLife.LLM
             IsBusy = true;
 
             VivoCloudDemoConfig config = VivoCloudDemoConfig.Load();
+            LastCloudAppIdRedacted = config.RedactedAppId;
+            LastCloudConfigUsable = config.HasUsableCloudCredentials;
+            LastCloudStatusCode = 0;
+            LastCloudRequestId = "";
+            LastFailureReason = "";
+            LastSource = LastCloudConfigUsable ? "vivo_cloud_pending" : "local_template";
             if (preferVivoCloudWhenConfigured && config.HasUsableCloudCredentials)
             {
                 bool cloudCompleted = false;
@@ -73,6 +85,8 @@ namespace CatLife.LLM
                 if (cloudCompleted && cloudSuggestion != null)
                 {
                     IsBusy = false;
+                    LastSource = "vivo_cloud";
+                    LastFailureReason = "";
                     if (onSuccess != null)
                     {
                         onSuccess(LLMBehaviorSuggestion.ClampToWhitelist(cloudSuggestion));
@@ -83,8 +97,14 @@ namespace CatLife.LLM
 
                 if (!string.IsNullOrEmpty(cloudError))
                 {
+                    LastSource = "local_template";
+                    LastFailureReason = cloudError;
                     Debug.LogWarning("[CatLife] vivo cloud LLM fallback: " + cloudError);
                 }
+            }
+            else if (preferVivoCloudWhenConfigured)
+            {
+                LastFailureReason = config.enableDirectCloudApi ? "vivo_cloud_credentials_missing_or_placeholder" : "vivo_cloud_disabled";
             }
 
             yield return new WaitForSecondsRealtime(Mathf.Max(0f, simulatedLatencySeconds));
@@ -134,6 +154,11 @@ namespace CatLife.LLM
             }
 
             IsBusy = false;
+            if (LastSource != "vivo_cloud")
+            {
+                LastSource = "local_template";
+            }
+
             if (onSuccess != null)
             {
                 onSuccess(LLMBehaviorSuggestion.ClampToWhitelist(suggestion));
@@ -148,6 +173,9 @@ namespace CatLife.LLM
             Action<string> onError)
         {
             string requestId = Guid.NewGuid().ToString("N");
+            LastCloudRequestId = requestId;
+            LastCloudStatusCode = 0;
+            LastCloudAppIdRedacted = config.RedactedAppId;
             VivoChatRequest body = VivoChatRequest.Create(config.model, builder, context);
             string bodyJson = JsonUtility.ToJson(body);
 
@@ -162,6 +190,7 @@ namespace CatLife.LLM
                 req.SetRequestHeader("requestId", requestId);
 
                 yield return req.SendWebRequest();
+                LastCloudStatusCode = req.responseCode;
 
                 if (req.result != UnityWebRequest.Result.Success)
                 {

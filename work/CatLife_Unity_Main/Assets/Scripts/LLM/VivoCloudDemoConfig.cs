@@ -21,9 +21,45 @@ namespace CatLife.LLM
                 return enableDirectCloudApi &&
                     !string.IsNullOrEmpty(appId) &&
                     !string.IsNullOrEmpty(appKey) &&
+                    !IsPlaceholderAppKey(appKey) &&
                     !string.IsNullOrEmpty(apiEndpoint) &&
-                    !string.IsNullOrEmpty(model);
+                    !string.IsNullOrEmpty(model) &&
+                    apiEndpoint.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
             }
+        }
+
+        public string RedactedAppId
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(appId))
+                {
+                    return "missing_app_id";
+                }
+
+                string trimmed = appId.Trim();
+                if (trimmed.Length <= 4)
+                {
+                    return "****";
+                }
+
+                return trimmed.Substring(0, 2) + "****" + trimmed.Substring(trimmed.Length - 2);
+            }
+        }
+
+        public static bool IsPlaceholderAppKey(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return true;
+            }
+
+            string trimmed = value.Trim();
+            return trimmed == "DO_NOT_COMMIT_REAL_APP_KEY" ||
+                   trimmed == "REPLACE_WITH_LOCAL_PRIVATE_KEY" ||
+                   trimmed == "YOUR_APP_KEY" ||
+                   trimmed.IndexOf("placeholder", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   trimmed.IndexOf("example", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         public static VivoCloudDemoConfig Load()

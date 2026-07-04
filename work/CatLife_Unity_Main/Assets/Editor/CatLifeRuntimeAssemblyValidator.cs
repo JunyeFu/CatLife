@@ -162,10 +162,11 @@ namespace CatLife.EditorTools
             ValidateLlmRuntimeAdapters(issues);
             ValidateAndroidBlueLmPlugin(issues);
             ValidateBehaviorEventBridge(issues);
+            ValidateVivoCloudFallback(issues);
 
             if (issues.Count == 0)
             {
-                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, Android behavior event bridge, BlueLM Unity adapter, Android BlueLM bridge skeleton, BlueLM JSON guards, BlueLM generate bridge, BlueLM local behavior bias/action bridge, config schemas, UI binding, and 11 animator states are present.";
+                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, Android behavior event bridge, BlueLM Unity adapter, Android BlueLM bridge skeleton, BlueLM JSON guards, BlueLM generate bridge, BlueLM local behavior bias/action bridge, vivo cloud private APK fallback boundary, config schemas, UI binding, and 11 animator states are present.";
             }
 
             return "FAIL CatLife runtime assembly validation:\n- " + string.Join("\n- ", issues.ToArray());
@@ -547,6 +548,83 @@ namespace CatLife.EditorTools
             }
         }
 
+        private static void ValidateVivoCloudFallback(List<string> issues)
+        {
+            VivoCloudDemoConfig placeholderConfig = new VivoCloudDemoConfig
+            {
+                appId = "2026414599",
+                appKey = "DO_NOT_COMMIT_REAL_APP_KEY",
+                apiEndpoint = "https://api-ai.vivo.com.cn/v1/chat/completions",
+                model = "Doubao-Seed-2.0-mini",
+                enableDirectCloudApi = true
+            };
+            if (placeholderConfig.HasUsableCloudCredentials)
+            {
+                issues.Add("VivoCloudDemoConfig accepted the public placeholder AppKEY.");
+            }
+
+            VivoCloudDemoConfig insecureEndpointConfig = new VivoCloudDemoConfig
+            {
+                appId = "2026414599",
+                appKey = "local_private_key",
+                apiEndpoint = "http://api-ai.vivo.com.cn/v1/chat/completions",
+                model = "Doubao-Seed-2.0-mini",
+                enableDirectCloudApi = true
+            };
+            if (insecureEndpointConfig.HasUsableCloudCredentials)
+            {
+                issues.Add("VivoCloudDemoConfig accepted a non-HTTPS cloud endpoint.");
+            }
+
+            if (!VivoCloudDemoConfig.IsPlaceholderAppKey("DO_NOT_COMMIT_REAL_APP_KEY") ||
+                !VivoCloudDemoConfig.IsPlaceholderAppKey("REPLACE_WITH_LOCAL_PRIVATE_KEY") ||
+                VivoCloudDemoConfig.IsPlaceholderAppKey("local_private_key_for_runtime_only"))
+            {
+                issues.Add("VivoCloudDemoConfig placeholder AppKEY detection is not stable.");
+            }
+
+            ValidateProjectFileContains(
+                "Assets/Scripts/LLM/VivoCloudDemoConfig.cs",
+                issues,
+                "CatLifePrivate/vivo_cloud_credentials",
+                "RedactedAppId",
+                "IsPlaceholderAppKey",
+                "StartsWith",
+                "https://");
+
+            ValidateProjectFileContains(
+                "Assets/Scripts/LLM/MockCatLLMClient.cs",
+                issues,
+                "preferVivoCloudWhenConfigured",
+                "LastSource",
+                "LastFailureReason",
+                "LastCloudRequestId",
+                "LastCloudStatusCode",
+                "LastCloudAppIdRedacted",
+                "vivo_cloud_pending",
+                "vivo_cloud");
+
+            ValidateProjectFileContains(
+                "Assets/Scripts/Cat/CatBehaviorTelemetry.cs",
+                issues,
+                "MockCatLLMClient",
+                "vivo_app",
+                "vivo_status");
+
+            ValidateTextAssetContains(
+                "Assets/Configs/vivo_cloud_credentials.example.json",
+                issues,
+                "2026414599",
+                "DO_NOT_COMMIT_REAL_APP_KEY",
+                "https://api-ai.vivo.com.cn/v1/chat/completions",
+                "Doubao-Seed-2.0-mini");
+
+            ValidateRepoFileContains(
+                ".gitignore",
+                issues,
+                "work/CatLife_Unity_Main/Assets/Resources/CatLifePrivate/");
+        }
+
         private static void ValidateProjectStructure(List<string> issues)
         {
             if (AssetDatabase.LoadAssetAtPath<TextAsset>(ProjectStructurePath) == null)
@@ -700,6 +778,29 @@ namespace CatLife.EditorTools
                 if (!text.Contains(requiredFragments[i]))
                 {
                     issues.Add("Project file " + assetRelativePath + " is missing required fragment: " + requiredFragments[i]);
+                }
+            }
+        }
+
+        private static void ValidateRepoFileContains(
+            string repoRelativePath,
+            List<string> issues,
+            params string[] requiredFragments)
+        {
+            string repoRoot = Path.GetFullPath(Path.Combine(Application.dataPath, "../../.."));
+            string fullPath = Path.GetFullPath(Path.Combine(repoRoot, repoRelativePath));
+            if (!File.Exists(fullPath))
+            {
+                issues.Add("Missing required repo file: " + repoRelativePath);
+                return;
+            }
+
+            string text = File.ReadAllText(fullPath);
+            for (int i = 0; i < requiredFragments.Length; i++)
+            {
+                if (!text.Contains(requiredFragments[i]))
+                {
+                    issues.Add("Repo file " + repoRelativePath + " is missing required fragment: " + requiredFragments[i]);
                 }
             }
         }

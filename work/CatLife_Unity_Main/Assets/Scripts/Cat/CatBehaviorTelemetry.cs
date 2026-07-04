@@ -174,6 +174,17 @@ namespace CatLife.Cat
                 builder.Append("; llm_source=").Append(blueLmClient.LastSource);
                 builder.Append("; llm_error=").Append(blueLmClient.LastFailureReason);
             }
+            else
+            {
+                MockCatLLMClient mockClient = llmClientComponent as MockCatLLMClient;
+                if (mockClient != null)
+                {
+                    builder.Append("; llm_source=").Append(mockClient.LastSource);
+                    builder.Append("; llm_error=").Append(mockClient.LastFailureReason);
+                    builder.Append("; vivo_app=").Append(mockClient.LastCloudAppIdRedacted);
+                    builder.Append("; vivo_status=").Append(mockClient.LastCloudStatusCode);
+                }
+            }
             builder.Append("; mood=").Append(suggestion != null ? suggestion.moodBias : "calm");
             builder.Append("; bubble=").Append(suggestion != null && suggestion.showBubble);
             builder.Append("; safety=").Append(behaviorDriver != null ? behaviorDriver.LastLlmSafetyReason : "missing_driver");
