@@ -41,7 +41,7 @@
 | `06-deliverables\unity-handoff-20260629\mvp-unity-assets\README.md` | 1912 | 2026-06-29 18:37:30 |
 | `06-deliverables\unity-handoff-20260629\runtime-patch\README.md` | 2760 | 2026-06-29 18:38:53 |
 | `06-deliverables\unity-handoff-20260629\UNITY_IMPORT_VALIDATION.md` | 10804 | 2026-06-29 20:27:18 |
-| `07-tech-specs\CatLife_大模型代码包与隐私降级方案.md` | 4982 | 2026-06-29 20:39:30 |
+| `07-tech-specs\CatLife_大模型代码包与隐私降级方案.md` | 6583 | 2026-07-05 01:59:11 |
 | `07-tech-specs\CatLife_非敏感行为识别与猫咪行为控制实现方案.md` | 18666 | 2026-06-24 21:44:36 |
 | `07-tech-specs\CatLife_技术规格_MVP状态机与行为识别.md` | 4168 | 2026-05-26 10:25:16 |
 | `07-tech-specs\CatLife_猫咪小镇场景Unity落地方案.md` | 4521 | 2026-06-29 20:29:40 |
@@ -66,10 +66,10 @@
 | `08-handoff-docs\planning\CatLife_用户场景流程与用例覆盖验证_20260629.md` | 6140 | 2026-06-29 22:55:33 |
 | `08-handoff-docs\planning\CatLife_用户验证访谈与问卷模板.md` | 3188 | 2026-06-29 20:54:44 |
 | `08-handoff-docs\planning\CatLife_主页目标稿拆解与摄像机控制_20260629.md` | 6428 | 2026-06-30 17:57:27 |
-| `08-handoff-docs\planning\CatLife_最终发布证据包与提交运行手册.md` | 5864 | 2026-06-29 21:26:40 |
+| `08-handoff-docs\planning\CatLife_最终发布证据包与提交运行手册.md` | 6585 | 2026-07-05 01:59:11 |
 | `08-handoff-docs\planning\CatLife_最终提交包检查表.md` | 3923 | 2026-06-29 20:39:30 |
 | `08-handoff-docs\planning\CatLife_作品介绍PPT_10页精修脚本.md` | 6495 | 2026-06-29 20:54:44 |
-| `08-handoff-docs\planning\CatLife_Android真机测试记录模板.md` | 2545 | 2026-06-29 21:20:30 |
+| `08-handoff-docs\planning\CatLife_Android真机测试记录模板.md` | 3313 | 2026-07-05 01:59:11 |
 | `08-handoff-docs\planning\CatLife_DEV-GUIDE_复赛开发规约.md` | 9605 | 2026-06-22 18:18:15 |
 | `08-handoff-docs\planning\CatLife_GitHub协作者上传内容定位与摘要_20260629.md` | 4994 | 2026-06-29 22:12:06 |
 | `08-handoff-docs\planning\CatLife_MVP_从当前状态到APK与演示视频执行计划.md` | 5947 | 2026-06-29 20:29:40 |
@@ -117,10 +117,10 @@
 | `03-planning-handoff\CatLife_用户场景流程与用例覆盖验证_20260629.md` | 6140 | 2026-06-29 22:55:33 |
 | `03-planning-handoff\CatLife_用户验证访谈与问卷模板.md` | 3188 | 2026-06-29 20:54:44 |
 | `03-planning-handoff\CatLife_主页目标稿拆解与摄像机控制_20260629.md` | 6428 | 2026-06-30 17:57:27 |
-| `03-planning-handoff\CatLife_最终发布证据包与提交运行手册.md` | 5864 | 2026-06-29 21:26:40 |
+| `03-planning-handoff\CatLife_最终发布证据包与提交运行手册.md` | 6585 | 2026-07-05 01:59:11 |
 | `03-planning-handoff\CatLife_最终提交包检查表.md` | 3923 | 2026-06-29 20:39:30 |
 | `03-planning-handoff\CatLife_作品介绍PPT_10页精修脚本.md` | 6495 | 2026-06-29 20:54:44 |
-| `03-planning-handoff\CatLife_Android真机测试记录模板.md` | 2545 | 2026-06-29 21:20:30 |
+| `03-planning-handoff\CatLife_Android真机测试记录模板.md` | 3313 | 2026-07-05 01:59:11 |
 | `03-planning-handoff\CatLife_GitHub协作者上传内容定位与摘要_20260629.md` | 4994 | 2026-06-29 22:12:06 |
 | `03-planning-handoff\CatLife_MVP_从当前状态到APK与演示视频执行计划.md` | 5947 | 2026-06-29 20:29:40 |
 | `03-planning-handoff\CatLife_UI顶格比赛提交装配说明_20260629.md` | 4934 | 2026-06-30 18:04:44 |
@@ -130,7 +130,7 @@
 | `04-role-plans\分工_傅钧漪_宣传物料.md` | 5043 | 2026-05-26 16:07:10 |
 | `04-role-plans\分工_吴若琪_技术统筹.md` | 5990 | 2026-06-22 18:18:15 |
 | `04-role-plans\分工_严辰乐_Android集成.md` | 3849 | 2026-06-22 18:18:15 |
-| `05-tech-llm-unity-android\CatLife_大模型代码包与隐私降级方案.md` | 4982 | 2026-06-29 20:39:30 |
+| `05-tech-llm-unity-android\CatLife_大模型代码包与隐私降级方案.md` | 6583 | 2026-07-05 01:59:11 |
 | `05-tech-llm-unity-android\CatLife_非敏感行为识别与猫咪行为控制实现方案.md` | 18666 | 2026-06-24 21:44:36 |
 | `05-tech-llm-unity-android\CatLife_技术规格_MVP状态机与行为识别.md` | 4168 | 2026-05-26 10:25:16 |
 | `05-tech-llm-unity-android\CatLife_猫咪小镇场景Unity落地方案.md` | 4521 | 2026-06-29 20:29:40 |

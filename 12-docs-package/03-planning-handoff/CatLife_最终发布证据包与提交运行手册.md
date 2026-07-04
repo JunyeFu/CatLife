@@ -11,6 +11,7 @@
 - APK 至少在一台 Android 设备或 vivo 云真机上可安装、可启动、可跑主流程；
 - 演示视频来自真实运行画面，不是纯设计稿；
 - 大模型调用代码包没有密钥，且能看出 API/SDK 调用位置；
+- 录制用 APK 可以内置本机私密 vivo 云端 Demo 凭据，但最终代码包和 GitHub 不能包含真实 AppKEY；
 - PPT、海报、视频使用同一版截图和同一版产品口径。
 
 ## 2. 官方口径
@@ -50,6 +51,7 @@ final-submission/
       device-info.txt
     02-runtime/
       android-runtime-logcat.txt
+      vivo-cloud-llm-logcat.txt
       smoke-test-notes.md
     03-screenshots/
       launch.png
@@ -85,6 +87,7 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/init-final-evide
 | `evidence/01-install/android-install.txt` | `adb install -r` 完整输出 |
 | `evidence/01-install/device-info.txt` | 设备型号、Android 版本、ABI、屏幕分辨率、测试方式 |
 | `evidence/02-runtime/android-runtime-logcat.txt` | 启动后导出的 logcat |
+| `evidence/02-runtime/vivo-cloud-llm-logcat.txt` | 过滤 `CatLife`、`vivo`、`LLM` 等关键词后，证明真实云端调用或 fallback 的日志 |
 | `evidence/02-runtime/smoke-test-notes.md` | 手动记录普通、过渡、专注、奖励状态是否通过 |
 
 ## 6. 推荐命令
@@ -105,6 +108,7 @@ adb install -r "06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk"
 adb logcat -c
 adb shell monkey -p com.catlife.mvp 1
 adb logcat -d > "06-deliverables/final-submission/evidence/02-runtime/android-runtime-logcat.txt"
+adb logcat -d | Select-String "CatLife|vivo|LLM|fallback" > "06-deliverables/final-submission/evidence/02-runtime/vivo-cloud-llm-logcat.txt"
 ```
 
 截图：
@@ -135,9 +139,9 @@ Get-FileHash -Algorithm SHA256 "06-deliverables/final-submission/CatLife_MVP_And
 5. 录制至少一段完整状态链：普通 -> 过渡 -> 专注 -> 奖励。
 6. 从录屏中截取 PPT/海报需要的真实画面。
 7. 生成最终演示视频并检查时长、分辨率、隐私。
-8. 打包大模型代码包并确认无密钥。
-9. 运行最终检查脚本。
-10. 上传平台后保存成功截图。
+8. 确认录制用 APK 已包含本机私密 vivo 云端配置，且 GitHub/代码包不包含真实 AppKEY。
+9. 打包大模型代码包并确认无密钥。
+10. 运行最终检查脚本，上传平台后保存成功截图。
 
 ## 8. 验收定义
 
@@ -149,8 +153,9 @@ Get-FileHash -Algorithm SHA256 "06-deliverables/final-submission/CatLife_MVP_And
 - 视频第一屏 5 秒内能看到 CatLife 与猫咪/小镇；
 - PPT 和视频的界面截图来自同一版 APK 或同一版 Unity 运行画面；
 - 代码包没有真实密钥，README 标明大模型调用位置和降级行为；
+- `vivo-cloud-llm-logcat.txt` 能说明真实调用成功，或说明失败原因和本地 fallback 已接管；
 - 已记录上传成功截图或平台提交确认。
 
 ## 9. 当前缺口
 
-截至 2026-06-29，当前项目只具备脚本、模板和计划，还没有最终 APK、视频、PPT、海报、代码包和真机证据。下一次进入 Unity/Android 阶段后，必须优先填充本手册定义的 `evidence/` 目录。
+截至 2026-07-05，当前项目已有 Unity 原型、vivo 云端 Demo 配置路径和本机私密 APK 打包配置，但还没有最终 APK、视频、海报、代码包和云真机证据。下一次进入 Unity/Android 阶段后，必须优先填充本手册定义的 `evidence/` 目录。

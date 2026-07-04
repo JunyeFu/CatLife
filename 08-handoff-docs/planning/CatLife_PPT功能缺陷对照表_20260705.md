@@ -14,6 +14,7 @@
 - 10 个猫咪动作和 Walk 动画资源已接入 Animator/行为驱动。
 - 本地 Recognition mock、RealtimeFeatureEngine、Focus 状态、记录/设置/猫咪页面。
 - LLM 结构化 mock、PrivacyGateway、输出安全门、本地 fallback、`llm_feedback_schema.json`。
+- vivo 云端 API 演示配置已加入当前 Unity 工程：AppID/API/模型名在可提交示例中，AppKEY 在本机忽略的 `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json` 中，导出本机 APK 时可进入 APK，GitHub 不包含明文密钥。
 - 场景交互点、气泡、记录页结构化反馈字段。
 - `CatLifeRuntimeAssemblyValidator` 当前可 PASS，Unity Console 当前无 Error。
 
@@ -30,7 +31,7 @@
 |---|---|---|---|
 | AI 行为识别：点击、滑动、停顿、页面切换映射专注状态谱 | Unity 内已有 `Recognition`、`RealtimeFeatureEngine` 和 mock 特征。 | 主要仍是 App 内或模拟数据；没有真实 Android 事件桥和真实页面切换采集闭环。 | P0 |
 | 授权后台数据：切屏频率、离开时长、返回间隔、跨应用节奏 | 文档已有隐私友好方案。 | 工程未落地 Android UsageStats/后台授权流程；不能采集具体 App 内容，只能做粗粒度离开/返回统计。 | P0 |
-| 大模型心理引导：生成提醒语、任务回归建议、猫咪动作策略 | 已有结构化 mock LLM、schema、安全门、降级和代码包模板。 | 未接真实云端 API 或蓝心端侧 SDK；缺真实调用日志、请求样例和响应样例。 | P0 |
+| 大模型心理引导：生成提醒语、任务回归建议、猫咪动作策略 | 已有结构化 mock LLM、schema、安全门、降级、代码包模板；已加入 vivo 云端 API Demo 配置和优先真实调用/失败回退逻辑。 | 仍缺 APK 或云真机中的真实调用日志、请求样例和响应样例；蓝心端侧 SDK 仍未接入。 | P0 |
 | “大模型驱动猫咪行为” | 当前实现是 LLM 提供高层权重/文案建议，Unity 本地规则控制猫。 | PPT 表述偏强；应改为“LLM 辅助生成建议和反馈”，或补真实 API demo。 | P0 |
 | 主动开始专注 + 自动识别进入专注 | 主动开始已实现；自动进入有规则/状态基础。 | 自动识别仍偏 mock/规则演示，缺真实行为输入和长时使用证据。 | P0 |
 | Android APK 可运行 | 未发现已生成的 `.apk` 或 `.aab` 产物。 | 当前最大交付缺口：缺 APK、adb 安装日志、真机录屏、logcat 和性能证据。 | P0 |
@@ -53,12 +54,13 @@
 
 - “Unity 原型已基本跑通。”
 - “小镇主场景、猫咪行为、轻锁定专注、记录/设置页面和结构化 LLM mock 已实现。”
-- “AI 行为识别和大模型接口已有本地安全架构、schema、mock 和降级机制。”
+- “AI 行为识别和大模型接口已有本地安全架构、schema、mock、vivo 云端 Demo 配置和降级机制。”
 
 当前不应强表述为：
 
 - “已完成真实 Android 后台行为识别。”
-- “已完成真实大模型 API 或蓝心端侧 SDK 接入。”
+- “已完成蓝心端侧 SDK 接入。”
+- “已通过 APK 真机验证完成真实大模型调用。”除非已保留 logcat/录屏证据。
 - “已产出可安装 APK 并通过真机验证。”
 - “已完成森林场景切换。”
 
@@ -68,7 +70,6 @@
 |---:|---|---|
 | 1 | Splash Screen 集成 | 使用已给开屏图，20:9 适配，1.5-2.5 秒淡出进入主场景，可点击跳过。 |
 | 2 | Android 行为事件桥 | Unity 侧可接收去标识化 JSON；违规字段如 rawText、x/y、packageName 被拒绝。 |
-| 3 | 真实 LLM API demo | 至少一次真实结构化 API 调用，经过 PrivacyGateway 和输出安全门，保留样例输入/输出。 |
+| 3 | 真实 LLM API demo | 当前已具备本机私密配置进 APK 的 vivo 云端调用路径；下一步至少跑一次真实结构化 API 调用，经过 PrivacyGateway 和输出安全门，保留样例输入/输出与 logcat。 |
 | 4 | APK 真机证据 | APK 存在，adb install 成功，logcat 无 crash，录屏可展示主流程。 |
 | 5 | PPT 表述校准 | 移除森林工程承诺，替换为小镇主场景；把“大模型驱动”改成“LLM 辅助建议 + 本地规则最终控制”。 |
-
