@@ -454,6 +454,53 @@ namespace CatLife.EditorTools
             {
                 issues.Add("PrivacyGateway accepted a blocked cat prompt context.");
             }
+
+            LLMBehaviorSuggestion safeSuggestion;
+            string outputReason;
+            LLMBehaviorSuggestion rawSuggestion = new LLMBehaviorSuggestion
+            {
+                suggestedLine = "  Stay close and breathe slowly while I watch the plaza path with you.  ",
+                moodBias = "excited",
+                roamWeightBias = 2f,
+                quietIdleWeightBias = -2f,
+                socialResponseWeightBias = 0.5f,
+                showBubble = true
+            };
+
+            if (!LLMBehaviorSuggestion.TryBuildSafe(rawSuggestion, out safeSuggestion, out outputReason))
+            {
+                issues.Add("LLMBehaviorSuggestion rejected a clampable safe output: " + outputReason);
+            }
+            else
+            {
+                if (safeSuggestion.suggestedLine.Length > 48)
+                {
+                    issues.Add("LLMBehaviorSuggestion did not clamp suggestedLine length.");
+                }
+
+                if (safeSuggestion.moodBias != "calm" ||
+                    safeSuggestion.roamWeightBias > 0.35f ||
+                    safeSuggestion.quietIdleWeightBias < -0.35f ||
+                    safeSuggestion.socialResponseWeightBias > 0.35f)
+                {
+                    issues.Add("LLMBehaviorSuggestion did not clamp mood or behavior weights.");
+                }
+            }
+
+            LLMBehaviorSuggestion blockedSuggestion = new LLMBehaviorSuggestion
+            {
+                suggestedLine = "Move to coordinate 1,2,3 and run NavMesh command.",
+                moodBias = "alert",
+                roamWeightBias = 0.1f,
+                quietIdleWeightBias = 0f,
+                socialResponseWeightBias = 0f,
+                showBubble = true
+            };
+
+            if (LLMBehaviorSuggestion.TryBuildSafe(blockedSuggestion, out safeSuggestion, out outputReason))
+            {
+                issues.Add("LLMBehaviorSuggestion accepted blocked model output.");
+            }
         }
 
         private static void ValidateTelemetryRuntime(CatBehaviorTelemetry telemetry, List<string> issues)

@@ -745,8 +745,17 @@ namespace CatLife.Cat
                 promptBuilder,
                 suggestion =>
                 {
-                    llmSuggestion = LLMBehaviorSuggestion.ClampToWhitelist(suggestion);
-                    lastLlmSafetyReason = "passed";
+                    LLMBehaviorSuggestion safeSuggestion;
+                    string outputReason;
+                    if (!LLMBehaviorSuggestion.TryBuildSafe(suggestion, out safeSuggestion, out outputReason))
+                    {
+                        llmSuggestion = LLMBehaviorSuggestion.Default();
+                        lastLlmSafetyReason = outputReason;
+                        return;
+                    }
+
+                    llmSuggestion = safeSuggestion;
+                    lastLlmSafetyReason = outputReason;
                 },
                 error =>
                 {
