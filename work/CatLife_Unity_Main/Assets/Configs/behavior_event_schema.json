@@ -1,0 +1,102 @@
+{
+  "version": "1.0",
+  "privacy_level": "non_sensitive_in_app_first",
+  "forbidden_collection": [
+    "raw_input_text",
+    "raw_touch_path",
+    "screen_recording",
+    "screen_screenshot_content",
+    "cross_app_touch_events",
+    "accessibility_global_monitoring",
+    "clipboard",
+    "contacts",
+    "precise_location"
+  ],
+  "event_schema": {
+    "ts_ms": "number",
+    "event_type": "enum",
+    "route_id": "string",
+    "zone_id": "string|null",
+    "duration_ms": "number|null",
+    "delta_len": "number|null",
+    "deleted": "boolean|null",
+    "scroll_dy": "number|null",
+    "velocity": "number|null",
+    "scene_state": "enum|null"
+  },
+  "event_types": [
+    "tap",
+    "long_press",
+    "swipe",
+    "scroll",
+    "input_edit",
+    "page_switch",
+    "app_fg",
+    "app_bg",
+    "focus_start",
+    "focus_end",
+    "device_weak_signal"
+  ],
+  "sanitization": {
+    "touch_grid": {
+      "rows": 8,
+      "cols": 12,
+      "store_raw_xy": false
+    },
+    "input": {
+      "store_text": false,
+      "store_delta_len": true,
+      "store_deleted_flag": true
+    },
+    "time": {
+      "timestamp_resolution_ms": 100
+    }
+  },
+  "features": {
+    "windows_sec": [1, 5, 30],
+    "refresh_ms": 500,
+    "names": [
+      "tap_rate_1s",
+      "tap_rate_5s",
+      "scroll_velocity_p95",
+      "scroll_consistency",
+      "edit_rate_5s",
+      "delete_ratio",
+      "mean_interaction_gap",
+      "idle_duration",
+      "page_switch_rate_30s",
+      "touch_zone_entropy",
+      "mistouch_ratio",
+      "foreground_ratio",
+      "motion_ratio"
+    ]
+  },
+  "thresholds": {
+    "tap_burst_per_sec": 4,
+    "scroll_burst_px_per_sec": 1400,
+    "idle_transition_sec": 8,
+    "idle_focus_sec": 25,
+    "switch_high_per_30s": 4,
+    "mistouch_high_ratio": 0.18,
+    "state_min_dwell_sec": 3,
+    "focus_confirm_sec": 30
+  },
+  "cloud_upload_policy": {
+    "default_enabled": false,
+    "requires_user_consent": true,
+    "allowed_payload": [
+      "window_sec",
+      "aggregated_features",
+      "focus_score",
+      "arousal_score",
+      "distraction_score",
+      "pet_state"
+    ],
+    "must_include_flags": {
+      "raw_text_included": false,
+      "raw_touch_path_included": false,
+      "screen_content_included": false,
+      "user_consented_cloud_ai": true
+    }
+  }
+}

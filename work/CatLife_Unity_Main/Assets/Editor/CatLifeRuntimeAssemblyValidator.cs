@@ -24,6 +24,8 @@ namespace CatLife.EditorTools
         private const string InterestRootName = "CatInterestPoints";
         private const string ControllerPath = "Assets/Art/Cat/Animator/CatLife_TownWalker.controller";
         private const string ProjectStructurePath = "Assets/PROJECT_STRUCTURE.md";
+        private const string BehaviorEventSchemaPath = "Assets/Configs/behavior_event_schema.json";
+        private const string LlmFeedbackSchemaPath = "Assets/Configs/llm_feedback_schema.json";
 
         private static readonly string[] RequiredWalkAreas =
         {
@@ -40,6 +42,7 @@ namespace CatLife.EditorTools
         private static readonly string[] RequiredRootDirectories =
         {
             "Art",
+            "Configs",
             "Editor",
             "Materials",
             "Prefabs",
@@ -156,7 +159,7 @@ namespace CatLife.EditorTools
 
             if (issues.Count == 0)
             {
-                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, UI binding, and 11 animator states are present.";
+                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, config schemas, UI binding, and 11 animator states are present.";
             }
 
             return "FAIL CatLife runtime assembly validation:\n- " + string.Join("\n- ", issues.ToArray());
@@ -196,6 +199,8 @@ namespace CatLife.EditorTools
                 }
             }
 
+            ValidateConfigSchemas(issues);
+
             string fullAssetsPath = Path.GetFullPath(Application.dataPath);
             string[] rootFiles = Directory.GetFiles(fullAssetsPath);
             for (int i = 0; i < rootFiles.Length; i++)
@@ -214,6 +219,54 @@ namespace CatLife.EditorTools
                         issues.Add("Large/source binary must not live directly under Assets root: " + Path.GetFileName(file));
                         break;
                     }
+                }
+            }
+        }
+
+        private static void ValidateConfigSchemas(List<string> issues)
+        {
+            ValidateTextAssetContains(
+                BehaviorEventSchemaPath,
+                issues,
+                "privacy_level",
+                "forbidden_collection",
+                "event_schema",
+                "cloud_upload_policy",
+                "raw_input_text",
+                "screen_screenshot_content",
+                "user_consented_cloud_ai");
+
+            ValidateTextAssetContains(
+                LlmFeedbackSchemaPath,
+                issues,
+                "catlife.focus_feedback.v1",
+                "bubble_text",
+                "record_summary",
+                "reaction_hint",
+                "confidence",
+                "contains_blame",
+                "contains_medical_claim",
+                "contains_sensitive_inference");
+        }
+
+        private static void ValidateTextAssetContains(
+            string path,
+            List<string> issues,
+            params string[] requiredFragments)
+        {
+            TextAsset asset = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
+            if (asset == null)
+            {
+                issues.Add("Missing required config schema: " + path);
+                return;
+            }
+
+            string text = asset.text ?? string.Empty;
+            for (int i = 0; i < requiredFragments.Length; i++)
+            {
+                if (!text.Contains(requiredFragments[i]))
+                {
+                    issues.Add("Config schema " + path + " is missing required fragment: " + requiredFragments[i]);
                 }
             }
         }

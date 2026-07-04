@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://catlife.local/schemas/llm_feedback_schema.json",
+  "title": "CatLife LLM Feedback Output",
+  "description": "Strict output contract for optional CatLife companion feedback. Unity keeps authority over navigation, animation and UI timing.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "bubble_text",
+    "record_summary",
+    "tone",
+    "reaction_hint",
+    "confidence",
+    "safety"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "catlife.focus_feedback.v1"
+    },
+    "bubble_text": {
+      "type": "string",
+      "maxLength": 48,
+      "description": "Short warm companion line. No commands, blame, diagnosis, private content or surveillance wording."
+    },
+    "record_summary": {
+      "type": "string",
+      "maxLength": 90,
+      "description": "Optional session recap derived only from aggregate counters."
+    },
+    "tone": {
+      "type": "string",
+      "enum": ["warm", "quiet", "encouraging"]
+    },
+    "reaction_hint": {
+      "type": "string",
+      "enum": [
+        "idle_breath",
+        "head_tilt_listen",
+        "tail_wag_happy",
+        "paw_wave",
+        "stretch_yawn"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Unity uses local fallback when confidence is below 0.5."
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contains_blame",
+        "contains_medical_claim",
+        "contains_sensitive_inference"
+      ],
+      "properties": {
+        "contains_blame": {
+          "type": "boolean",
+          "const": false
+        },
+        "contains_medical_claim": {
+          "type": "boolean",
+          "const": false
+        },
+        "contains_sensitive_inference": {
+          "type": "boolean",
+          "const": false
+        }
+      }
+    }
+  }
+}

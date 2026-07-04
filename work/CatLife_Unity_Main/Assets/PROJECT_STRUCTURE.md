@@ -9,6 +9,7 @@ This Unity workspace keeps runtime code, generated assets, editor tools, and val
 | `Assets/Art/` | Runtime art assets grouped by domain. | Keep source manifests here. Large source binaries remain local unless explicitly tracked or moved to LFS. |
 | `Assets/Art/Cat/` | Cat model, textures, materials, animator controller, extracted animation clips. | Runtime clips live under `Animations/Clips/`; controller lives under `Animator/`. |
 | `Assets/Art/Town/` | Town source references, generated material bindings, extracted texture support. | The active scene instance is in `MainScene`; source assets stay out of scene-specific folders. |
+| `Assets/Configs/` | Versioned runtime contracts such as behavior event schemas and LLM output schemas. | Keep privacy boundaries and structured-output contracts as JSON; no credentials or environment-specific values. |
 | `Assets/Editor/` | Editor-only setup, extraction, validation, and automation tools. | Menu tools use `CatLife/Runtime/...` paths and must be safe to rerun. |
 | `Assets/Materials/` | Generated or shared materials not owned by a single art domain. | Keep generated town material sets in named subfolders. |
 | `Assets/Prefabs/` | Reusable prefabs. | Prefer prefabs for durable reusable scene objects; scene-only runtime roots may remain in scenes. |
@@ -25,7 +26,7 @@ This Unity workspace keeps runtime code, generated assets, editor tools, and val
 | `Assets/Scripts/Camera/` | Camera orbit and plaza camera controls. |
 | `Assets/Scripts/Cat/` | Cat navigation, behavior driver, animation control, action routing, NavMesh safety. |
 | `Assets/Scripts/Core/` | Shared runtime primitives. |
-| `Assets/Scripts/LLM/` | Prompt context, prompt builder, model-client interface, safe mock client. |
+| `Assets/Scripts/LLM/` | Prompt context, prompt builder, model-client interface, output safety gate, safe mock client. |
 | `Assets/Scripts/Recognition/` | Local privacy-preserving recognition snapshots and realtime feature windows. |
 | `Assets/Scripts/UI/` | CatLife home UI and interaction widgets. |
 
