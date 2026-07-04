@@ -292,6 +292,7 @@ namespace CatLife.EditorTools
                 RequireSerializedObject(behaviorDriver, "destinationPlanner", issues);
                 RequireSerializedObject(behaviorDriver, "actionRouter", issues);
                 RequireSerializedObject(behaviorDriver, "featureEngine", issues);
+                RequireSerializedObject(behaviorDriver, "privacyGateway", issues);
                 RequireSerializedObject(behaviorDriver, "needModel", issues);
                 RequireSerializedObject(behaviorDriver, "behaviorMemory", issues);
                 RequireSerializedObject(behaviorDriver, "behaviorScorer", issues);

@@ -426,6 +426,34 @@ namespace CatLife.EditorTools
             {
                 issues.Add("PrivacyGateway accepted a blocked raw-text summary.");
             }
+
+            CatPromptContext safePromptContext = CatPromptContext.Create(
+                RecognitionSnapshot.CreateDefault(),
+                CatBehaviorState.Roam,
+                0.25f,
+                "curious",
+                new[] { "scene_interaction" },
+                default(RealtimeFeatureSnapshot),
+                false);
+            safePromptContext = privacyGateway.Sanitize(safePromptContext);
+            if (!privacyGateway.TryValidate(safePromptContext, out reason))
+            {
+                issues.Add("PrivacyGateway rejected safe cat prompt context: " + reason);
+            }
+
+            CatPromptContext blockedPromptContext = CatPromptContext.Create(
+                RecognitionSnapshot.CreateDefault(),
+                CatBehaviorState.Roam,
+                0.25f,
+                "curious",
+                new[] { "scene_interaction" },
+                default(RealtimeFeatureSnapshot),
+                false);
+            blockedPromptContext.safeLocalSummary = "screen capture request";
+            if (privacyGateway.TryValidate(blockedPromptContext, out reason))
+            {
+                issues.Add("PrivacyGateway accepted a blocked cat prompt context.");
+            }
         }
 
         private static void ValidateTelemetryRuntime(CatBehaviorTelemetry telemetry, List<string> issues)

@@ -16,6 +16,7 @@ namespace CatLife.Cat
         [SerializeField] private CatDestinationPlanner destinationPlanner;
         [SerializeField] private CatActionRouter actionRouter;
         [SerializeField] private RealtimeFeatureEngine featureEngine;
+        [SerializeField] private PrivacyGateway privacyGateway;
         [SerializeField] private CatNeedModel needModel;
         [SerializeField] private CatBehaviorMemory behaviorMemory;
         [SerializeField] private CatBehaviorBrainScorer behaviorScorer;
@@ -64,6 +65,7 @@ namespace CatLife.Cat
         private float actionHoldUntil;
         private bool walkingEnabled = true;
         private float navigationSpeedMultiplier = 1f;
+        private string lastLlmSafetyReason = "not_requested";
         private readonly string[] recentEvents = new string[4];
         private SceneInteractionPayload latestSceneInteractionPayload;
         private SceneInteractionPoint latestSceneInteractionPoint;
@@ -102,6 +104,11 @@ namespace CatLife.Cat
         public SceneInteractionPoint LatestSceneInteractionPoint
         {
             get { return latestSceneInteractionPoint; }
+        }
+
+        public string LastLlmSafetyReason
+        {
+            get { return lastLlmSafetyReason; }
         }
 
         private void Reset()
@@ -174,6 +181,7 @@ namespace CatLife.Cat
 
             ResolveFocusLookAtTarget();
             ResolveFeatureEngine();
+            ResolvePrivacyGateway();
             ResolveSceneInteractionReferences();
             SubscribeSceneInteractionMapper();
             recognitionProvider = recognitionProviderComponent as IRecognitionProvider;
@@ -564,6 +572,16 @@ namespace CatLife.Cat
             }
         }
 
+        private void ResolvePrivacyGateway()
+        {
+            if (privacyGateway != null)
+            {
+                return;
+            }
+
+            privacyGateway = FindAnyObjectByType<PrivacyGateway>();
+        }
+
         private void ResolveSceneInteractionReferences()
         {
             if (sceneInteractionRegistry == null)
@@ -697,11 +715,44 @@ namespace CatLife.Cat
                 latestSceneInteractionPoint,
                 secondsSinceSceneInteraction);
 
+            ResolvePrivacyGateway();
+            if (privacyGateway == null)
+            {
+                lastLlmSafetyReason = "privacy_gateway_missing";
+                llmSuggestion = LLMBehaviorSuggestion.Default();
+                return;
+            }
+
+            string safetyReason;
+            if (!privacyGateway.TryValidate(context, out safetyReason))
+            {
+                lastLlmSafetyReason = safetyReason;
+                llmSuggestion = LLMBehaviorSuggestion.Default();
+                return;
+            }
+
+            context = privacyGateway.Sanitize(context);
+            if (!privacyGateway.TryValidate(context, out safetyReason))
+            {
+                lastLlmSafetyReason = safetyReason;
+                llmSuggestion = LLMBehaviorSuggestion.Default();
+                return;
+            }
+
+            lastLlmSafetyReason = safetyReason;
             llmClient.RequestSuggestion(
                 context,
                 promptBuilder,
-                suggestion => { llmSuggestion = LLMBehaviorSuggestion.ClampToWhitelist(suggestion); },
-                error => { llmSuggestion = LLMBehaviorSuggestion.Default(); });
+                suggestion =>
+                {
+                    llmSuggestion = LLMBehaviorSuggestion.ClampToWhitelist(suggestion);
+                    lastLlmSafetyReason = "passed";
+                },
+                error =>
+                {
+                    llmSuggestion = LLMBehaviorSuggestion.Default();
+                    lastLlmSafetyReason = string.IsNullOrEmpty(error) ? "llm_error" : error;
+                });
         }
 
         private void PushRecentEvent(string eventName)

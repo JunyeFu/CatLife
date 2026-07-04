@@ -132,6 +132,7 @@ namespace CatLife.EditorTools
                 destinationPlanner,
                 actionRouter,
                 featureEngine,
+                privacyGateway,
                 needModel,
                 behaviorMemory,
                 behaviorScorer);
@@ -717,6 +718,7 @@ namespace CatLife.EditorTools
             CatDestinationPlanner destinationPlanner,
             CatActionRouter actionRouter,
             RealtimeFeatureEngine featureEngine,
+            PrivacyGateway privacyGateway,
             CatNeedModel needModel,
             CatBehaviorMemory behaviorMemory,
             CatBehaviorBrainScorer behaviorScorer)
@@ -729,6 +731,7 @@ namespace CatLife.EditorTools
             serialized.FindProperty("destinationPlanner").objectReferenceValue = destinationPlanner;
             serialized.FindProperty("actionRouter").objectReferenceValue = actionRouter;
             serialized.FindProperty("featureEngine").objectReferenceValue = featureEngine;
+            serialized.FindProperty("privacyGateway").objectReferenceValue = privacyGateway;
             serialized.FindProperty("needModel").objectReferenceValue = needModel;
             serialized.FindProperty("behaviorMemory").objectReferenceValue = behaviorMemory;
             serialized.FindProperty("behaviorScorer").objectReferenceValue = behaviorScorer;

@@ -170,6 +170,7 @@ namespace CatLife.Cat
             builder.Append("; llm_busy=").Append(llmClient != null && llmClient.IsBusy);
             builder.Append("; mood=").Append(suggestion != null ? suggestion.moodBias : "calm");
             builder.Append("; bubble=").Append(suggestion != null && suggestion.showBubble);
+            builder.Append("; safety=").Append(behaviorDriver != null ? behaviorDriver.LastLlmSafetyReason : "missing_driver");
             builder.AppendLine();
 
             builder.Append("anim=").Append(GetAnimatorStateName());
