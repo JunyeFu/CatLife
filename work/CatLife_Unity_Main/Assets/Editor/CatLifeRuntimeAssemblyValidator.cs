@@ -45,6 +45,7 @@ namespace CatLife.EditorTools
             "Configs",
             "Editor",
             "Materials",
+            "Plugins",
             "Prefabs",
             "Scenes",
             "Scripts",
@@ -157,10 +158,11 @@ namespace CatLife.EditorTools
             ValidateSceneObjects(issues);
             ValidateAnimatorAssets(issues);
             ValidateLlmRuntimeAdapters(issues);
+            ValidateAndroidBlueLmPlugin(issues);
 
             if (issues.Count == 0)
             {
-                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, BlueLM Unity adapter, config schemas, UI binding, and 11 animator states are present.";
+                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, BlueLM Unity adapter, Android BlueLM bridge skeleton, config schemas, UI binding, and 11 animator states are present.";
             }
 
             return "FAIL CatLife runtime assembly validation:\n- " + string.Join("\n- ", issues.ToArray());
@@ -221,6 +223,66 @@ namespace CatLife.EditorTools
             else if (failureEvent.IsSuccess || failureEvent.ErrorText != "model_not_ready")
             {
                 issues.Add("BlueLmAndroidEvent failure status was not preserved.");
+            }
+        }
+
+        private static void ValidateAndroidBlueLmPlugin(List<string> issues)
+        {
+            ValidateProjectFileContains(
+                "Assets/Plugins/Android/AndroidManifest.xml",
+                issues,
+                "MANAGE_EXTERNAL_STORAGE",
+                "/sdcard/1225/1.7.0.4_1225_mtk9500");
+
+            ValidateProjectFileContains(
+                "Assets/Plugins/Android/libs/README.md",
+                issues,
+                "llm-sdk-release.aar",
+                "SDK_NOT_LINKED");
+
+            ValidateProjectFileContains(
+                "Assets/Plugins/Android/src/main/java/com/catlife/bluelm/BlueLmUnityBridge.java",
+                issues,
+                "public static void init",
+                "public static void generate",
+                "openManageAllFilesAccessSettings");
+
+            ValidateProjectFileContains(
+                "Assets/Plugins/Android/src/main/java/com/catlife/bluelm/BlueLmEngine.java",
+                issues,
+                "DEFAULT_MODEL_PATH",
+                "CODE_SDK_NOT_LINKED",
+                "generateJsonAsync");
+
+            ValidateProjectFileContains(
+                "Assets/Plugins/Android/src/main/java/com/catlife/bluelm/BlueLmUnityCallback.java",
+                issues,
+                "UnitySendMessage",
+                "BlueLM init ok=",
+                "OnBlueLmEvent");
+
+            ValidateProjectFileContains(
+                "Assets/Plugins/Android/src/main/java/com/catlife/bluelm/BlueLmPermissionHelper.java",
+                issues,
+                "ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION",
+                "isExternalStorageManager");
+
+            string projectSettingsPath = Path.GetFullPath(Path.Combine(Application.dataPath, "../ProjectSettings/ProjectSettings.asset"));
+            if (!File.Exists(projectSettingsPath))
+            {
+                issues.Add("Missing ProjectSettings.asset for Android settings validation.");
+                return;
+            }
+
+            string settingsText = File.ReadAllText(projectSettingsPath);
+            if (!settingsText.Contains("AndroidMinSdkVersion: 28"))
+            {
+                issues.Add("AndroidMinSdkVersion must be 28 for BlueLM stage 2.");
+            }
+
+            if (!settingsText.Contains("AndroidTargetArchitectures: 2"))
+            {
+                issues.Add("AndroidTargetArchitectures must stay ARM64-only for BlueLM stage 2.");
             }
         }
 
@@ -326,6 +388,28 @@ namespace CatLife.EditorTools
                 if (!text.Contains(requiredFragments[i]))
                 {
                     issues.Add("Config schema " + path + " is missing required fragment: " + requiredFragments[i]);
+                }
+            }
+        }
+
+        private static void ValidateProjectFileContains(
+            string assetRelativePath,
+            List<string> issues,
+            params string[] requiredFragments)
+        {
+            string fullPath = Path.GetFullPath(Path.Combine(Application.dataPath, assetRelativePath.Substring("Assets/".Length)));
+            if (!File.Exists(fullPath))
+            {
+                issues.Add("Missing required project file: " + assetRelativePath);
+                return;
+            }
+
+            string text = File.ReadAllText(fullPath);
+            for (int i = 0; i < requiredFragments.Length; i++)
+            {
+                if (!text.Contains(requiredFragments[i]))
+                {
+                    issues.Add("Project file " + assetRelativePath + " is missing required fragment: " + requiredFragments[i]);
                 }
             }
         }

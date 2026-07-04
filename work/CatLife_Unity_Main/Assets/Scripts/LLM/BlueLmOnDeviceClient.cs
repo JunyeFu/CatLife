@@ -12,8 +12,11 @@ namespace CatLife.LLM
 #pragma warning disable 0414
         [SerializeField] private string androidBridgeClass = "com.catlife.bluelm.BlueLmUnityBridge";
         [SerializeField] private string androidGenerateMethod = "generate";
+        [SerializeField] private string androidInitMethod = "init";
+        [SerializeField] private string modelPath = "/sdcard/1225/1.7.0.4_1225_mtk9500";
 #pragma warning restore 0414
         [SerializeField] private string callbackGameObjectName = BlueLmCallbackReceiver.DefaultGameObjectName;
+        [SerializeField] private bool initializeOnAwake = true;
         [SerializeField] private PrivacyGateway privacyGateway;
         [SerializeField] private bool logLifecycle = true;
 
@@ -27,6 +30,10 @@ namespace CatLife.LLM
         private void Awake()
         {
             ResolvePrivacyGateway();
+            if (initializeOnAwake)
+            {
+                TryInitializeAndroidBridge();
+            }
         }
 
         public void RequestSuggestion(
@@ -189,6 +196,39 @@ namespace CatLife.LLM
             }
 #else
             reason = "bluelm_not_android_runtime";
+            return false;
+#endif
+        }
+
+        private bool TryInitializeAndroidBridge()
+        {
+            if (!Enabled)
+            {
+                return false;
+            }
+
+            BlueLmCallbackReceiver.EnsureReceiver(callbackGameObjectName);
+#if UNITY_ANDROID && !UNITY_EDITOR
+            try
+            {
+                using (AndroidJavaClass bridge = new AndroidJavaClass(androidBridgeClass))
+                {
+                    bridge.CallStatic(androidInitMethod, callbackGameObjectName, modelPath);
+                }
+
+                if (logLifecycle)
+                {
+                    Debug.Log("[CatLife] BlueLM init requested: " + modelPath);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("[CatLife] BlueLM init bridge failed: " + ex.GetType().Name);
+                return false;
+            }
+#else
             return false;
 #endif
         }

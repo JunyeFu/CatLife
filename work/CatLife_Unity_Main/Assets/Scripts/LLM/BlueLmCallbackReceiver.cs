@@ -66,6 +66,14 @@ namespace CatLife.LLM
             Action<BlueLmAndroidEvent> callback;
             if (!Pending.TryGetValue(androidEvent.requestId, out callback))
             {
+                if (string.Equals(androidEvent.requestId, "bluelm_init", StringComparison.OrdinalIgnoreCase))
+                {
+                    Debug.Log("[CatLife] BlueLM init ok=" + androidEvent.IsSuccess +
+                        " code=" + androidEvent.code +
+                        " message=" + (androidEvent.message ?? androidEvent.ErrorText));
+                    return;
+                }
+
                 Debug.LogWarning("[CatLife] BlueLM callback without pending request: " + androidEvent.requestId);
                 return;
             }

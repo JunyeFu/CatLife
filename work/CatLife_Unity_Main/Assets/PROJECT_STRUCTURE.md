@@ -12,6 +12,7 @@ This Unity workspace keeps runtime code, generated assets, editor tools, and val
 | `Assets/Configs/` | Versioned runtime contracts such as behavior event schemas and LLM output schemas. | Keep privacy boundaries and structured-output contracts as JSON; no credentials or environment-specific values. |
 | `Assets/Editor/` | Editor-only setup, extraction, validation, and automation tools. | Menu tools use `CatLife/Runtime/...` paths and must be safe to rerun. |
 | `Assets/Materials/` | Generated or shared materials not owned by a single art domain. | Keep generated town material sets in named subfolders. |
+| `Assets/Plugins/` | Platform plugins such as Android Java/Gradle bridge code. | Keep SDK binaries documented; do not commit fake SDKs or credentials. |
 | `Assets/Prefabs/` | Reusable prefabs. | Prefer prefabs for durable reusable scene objects; scene-only runtime roots may remain in scenes. |
 | `Assets/Scenes/` | Unity scene assets. | `MainScene.unity` is the current runtime assembly scene. |
 | `Assets/Screenshots/` | Curated visual evidence only. | Do not store temporary screenshots here. |
@@ -35,7 +36,7 @@ This Unity workspace keeps runtime code, generated assets, editor tools, and val
 Run these Unity menu items before committing scene/runtime changes:
 
 1. `CatLife/Runtime/Validate Runtime Assembly`
-   - Checks scene wiring, NavMesh roots, cat components, recognition/LLM systems, UI binding, and animator states.
+   - Checks scene wiring, NavMesh roots, cat components, recognition/LLM systems, BlueLM Unity/Android bridge skeleton, UI binding, and animator states.
 2. `CatLife/Runtime/Validate Play Mode Behavior Smoke`
    - Run in Play Mode. Checks NavMesh runtime, safety guard, realtime recognition features, prompt context, and animation state responsiveness.
 
