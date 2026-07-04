@@ -26,6 +26,11 @@ namespace CatLife.Recognition
             get { return latest; }
         }
 
+        public string LastAcceptedBehaviorEvent
+        {
+            get { return lastLocalEvent; }
+        }
+
         private void Awake()
         {
             Tick(0f);
@@ -58,6 +63,58 @@ namespace CatLife.Recognition
         {
             focusSessionActive = false;
             RecordInteraction(completed ? "focus_completed" : "focus_unlocked");
+        }
+
+        public void RecordBehaviorEvent(BehaviorEvent behaviorEvent)
+        {
+            if (behaviorEvent == null)
+            {
+                return;
+            }
+
+            switch (behaviorEvent.eventType)
+            {
+                case "FocusStart":
+                    RecordFocusSessionStarted();
+                    break;
+                case "FocusComplete":
+                    RecordFocusSessionEnded(true);
+                    break;
+                case "FocusCancel":
+                case "Unlock":
+                    RecordFocusSessionEnded(false);
+                    break;
+                case "CatTap":
+                    RecordCatInteraction("cat_tap");
+                    break;
+                case "CatLongPress":
+                    RecordCatInteraction("cat_long_press");
+                    break;
+                case "ScenePointTap":
+                    RecordUiEvent("scene_" + SafeLabel(behaviorEvent.zoneId));
+                    break;
+                case "PageEnter":
+                    RecordUiEvent("page_enter_" + SafeLabel(behaviorEvent.routeId));
+                    break;
+                case "PageExit":
+                    RecordUiEvent("page_exit_" + SafeLabel(behaviorEvent.routeId));
+                    break;
+                case "UiButton":
+                    RecordUiEvent("button_" + SafeLabel(behaviorEvent.routeId));
+                    break;
+                case "UiScroll":
+                    RecordUiEvent("ui_scroll");
+                    break;
+                case "AppPause":
+                    RecordUiEvent("app_pause");
+                    break;
+                case "AppResume":
+                    RecordUiEvent("app_resume");
+                    break;
+                default:
+                    RecordUiEvent("ui_tap");
+                    break;
+            }
         }
 
         public void Tick(float unscaledDeltaTime)
@@ -125,6 +182,11 @@ namespace CatLife.Recognition
             }
 
             return count;
+        }
+
+        private static string SafeLabel(string value)
+        {
+            return string.IsNullOrEmpty(value) ? "none" : value;
         }
     }
 }

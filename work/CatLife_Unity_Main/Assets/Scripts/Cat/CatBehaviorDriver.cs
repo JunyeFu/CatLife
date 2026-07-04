@@ -244,6 +244,7 @@ namespace CatLife.Cat
 
         public void NotifyCatTapped()
         {
+            AndroidBehaviorEventBridge.RecordUnityEvent("CatTap", "cat");
             PushRecentEvent("cat_tap");
             if (behaviorMemory != null)
             {
@@ -329,6 +330,7 @@ namespace CatLife.Cat
 
         public void NotifyCatLongPressed()
         {
+            AndroidBehaviorEventBridge.RecordUnityEvent("CatLongPress", "cat");
             PushRecentEvent("cat_long_press");
             if (behaviorMemory != null)
             {
@@ -359,6 +361,7 @@ namespace CatLife.Cat
 
         public bool NotifyGroundTapped(Vector3 worldPoint)
         {
+            AndroidBehaviorEventBridge.RecordUnityEvent("UiTap", "ground");
             PushRecentEvent("ground_tap");
             if (behaviorMemory != null)
             {
@@ -459,6 +462,7 @@ namespace CatLife.Cat
                 featureEngine.RecordUiEvent("scene_interaction");
             }
 
+            AndroidBehaviorEventBridge.RecordUnityEvent("ScenePointTap", payload.pointId);
             latestSceneInteractionPayload = payload;
             latestSceneInteractionPoint = point;
             float now = Time.time;

@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text;
 using CatLife.Cat;
 using CatLife.LLM;
+using CatLife.Recognition;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -171,6 +172,8 @@ namespace CatLife.UI
 
         public void StartFocusSession()
         {
+            AndroidBehaviorEventBridge.RecordUnityEvent("UiButton", "start_focus");
+            AndroidBehaviorEventBridge.RecordUnityEvent("FocusStart", "focus_session");
             NotifyCatUiAction(CatBehaviorState.HeadTiltListen, "ui_start_focus");
             NotifyCatFocusSessionStarted();
             activeSessionSeconds = Mathf.Max(1, focusSessionSeconds);
@@ -196,6 +199,8 @@ namespace CatLife.UI
                 interruptionCount += 1;
             }
 
+            AndroidBehaviorEventBridge.RecordUnityEvent("Unlock", "focus_unlock");
+            AndroidBehaviorEventBridge.RecordUnityEvent("FocusCancel", "focus_session");
             focusRunning = false;
             NotifyCatFocusSessionEnded(false);
             autoFocusConsumed = true;
@@ -218,6 +223,8 @@ namespace CatLife.UI
             activePage = HomePage.Cat;
             if (notifyCatAction)
             {
+                AndroidBehaviorEventBridge.RecordUnityEvent("UiButton", "cat_button");
+                AndroidBehaviorEventBridge.RecordUnityEvent("PageEnter", "cat_page");
                 NotifyCatUiAction(CatBehaviorState.TailWagHappy, "ui_cat_page");
             }
 
@@ -239,6 +246,8 @@ namespace CatLife.UI
             activePage = HomePage.Record;
             if (notifyCatAction)
             {
+                AndroidBehaviorEventBridge.RecordUnityEvent("UiButton", "record_button");
+                AndroidBehaviorEventBridge.RecordUnityEvent("PageEnter", "record_page");
                 NotifyCatUiAction(CatBehaviorState.HeadTiltListen, "ui_record_page");
             }
 
@@ -260,6 +269,8 @@ namespace CatLife.UI
             activePage = HomePage.Settings;
             if (notifyCatAction)
             {
+                AndroidBehaviorEventBridge.RecordUnityEvent("UiButton", "settings_button");
+                AndroidBehaviorEventBridge.RecordUnityEvent("PageEnter", "settings_page");
                 NotifyCatUiAction(CatBehaviorState.AlertLook, "ui_settings_page");
             }
 
@@ -277,6 +288,7 @@ namespace CatLife.UI
 
         public void HidePlaceholder()
         {
+            AndroidBehaviorEventBridge.RecordUnityEvent("PageExit", activePage.ToString().ToLowerInvariant() + "_page");
             activePage = HomePage.None;
             SetGameObjectVisible(focusDurationSettingsRow, false);
             SetPlaceholderVisible(false);
@@ -284,6 +296,7 @@ namespace CatLife.UI
 
         private void CompleteFocusSession()
         {
+            AndroidBehaviorEventBridge.RecordUnityEvent("FocusComplete", "focus_session");
             focusRunning = false;
             NotifyCatFocusSessionEnded(true);
             int finishedSeconds = Mathf.Max(1, activeSessionSeconds);
@@ -1137,6 +1150,7 @@ namespace CatLife.UI
             }
 
             minutes = Mathf.Clamp(minutes, MinFocusSessionMinutes, MaxFocusSessionMinutes);
+            AndroidBehaviorEventBridge.RecordUnityEvent("UiButton", "settings_focus_duration");
             focusSessionSeconds = minutes * 60;
             if (!focusRunning)
             {

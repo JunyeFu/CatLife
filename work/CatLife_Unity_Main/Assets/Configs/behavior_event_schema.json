@@ -25,18 +25,30 @@
     "scene_state": "enum|null"
   },
   "event_types": [
-    "tap",
-    "long_press",
-    "swipe",
-    "scroll",
-    "input_edit",
-    "page_switch",
-    "app_fg",
-    "app_bg",
-    "focus_start",
-    "focus_end",
-    "device_weak_signal"
+    "UiTap",
+    "UiButton",
+    "UiScroll",
+    "PageEnter",
+    "PageExit",
+    "FocusStart",
+    "FocusCancel",
+    "FocusComplete",
+    "Unlock",
+    "CatTap",
+    "CatLongPress",
+    "ScenePointTap",
+    "AppPause",
+    "AppResume"
   ],
+  "unity_bridge": {
+    "receiver_object": "CatLifeAndroidBehaviorEventBridge",
+    "receiver_method": "OnBehaviorEvent",
+    "android_sender": "com.catlife.recognition.CatLifeEventBridge",
+    "feature_engine_target": "RealtimeFeatureEngine",
+    "raw_coordinates_allowed": false,
+    "cross_app_events_allowed": false,
+    "accessibility_required": false
+  },
   "sanitization": {
     "touch_grid": {
       "rows": 8,

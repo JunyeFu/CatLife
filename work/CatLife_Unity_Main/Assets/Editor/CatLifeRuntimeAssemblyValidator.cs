@@ -161,10 +161,11 @@ namespace CatLife.EditorTools
             ValidateAnimatorAssets(issues);
             ValidateLlmRuntimeAdapters(issues);
             ValidateAndroidBlueLmPlugin(issues);
+            ValidateBehaviorEventBridge(issues);
 
             if (issues.Count == 0)
             {
-                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, BlueLM Unity adapter, Android BlueLM bridge skeleton, BlueLM JSON guards, BlueLM generate bridge, config schemas, UI binding, and 11 animator states are present.";
+                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, Android behavior event bridge, BlueLM Unity adapter, Android BlueLM bridge skeleton, BlueLM JSON guards, BlueLM generate bridge, config schemas, UI binding, and 11 animator states are present.";
             }
 
             return "FAIL CatLife runtime assembly validation:\n- " + string.Join("\n- ", issues.ToArray());
@@ -376,6 +377,83 @@ namespace CatLife.EditorTools
             }
         }
 
+        private static void ValidateBehaviorEventBridge(List<string> issues)
+        {
+            ValidateProjectFileContains(
+                "Assets/Scripts/Recognition/BehaviorEvent.cs",
+                issues,
+                "catlife.behavior_event.v1",
+                "eventType",
+                "routeId",
+                "zoneId");
+
+            ValidateProjectFileContains(
+                "Assets/Scripts/Recognition/BehaviorEventSanitizer.cs",
+                issues,
+                "AllowedEventTypes",
+                "BlockedPayloadTerms",
+                "TryParseAndSanitize",
+                "\\\"x\\\"",
+                "rawinputtext",
+                "package_name",
+                "screen_content");
+
+            ValidateProjectFileContains(
+                "Assets/Scripts/Recognition/AndroidBehaviorEventBridge.cs",
+                issues,
+                "CatLifeAndroidBehaviorEventBridge",
+                "OnBehaviorEvent",
+                "RecordUnityEvent",
+                "OnApplicationPause",
+                "OnApplicationFocus");
+
+            ValidateProjectFileContains(
+                "Assets/Scripts/Recognition/RealtimeFeatureEngine.cs",
+                issues,
+                "RecordBehaviorEvent",
+                "FocusStart",
+                "FocusComplete",
+                "ScenePointTap");
+
+            ValidateProjectFileContains(
+                "Assets/Plugins/Android/src/main/java/com/catlife/recognition/CatLifeEventBridge.java",
+                issues,
+                "CatLifeAndroidBehaviorEventBridge",
+                "UnitySendMessage",
+                "notifyAppPause",
+                "notifyAppResume",
+                "isAllowedEventType");
+
+            BehaviorEvent safeEvent;
+            string reason;
+            string safeJson = "{\"schemaVersion\":\"catlife.behavior_event.v1\",\"eventType\":\"UiButton\",\"routeId\":\"settings_button\",\"zoneId\":\"menu\",\"source\":\"android\",\"tsMs\":1000}";
+            if (!BehaviorEventSanitizer.TryParseAndSanitize(safeJson, out safeEvent, out reason))
+            {
+                issues.Add("BehaviorEventSanitizer rejected safe Android event: " + reason);
+            }
+            else if (safeEvent.eventType != "UiButton" || safeEvent.routeId != "settings_button")
+            {
+                issues.Add("BehaviorEventSanitizer did not preserve safe enum labels.");
+            }
+
+            string rawTextJson = "{\"schemaVersion\":\"catlife.behavior_event.v1\",\"eventType\":\"UiTap\",\"rawText\":\"secret\"}";
+            if (BehaviorEventSanitizer.TryParseAndSanitize(rawTextJson, out safeEvent, out reason))
+            {
+                issues.Add("BehaviorEventSanitizer accepted rawText payload.");
+            }
+
+            string coordinateJson = "{\"schemaVersion\":\"catlife.behavior_event.v1\",\"eventType\":\"UiTap\",\"x\":12,\"y\":30}";
+            if (BehaviorEventSanitizer.TryParseAndSanitize(coordinateJson, out safeEvent, out reason))
+            {
+                issues.Add("BehaviorEventSanitizer accepted raw coordinate payload.");
+            }
+
+            if (BehaviorEventSanitizer.IsAllowedEventType("OpenOtherApp"))
+            {
+                issues.Add("BehaviorEventSanitizer accepted cross-app style event type.");
+            }
+        }
+
         private static void ValidateProjectStructure(List<string> issues)
         {
             if (AssetDatabase.LoadAssetAtPath<TextAsset>(ProjectStructurePath) == null)
@@ -443,6 +521,11 @@ namespace CatLife.EditorTools
                 "forbidden_collection",
                 "event_schema",
                 "cloud_upload_policy",
+                "CatLifeAndroidBehaviorEventBridge",
+                "CatLifeEventBridge",
+                "UiButton",
+                "FocusComplete",
+                "AppPause",
                 "raw_input_text",
                 "screen_screenshot_content",
                 "user_consented_cloud_ai");
