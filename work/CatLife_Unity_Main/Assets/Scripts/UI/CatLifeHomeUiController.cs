@@ -16,6 +16,9 @@ namespace CatLife.UI
         private const string PrefPrefix = "CatLife.Home.";
         private const string LocalRecognitionKey = PrefPrefix + "LocalRecognitionEnabled";
         private const string SmartExplanationKey = PrefPrefix + "SmartExplanationEnabled";
+        private const string FocusSessionSecondsKey = PrefPrefix + "FocusSessionSeconds";
+        private const int MinFocusSessionMinutes = 1;
+        private const int MaxFocusSessionMinutes = 180;
 
         [SerializeField] private Text todayFocusText;
         [SerializeField] private Text focusPillText;
@@ -47,6 +50,9 @@ namespace CatLife.UI
         [SerializeField] private GameObject focusUnlockSliderGroup;
         [SerializeField] private FocusUnlockSlider focusUnlockSlider;
         [SerializeField] private int focusSessionSeconds = 1509;
+        [SerializeField] private GameObject focusDurationSettingsRow;
+        [SerializeField] private InputField focusDurationInput;
+        [SerializeField] private Text focusDurationStatusText;
         [SerializeField] private float transitionSeconds = 6f;
         [SerializeField] private float rewardSeconds = 4f;
         [SerializeField] private float autoFocusDelaySeconds = 10f;
@@ -258,11 +264,15 @@ namespace CatLife.UI
                 "管理本地识别、智能解释和数据操作边界。",
                 settingsPageIcon,
                 BuildSettingsPageBody());
+            EnsureFocusDurationSettingsRow();
+            SyncFocusDurationInputText();
+            SetGameObjectVisible(focusDurationSettingsRow, true);
         }
 
         public void HidePlaceholder()
         {
             activePage = HomePage.None;
+            SetGameObjectVisible(focusDurationSettingsRow, false);
             SetPlaceholderVisible(false);
         }
 
@@ -402,6 +412,7 @@ namespace CatLife.UI
             longestStableSeconds = PlayerPrefs.GetInt(DailyLongestKey(currentDateKey), EstimateLongestStableSeconds(todayFocusMinutes));
             localRecognitionEnabled = PlayerPrefs.GetInt(LocalRecognitionKey, localRecognitionDefault ? 1 : 0) == 1;
             smartExplanationEnabled = PlayerPrefs.GetInt(SmartExplanationKey, smartExplanationDefault ? 1 : 0) == 1;
+            focusSessionSeconds = ClampFocusSessionSeconds(PlayerPrefs.GetInt(FocusSessionSecondsKey, focusSessionSeconds));
         }
 
         private void SaveRuntimeData()
@@ -417,6 +428,7 @@ namespace CatLife.UI
             PlayerPrefs.SetInt(DailyLongestKey(currentDateKey), Mathf.Max(0, longestStableSeconds));
             PlayerPrefs.SetInt(LocalRecognitionKey, localRecognitionEnabled ? 1 : 0);
             PlayerPrefs.SetInt(SmartExplanationKey, smartExplanationEnabled ? 1 : 0);
+            PlayerPrefs.SetInt(FocusSessionSecondsKey, ClampFocusSessionSeconds(focusSessionSeconds));
             PlayerPrefs.Save();
         }
 
@@ -575,6 +587,12 @@ namespace CatLife.UI
         private string BuildSettingsPageBody()
         {
             StringBuilder body = new StringBuilder(640);
+            body.AppendLine(ColorTitle("专注时间"));
+            body.AppendLine("每轮专注：" + GetFocusSessionMinutes() + " 分钟");
+            body.AppendLine("可在下方输入 1-" + MaxFocusSessionMinutes + " 分钟，下一轮专注生效。");
+            body.AppendLine();
+            body.AppendLine();
+            body.AppendLine();
             body.AppendLine(ColorTitle("识别与智能"));
             body.AppendLine("本地行为识别：" + BoolText(localRecognitionEnabled));
             body.AppendLine("智能解释：" + BoolText(smartExplanationEnabled));
@@ -629,6 +647,7 @@ namespace CatLife.UI
             }
 
             SetPlaceholderVisible(true);
+            SetGameObjectVisible(focusDurationSettingsRow, activePage == HomePage.Settings);
         }
 
         private void ApplyPlaceholderCompactLayout()
@@ -953,7 +972,7 @@ namespace CatLife.UI
 
             if (font == null)
             {
-                font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+                font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             }
 
             focusUnlockSliderGroup = new GameObject("FocusUnlockSliderGroup", typeof(RectTransform));
@@ -986,6 +1005,115 @@ namespace CatLife.UI
             focusUnlockSlider = handle.AddComponent<FocusUnlockSlider>();
             focusUnlockSlider.Configure(this, trackRect, handleRect, 0.96f);
             focusUnlockSliderGroup.SetActive(false);
+        }
+
+        private void EnsureFocusDurationSettingsRow()
+        {
+            if (focusDurationSettingsRow != null && focusDurationInput != null)
+            {
+                return;
+            }
+
+            RectTransform parentRect = placeholderOverlay != null ? placeholderOverlay.transform as RectTransform : transform as RectTransform;
+            if (parentRect == null)
+            {
+                return;
+            }
+
+            Font font = placeholderBodyText != null ? placeholderBodyText.font : null;
+            if (font == null && todayFocusText != null)
+            {
+                font = todayFocusText.font;
+            }
+
+            if (font == null)
+            {
+                font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            }
+
+            Sprite roundedSprite = FindSpriteFromImage("FocusPill");
+            focusDurationSettingsRow = new GameObject("FocusDurationSettingsRow", typeof(RectTransform));
+            focusDurationSettingsRow.transform.SetParent(parentRect, false);
+            RectTransform rowRect = focusDurationSettingsRow.GetComponent<RectTransform>();
+            rowRect.anchorMin = new Vector2(0f, 1f);
+            rowRect.anchorMax = new Vector2(0f, 1f);
+            rowRect.pivot = new Vector2(0f, 1f);
+            rowRect.anchoredPosition = new Vector2(60f, -320f);
+            rowRect.sizeDelta = new Vector2(816f, 86f);
+
+            Text label = AddRuntimeText("FocusDurationLabel", focusDurationSettingsRow.transform, "每轮专注", font, 28, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), Vector2.zero, new Vector2(210f, 64f), new Color(0.34f, 0.18f, 0.06f, 1f));
+            AddRuntimeTextShadow(label, 0.12f, new Vector2(0f, -1f));
+
+            GameObject inputObject = AddRuntimePanel("FocusDurationMinutesInput", focusDurationSettingsRow.transform, roundedSprite, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(230f, 0f), new Vector2(170f, 64f), new Color(1f, 0.96f, 0.76f, 0.58f));
+            Image inputImage = inputObject.GetComponent<Image>();
+            inputImage.raycastTarget = true;
+            focusDurationInput = inputObject.AddComponent<InputField>();
+            focusDurationInput.contentType = InputField.ContentType.IntegerNumber;
+            focusDurationInput.characterLimit = 3;
+            focusDurationInput.lineType = InputField.LineType.SingleLine;
+
+            Text inputText = AddRuntimeText("Text", inputObject.transform, "", font, 30, FontStyle.Bold, TextAnchor.MiddleCenter, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, new Color(0.25f, 0.13f, 0.04f, 1f));
+            RectTransform inputTextRect = inputText.rectTransform;
+            inputTextRect.anchorMin = Vector2.zero;
+            inputTextRect.anchorMax = Vector2.one;
+            inputTextRect.offsetMin = new Vector2(12f, 0f);
+            inputTextRect.offsetMax = new Vector2(-12f, 0f);
+            inputText.raycastTarget = true;
+
+            Text placeholderText = AddRuntimeText("Placeholder", inputObject.transform, "25", font, 30, FontStyle.Bold, TextAnchor.MiddleCenter, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero, new Color(0.56f, 0.36f, 0.14f, 0.55f));
+            RectTransform placeholderRect = placeholderText.rectTransform;
+            placeholderRect.anchorMin = Vector2.zero;
+            placeholderRect.anchorMax = Vector2.one;
+            placeholderRect.offsetMin = new Vector2(12f, 0f);
+            placeholderRect.offsetMax = new Vector2(-12f, 0f);
+            placeholderText.raycastTarget = false;
+
+            focusDurationInput.textComponent = inputText;
+            focusDurationInput.placeholder = placeholderText;
+            focusDurationInput.onEndEdit.AddListener(ApplyFocusDurationInput);
+
+            Text suffix = AddRuntimeText("FocusDurationSuffix", focusDurationSettingsRow.transform, "分钟", font, 28, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(420f, 0f), new Vector2(90f, 64f), new Color(0.34f, 0.18f, 0.06f, 1f));
+            AddRuntimeTextShadow(suffix, 0.12f, new Vector2(0f, -1f));
+
+            focusDurationStatusText = AddRuntimeText("FocusDurationStatus", focusDurationSettingsRow.transform, "", font, 22, FontStyle.Normal, TextAnchor.MiddleLeft, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(520f, 0f), new Vector2(292f, 64f), new Color(0.47f, 0.26f, 0.08f, 1f));
+            SyncFocusDurationInputText();
+            focusDurationSettingsRow.SetActive(activePage == HomePage.Settings && placeholderOverlay != null && placeholderOverlay.activeSelf);
+        }
+
+        private void SyncFocusDurationInputText()
+        {
+            if (focusDurationInput != null)
+            {
+                focusDurationInput.SetTextWithoutNotify(GetFocusSessionMinutes().ToString(CultureInfo.InvariantCulture));
+            }
+
+            if (focusDurationStatusText != null)
+            {
+                focusDurationStatusText.text = focusRunning ? "当前轮结束后生效" : "下一轮立即生效";
+            }
+        }
+
+        private void ApplyFocusDurationInput(string value)
+        {
+            int minutes;
+            if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out minutes))
+            {
+                SyncFocusDurationInputText();
+                return;
+            }
+
+            minutes = Mathf.Clamp(minutes, MinFocusSessionMinutes, MaxFocusSessionMinutes);
+            focusSessionSeconds = minutes * 60;
+            if (!focusRunning)
+            {
+                activeSessionSeconds = focusSessionSeconds;
+                focusRemainingSeconds = focusSessionSeconds;
+            }
+
+            SaveRuntimeData();
+            SyncFocusDurationInputText();
+            UpdateStatusText(true);
+            RefreshActivePage();
         }
 
         private static GameObject AddRuntimePanel(string name, Transform parent, Sprite sprite, Vector2 anchor, Vector2 pivot, Vector2 position, Vector2 size, Color color)
@@ -1145,6 +1273,21 @@ namespace CatLife.UI
         {
             int sessionMinutes = Mathf.Max(1, Mathf.RoundToInt(Mathf.Max(1, focusSessionSeconds) / 60f));
             return Mathf.Max(0, Mathf.RoundToInt((float)Mathf.Max(0, minutes) / sessionMinutes));
+        }
+
+        private int GetFocusSessionMinutes()
+        {
+            return Mathf.Clamp(
+                Mathf.RoundToInt(ClampFocusSessionSeconds(focusSessionSeconds) / 60f),
+                MinFocusSessionMinutes,
+                MaxFocusSessionMinutes);
+        }
+
+        private static int ClampFocusSessionSeconds(int seconds)
+        {
+            int minSeconds = MinFocusSessionMinutes * 60;
+            int maxSeconds = MaxFocusSessionMinutes * 60;
+            return Mathf.Clamp(seconds, minSeconds, maxSeconds);
         }
 
         private int EstimateLongestStableSeconds(int minutes)
