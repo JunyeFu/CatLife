@@ -22,7 +22,10 @@ namespace CatLife.Cat
 
         public int QueuedActionCount { get { return hasPendingRequest ? 1 : 0; } }
         public CatBehaviorState PendingAction { get { return hasPendingRequest ? pendingRequest.state : CatBehaviorState.None; } }
+        public string PendingReason { get { return hasPendingRequest ? pendingRequest.reason : ""; } }
         public CatBehaviorState LastAcceptedAction { get; private set; }
+        public CatActionSource LastAcceptedSource { get; private set; }
+        public string LastAcceptedReason { get; private set; }
         public string LastDecision { get; private set; }
 
         public bool TryRoute(
@@ -189,6 +192,8 @@ namespace CatLife.Cat
         {
             lastStartedAt[request.state] = Time.time;
             LastAcceptedAction = request.state;
+            LastAcceptedSource = request.source;
+            LastAcceptedReason = request.reason;
             LastDecision = "play_" + request.state + "_from_" + request.source;
         }
 

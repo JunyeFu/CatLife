@@ -109,6 +109,7 @@ namespace CatLife.EditorTools
             CatBehaviorMemory behaviorMemory = GetOrAdd<CatBehaviorMemory>(cat);
             CatBehaviorBrainScorer behaviorScorer = GetOrAdd<CatBehaviorBrainScorer>(cat);
             CatBehaviorDriver behaviorDriver = GetOrAdd<CatBehaviorDriver>(cat);
+            CatBehaviorTelemetry behaviorTelemetry = GetOrAdd<CatBehaviorTelemetry>(cat);
             Animator animator = cat.GetComponent<Animator>();
 
             AssignObject(navigationAgent, "agent", agent);
@@ -128,6 +129,18 @@ namespace CatLife.EditorTools
                 needModel,
                 behaviorMemory,
                 behaviorScorer);
+            behaviorTelemetry.Configure(
+                behaviorDriver,
+                navigationAgent,
+                destinationPlanner,
+                actionRouter,
+                behaviorMemory,
+                needModel,
+                safetyGuard,
+                animator,
+                recognitionProvider,
+                llmClient,
+                featureEngine);
 
             CatTownWalker legacyWalker = cat.GetComponent<CatTownWalker>();
             if (legacyWalker != null)

@@ -45,6 +45,42 @@ namespace CatLife.Cat
             }
         }
 
+        public float RemainingDistance
+        {
+            get
+            {
+                if (!IsOnNavMesh || agent.pathPending || !agent.hasPath)
+                {
+                    return 0f;
+                }
+
+                return agent.remainingDistance;
+            }
+        }
+
+        public string PathStatusText
+        {
+            get
+            {
+                if (!IsOnNavMesh)
+                {
+                    return "off_navmesh";
+                }
+
+                if (agent.pathPending)
+                {
+                    return "pending";
+                }
+
+                if (!agent.hasPath)
+                {
+                    return "none";
+                }
+
+                return agent.pathStatus.ToString();
+            }
+        }
+
         private void Reset()
         {
             agent = GetComponent<NavMeshAgent>();

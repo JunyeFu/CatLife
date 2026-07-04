@@ -66,6 +66,7 @@ namespace CatLife.EditorTools
             CatBehaviorDriver driver = cat.GetComponent<CatBehaviorDriver>();
             CatDestinationPlanner planner = cat.GetComponent<CatDestinationPlanner>();
             CatBehaviorMemory memory = cat.GetComponent<CatBehaviorMemory>();
+            CatBehaviorTelemetry telemetry = cat.GetComponent<CatBehaviorTelemetry>();
             CatNavMeshSafetyGuard safetyGuard = cat.GetComponent<CatNavMeshSafetyGuard>();
             Animator animator = cat.GetComponent<Animator>();
             RealtimeFeatureEngine featureEngine = systems.GetComponent<RealtimeFeatureEngine>();
@@ -76,6 +77,7 @@ namespace CatLife.EditorTools
             if (driver == null) issues.Add("Cat missing CatBehaviorDriver.");
             if (planner == null) issues.Add("Cat missing CatDestinationPlanner.");
             if (memory == null) issues.Add("Cat missing CatBehaviorMemory.");
+            if (telemetry == null) issues.Add("Cat missing CatBehaviorTelemetry.");
             if (safetyGuard == null) issues.Add("Cat missing CatNavMeshSafetyGuard.");
             if (animator == null) issues.Add("Cat missing Animator.");
             if (featureEngine == null) issues.Add("Systems missing RealtimeFeatureEngine.");
@@ -89,6 +91,7 @@ namespace CatLife.EditorTools
             ValidateNavMeshRuntime(agent, safetyGuard, interestRegistry, issues);
             ValidateRecognitionAndPrompt(driver, featureEngine, recognitionProvider, issues);
             ValidateAnimatorRuntime(animator, agent, issues);
+            ValidateTelemetryRuntime(telemetry, issues);
 
             return BuildReport(issues);
         }
@@ -211,11 +214,50 @@ namespace CatLife.EditorTools
             }
         }
 
+        private static void ValidateTelemetryRuntime(CatBehaviorTelemetry telemetry, List<string> issues)
+        {
+            if (telemetry == null)
+            {
+                return;
+            }
+
+            if (!telemetry.HasCoreReferences)
+            {
+                issues.Add("CatBehaviorTelemetry has missing core references.");
+            }
+
+            string report = telemetry.BuildDebugReport();
+            if (string.IsNullOrEmpty(report))
+            {
+                issues.Add("CatBehaviorTelemetry returned an empty report.");
+                return;
+            }
+
+            string[] requiredFields =
+            {
+                "cat_state=",
+                "focus=",
+                "nav_on_mesh=",
+                "router=",
+                "features_focus=",
+                "llm_enabled=",
+                "safety="
+            };
+
+            for (int i = 0; i < requiredFields.Length; i++)
+            {
+                if (!report.Contains(requiredFields[i]))
+                {
+                    issues.Add("CatBehaviorTelemetry report missing field: " + requiredFields[i]);
+                }
+            }
+        }
+
         private static string BuildReport(List<string> issues)
         {
             if (issues.Count == 0)
             {
-                return "PASS CatLife Play Mode behavior smoke: NavMesh runtime, safety guard, recognition features, prompt context, and animator states are responsive.";
+                return "PASS CatLife Play Mode behavior smoke: NavMesh runtime, safety guard, recognition features, prompt context, telemetry, and animator states are responsive.";
             }
 
             return "FAIL CatLife Play Mode behavior smoke:\n- " + string.Join("\n- ", issues.ToArray());

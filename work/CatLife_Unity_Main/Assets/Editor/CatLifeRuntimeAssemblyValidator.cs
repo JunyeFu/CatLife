@@ -251,6 +251,7 @@ namespace CatLife.EditorTools
             RequireComponent<CatNeedModel>(cat, issues);
             RequireComponent<CatBehaviorMemory>(cat, issues);
             RequireComponent<CatBehaviorBrainScorer>(cat, issues);
+            CatBehaviorTelemetry behaviorTelemetry = RequireComponent<CatBehaviorTelemetry>(cat, issues);
             CatBehaviorDriver behaviorDriver = RequireComponent<CatBehaviorDriver>(cat, issues);
 
             if (animator != null && animator.runtimeAnimatorController == null)
@@ -292,6 +293,21 @@ namespace CatLife.EditorTools
             if (animationController != null)
             {
                 RequireSerializedObject(animationController, "animator", issues);
+            }
+
+            if (behaviorTelemetry != null)
+            {
+                RequireSerializedObject(behaviorTelemetry, "behaviorDriver", issues);
+                RequireSerializedObject(behaviorTelemetry, "navigationAgent", issues);
+                RequireSerializedObject(behaviorTelemetry, "destinationPlanner", issues);
+                RequireSerializedObject(behaviorTelemetry, "actionRouter", issues);
+                RequireSerializedObject(behaviorTelemetry, "behaviorMemory", issues);
+                RequireSerializedObject(behaviorTelemetry, "needModel", issues);
+                RequireSerializedObject(behaviorTelemetry, "safetyGuard", issues);
+                RequireSerializedObject(behaviorTelemetry, "animator", issues);
+                RequireSerializedObject(behaviorTelemetry, "recognitionProviderComponent", issues);
+                RequireSerializedObject(behaviorTelemetry, "llmClientComponent", issues);
+                RequireSerializedObject(behaviorTelemetry, "featureEngine", issues);
             }
 
             CatTownWalker legacyWalker = cat.GetComponent<CatTownWalker>();

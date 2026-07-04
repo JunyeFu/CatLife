@@ -55,6 +55,31 @@ namespace CatLife.Cat
         private float navigationSpeedMultiplier = 1f;
         private readonly string[] recentEvents = new string[4];
 
+        public CatBehaviorState CurrentState
+        {
+            get { return currentState; }
+        }
+
+        public RecognitionSnapshot LatestRecognitionSnapshot
+        {
+            get { return snapshot; }
+        }
+
+        public LLMBehaviorSuggestion LatestLlmSuggestion
+        {
+            get { return GetSuggestion(); }
+        }
+
+        public float ActionHoldRemaining
+        {
+            get { return Mathf.Max(0f, actionHoldUntil - Time.time); }
+        }
+
+        public bool IsActionHeld
+        {
+            get { return Time.time < actionHoldUntil; }
+        }
+
         private void Reset()
         {
             navigationAgent = GetComponent<CatNavigationAgent>();
