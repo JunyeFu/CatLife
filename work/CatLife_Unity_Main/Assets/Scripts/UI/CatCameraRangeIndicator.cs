@@ -33,6 +33,19 @@ namespace CatLife.UI
             SetVisible(false);
         }
 
+        private void OnValidate()
+        {
+            if (!Application.isPlaying)
+            {
+                SetVisible(false);
+            }
+        }
+
+        private void OnDisable()
+        {
+            SetVisible(false);
+        }
+
         private void Update()
         {
             ResolveFrameReferences();
@@ -73,6 +86,10 @@ namespace CatLife.UI
             sidePadding = 22f;
             ResolveReferences();
             EnsureIndicator();
+            if (!Application.isPlaying)
+            {
+                SetVisible(false);
+            }
         }
 
         private void ResolveReferences()
