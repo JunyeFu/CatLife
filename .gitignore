@@ -24,6 +24,7 @@ UserSettings/
 build/
 *.apk
 *.aab
+*_BurstDebugInformation_DoNotShip/
 
 # Large binary assets: keep source copies locally, use release/cloud/LFS if needed.
 *.blend
@@ -56,6 +57,7 @@ work/unity-import-validation-*/
 work/CatLife_Unity_Main/*.csproj
 work/CatLife_Unity_Main/*.sln
 work/CatLife_Unity_Main/.vsconfig
+work/CatLife_Unity_Main/.utmp/
 work/CatLife_Unity_Main/Assets/Readme.asset*
 work/CatLife_Unity_Main/Assets/TutorialInfo.meta
 work/CatLife_Unity_Main/Assets/TutorialInfo/

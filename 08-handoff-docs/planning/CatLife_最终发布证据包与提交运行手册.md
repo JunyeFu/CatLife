@@ -158,4 +158,10 @@ Get-FileHash -Algorithm SHA256 "06-deliverables/final-submission/CatLife_MVP_And
 
 ## 9. 当前缺口
 
-截至 2026-07-05，当前项目已有 Unity 原型、vivo 云端 Demo 配置路径和本机私密 APK 打包配置，但还没有最终 APK、视频、海报、代码包和云真机证据。下一次进入 Unity/Android 阶段后，必须优先填充本手册定义的 `evidence/` 目录。
+截至 2026-07-05，当前项目已有 Unity 原型、vivo 云端 Demo 配置路径、本机私密 APK 打包配置和本机真实版 APK：
+
+- APK：`06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk`
+- SHA256：`97CA85AC82AF3A875B0D61E782B4E5C9506ABB86EE58E3B645CE6A61321A96B1`
+- 私有 key 边界：真实版 APK 允许包含本机 ignored 私有 Resources 中的云真机可用 key；GitHub、代码包、日志、截图、录屏字幕和公开文档不得包含明文 AppKEY。
+
+当前仍缺视频、海报、代码包、vivo 云真机安装证据、启动/LLM logcat 和录屏证据。下一步必须优先填充本手册定义的 `evidence/` 目录，不能仅凭 APK 文件存在标记为最终可提交。

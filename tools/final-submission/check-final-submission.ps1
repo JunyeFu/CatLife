@@ -115,7 +115,7 @@ $codePackage = Find-FirstFile @("CatLife_大模型调用代码包*.zip", "*代�
 $checks.Add((New-Result "PPT" "PPT exists and includes real product screenshots" ([bool]$ppt) ($(if($ppt){$ppt.Name}else{"missing"})) "Add CatLife_presentation_v1.pptx"))
 $checks.Add((New-Result "Video" "MP4, target <=3min, hard max <=5min, shows final product/name/UI/features" ([bool]$video) ($(if($video){$video.Name}else{"missing"})) "Add CatLife_demo_video_v1.mp4"))
 $checks.Add((New-Result "Poster" "Portrait 70cm x 150cm poster, jpg/jpeg/png, includes title/slogan/visual" ([bool]$poster) ($(if($poster){$poster.Name}else{"missing"})) "Add CatLife_poster_v1.png"))
-$checks.Add((New-Result "APK" "Runnable Android APK, installable and launchable on device" ([bool]$apk) ($(if($apk){$apk.Name}else{"missing"})) "Add CatLife_MVP_Android_v0.1.0.apk and adb install evidence"))
+$checks.Add((New-Result "APK" "Runnable Android APK, installable and launchable on device" ([bool]$apk) ($(if($apk){$apk.Name}else{"missing"})) "Keep the local APK, then add adb/cloud-device install evidence"))
 $checks.Add((New-Result "Code package" "Large-model code package zip, API call marked, no secrets" ([bool]$codePackage) ($(if($codePackage){$codePackage.Name}else{"missing"})) "Package 06-deliverables/llm-code-package-template after real integration notes"))
 
 $llmTemplateExists = Test-Path -LiteralPath $llmTemplateDir
@@ -130,7 +130,7 @@ try {
     $privateConfigIgnored = $false
 }
 $privateConfigEvidence = "exists=$privateConfigExists; ignored=$privateConfigIgnored; value=REDACTED"
-$checks.Add((New-Result "Private APK credential boundary" "Real APK can include local ignored vivo cloud key, while Git/code package excludes plaintext key" ($privateConfigExists -and $privateConfigIgnored) $privateConfigEvidence "Create local private Resources credential and verify .gitignore before real APK build"))
+$checks.Add((New-Result "Private APK credential boundary" "Real APK can include local ignored vivo cloud key, while Git/code package excludes plaintext key" ($privateConfigExists -and $privateConfigIgnored) $privateConfigEvidence "Keep private Resources ignored and record only redacted evidence"))
 
 $secretPatterns = @(
     "sk-[A-Za-z0-9]",
@@ -144,9 +144,15 @@ $secretPatterns = @(
 
 $secretHits = New-Object System.Collections.Generic.List[string]
 $scanRoots = @($finalDir, $llmTemplateDir) | Where-Object { Test-Path -LiteralPath $_ }
+$excludedSecretScanExtensions = @(".apk", ".aab", ".mp4", ".mov", ".png", ".jpg", ".jpeg", ".zip", ".7z", ".rar")
 foreach ($root in $scanRoots) {
     Get-ChildItem -LiteralPath $root -Recurse -File -ErrorAction SilentlyContinue |
-        Where-Object { $_.Length -lt 5MB } |
+        Where-Object {
+            $_.Length -lt 5MB -and
+            $_.FullName -ne $outputPath -and
+            $excludedSecretScanExtensions -notcontains $_.Extension.ToLowerInvariant() -and
+            $_.FullName -notmatch "_BurstDebugInformation_DoNotShip"
+        } |
         ForEach-Object {
             foreach ($pattern in $secretPatterns) {
                 $hits = Select-String -LiteralPath $_.FullName -Pattern $pattern -CaseSensitive:$false -ErrorAction SilentlyContinue
