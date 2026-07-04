@@ -124,7 +124,7 @@ $poster = Find-FirstFile @("CatLife_作品海报*.png", "*.png", "*.jpg", "*.jpe
 $apk = Find-FirstFile @("CatLife_MVP_Android*.apk", "*.apk")
 $codePackage = Find-FirstFile @("CatLife_LLM_code_package*.zip", "CatLife_大模型调用代码包*.zip", "*代码包*.zip")
 
-$checks.Add((New-Result "PPT" "PPT exists and includes real product screenshots" ([bool]$ppt) ($(if($ppt){$ppt.Name}else{"missing"})) "Add CatLife_presentation_v1.pptx"))
+$checks.Add((New-Result "PPT" "PPT exists and includes real product screenshots" ([bool]$ppt) ($(if($ppt){$ppt.Name}else{"missing"})) "Keep the local PPT and complete manual screenshot/content review"))
 $checks.Add((New-Result "Video" "MP4, target <=3min, hard max <=5min, shows final product/name/UI/features" ([bool]$video) ($(if($video){$video.Name}else{"missing"})) "Add CatLife_demo_video_v1.mp4"))
 $checks.Add((New-Result "Poster" "Portrait 70cm x 150cm poster, jpg/jpeg/png, includes title/slogan/visual" ([bool]$poster) ($(if($poster){$poster.Name}else{"missing"})) "Add CatLife_poster_v1.png"))
 $checks.Add((New-Result "APK" "Runnable Android APK, installable and launchable on device" ([bool]$apk) ($(if($apk){$apk.Name}else{"missing"})) "Keep the local APK, then add adb/cloud-device install evidence"))

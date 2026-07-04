@@ -15,8 +15,10 @@ Current status as of 2026-07-05:
 
 - APK exists locally: `CatLife_MVP_Android_v0.1.0.apk`.
 - LLM code package exists locally: `CatLife_LLM_code_package_v1.zip`.
-- PPT, video, poster, cloud-device install/logcat evidence, and recording evidence are still missing.
+- PPT exists locally: `CatLife_作品介绍PPT_v1.pptx`.
+- Video, poster, cloud-device install/logcat evidence, and recording evidence are still missing.
 - APK and ZIP are local final deliverables and are ignored by Git; the manifest and redacted evidence files are tracked.
+- PPT is also a local final deliverable and ignored by Git; `CatLife_PPT_manifest.md` is tracked.
 
 Official competition constraints currently tracked:
 

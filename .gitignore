@@ -24,6 +24,7 @@ UserSettings/
 build/
 *.apk
 *.aab
+06-deliverables/final-submission/*.pptx
 *_BurstDebugInformation_DoNotShip/
 
 # Large binary assets: keep source copies locally, use release/cloud/LFS if needed.

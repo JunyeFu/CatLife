@@ -1,13 +1,13 @@
 ﻿# CatLife Submission Check
 
-Generated: 2026-07-05 07:00:26
+Generated: 2026-07-05 07:12:48
 Directory: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission
 
 ## 1. Check Results
 
 | Item | Expected | Status | Evidence | Next action |
 |---|---|---|---|---|
-| PPT | PPT exists and includes real product screenshots | MISSING | missing | Add CatLife_presentation_v1.pptx |
+| PPT | PPT exists and includes real product screenshots | PASS | CatLife_作品介绍PPT_v1.pptx | Keep the local PPT and complete manual screenshot/content review |
 | Video | MP4, target <=3min, hard max <=5min, shows final product/name/UI/features | MISSING | missing | Add CatLife_demo_video_v1.mp4 |
 | Poster | Portrait 70cm x 150cm poster, jpg/jpeg/png, includes title/slogan/visual | MISSING | missing | Add CatLife_poster_v1.png |
 | APK | Runnable Android APK, installable and launchable on device | PASS | CatLife_MVP_Android_v0.1.0.apk | Keep the local APK, then add adb/cloud-device install evidence |
@@ -24,6 +24,7 @@ Directory: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submissi
 
 | File | Size(bytes) | SHA256 |
 |---|---:|---|
+| CatLife_作品介绍PPT_v1.pptx | 49915319 | 603D667D706FAAE28EB02BE7E7D9A165A862E4F55835019B8B09603ADF969EE1 |
 | CatLife_MVP_Android_v0.1.0.apk | 2803906139 | 97CA85AC82AF3A875B0D61E782B4E5C9506ABB86EE58E3B645CE6A61321A96B1 |
 | CatLife_LLM_code_package_v1.zip | 9316 | A74C26B8304BA5CB239A72456BA5641FE0F7929F51C3C6A6D756E8E02E200F69 |
 
