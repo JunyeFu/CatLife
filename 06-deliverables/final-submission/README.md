@@ -16,9 +16,11 @@ Current status as of 2026-07-05:
 - APK exists locally: `CatLife_MVP_Android_v0.1.0.apk`.
 - LLM code package exists locally: `CatLife_LLM_code_package_v1.zip`.
 - PPT exists locally: `CatLife_作品介绍PPT_v1.pptx`.
-- Video, poster, cloud-device install/logcat evidence, and recording evidence are still missing.
+- Poster exists locally: `CatLife_作品海报_v1.png`.
+- Video, cloud-device install/logcat evidence, and recording evidence are still missing.
 - APK and ZIP are local final deliverables and are ignored by Git; the manifest and redacted evidence files are tracked.
 - PPT is also a local final deliverable and ignored by Git; `CatLife_PPT_manifest.md` is tracked.
+- Poster is also a local final deliverable and ignored by Git; `CatLife_poster_manifest.md` is tracked.
 
 Official competition constraints currently tracked:
 
@@ -70,7 +72,7 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/collect-stage9-a
   -CloudAdbEndpoint "<vivo cloud adb ip:port>"
 ```
 
-The Stage9 collector writes only redacted credential status. The real APK can contain the local ignored `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json`, but generated logs, summaries, code package files, and public docs must not contain the plaintext AppKEY.
+The Stage9 collector writes only redacted credential status. The real APK must contain the local ignored `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json` when it is exported for vivo cloud-device recording, so the cloud phone can try the real vivo API without extra setup. Generated logs, summaries, code package files, GitHub files, screenshots, PPT, poster, and video subtitles must not contain the plaintext AppKEY.
 
 To prepare a draft large-model code package for review:
 

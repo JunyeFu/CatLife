@@ -11,7 +11,7 @@
 - APK 至少在一台 Android 设备或 vivo 云真机上可安装、可启动、可跑主流程；
 - 演示视频来自真实运行画面，不是纯设计稿；
 - 大模型调用代码包没有密钥，且能看出 API/SDK 调用位置；
-- 真实版/最终提交 APK 可以内置本机私密 vivo 云端 Demo 凭据，即包含云真机可用 key；最终代码包和 GitHub 不能包含真实 AppKEY；
+- 真实版/最终提交 APK 必须内置本机私密 vivo 云端 Demo 凭据，即包含云真机可用 key，保证上传云真机后可直接尝试真实 API；最终代码包、GitHub、日志、PPT、海报和视频字幕不能包含真实 AppKEY；
 - PPT、海报、视频使用同一版截图和同一版产品口径。
 
 ## 2. 官方口径
@@ -139,7 +139,7 @@ Get-FileHash -Algorithm SHA256 "06-deliverables/final-submission/CatLife_MVP_And
 5. 录制至少一段完整状态链：普通 -> 过渡 -> 专注 -> 奖励。
 6. 从录屏中截取 PPT/海报需要的真实画面。
 7. 生成最终演示视频并检查时长、分辨率、隐私。
-8. 确认真实版/最终提交 APK 已包含本机私密 vivo 云端配置和云真机可用 key，且 GitHub/代码包不包含真实 AppKEY。
+8. 确认真实版/最终提交 APK 已包含本机私密 vivo 云端配置和云真机可用 key，且 GitHub、代码包、日志、截图、PPT、海报和视频字幕不包含真实 AppKEY。
 9. 打包大模型代码包并确认无密钥。
 10. 运行最终检查脚本，上传平台后保存成功截图。
 
@@ -162,6 +162,6 @@ Get-FileHash -Algorithm SHA256 "06-deliverables/final-submission/CatLife_MVP_And
 
 - APK：`06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk`
 - SHA256：`97CA85AC82AF3A875B0D61E782B4E5C9506ABB86EE58E3B645CE6A61321A96B1`
-- 私有 key 边界：真实版 APK 允许包含本机 ignored 私有 Resources 中的云真机可用 key；GitHub、代码包、日志、截图、录屏字幕和公开文档不得包含明文 AppKEY。
+- 私有 key 边界：真实版 APK 必须包含本机 ignored 私有 Resources 中的云真机可用 key；GitHub、代码包、日志、截图、PPT、海报、录屏字幕和公开文档不得包含明文 AppKEY。
 
-当前仍缺视频、海报、vivo 云真机安装证据、启动/LLM logcat 和录屏证据。PPT 已复制到 `06-deliverables/final-submission/CatLife_作品介绍PPT_v1.pptx`，代码包已生成到 `06-deliverables/final-submission/CatLife_LLM_code_package_v1.zip`，并分别记录 SHA256。下一步必须优先填充本手册定义的 `evidence/` 目录，不能仅凭 APK、PPT 和代码包文件存在标记为最终可提交。
+当前仍缺视频、vivo 云真机安装证据、启动/LLM logcat 和录屏证据。PPT 已复制到 `06-deliverables/final-submission/CatLife_作品介绍PPT_v1.pptx`，海报已生成到 `06-deliverables/final-submission/CatLife_作品海报_v1.png`，代码包已生成到 `06-deliverables/final-submission/CatLife_LLM_code_package_v1.zip`，并分别记录 SHA256。下一步必须优先填充本手册定义的 `evidence/` 目录，不能仅凭 APK、PPT、海报和代码包文件存在标记为最终可提交。

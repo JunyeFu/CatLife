@@ -126,7 +126,7 @@ $codePackage = Find-FirstFile @("CatLife_LLM_code_package*.zip", "CatLife_大模
 
 $checks.Add((New-Result "PPT" "PPT exists and includes real product screenshots" ([bool]$ppt) ($(if($ppt){$ppt.Name}else{"missing"})) "Keep the local PPT and complete manual screenshot/content review"))
 $checks.Add((New-Result "Video" "MP4, target <=3min, hard max <=5min, shows final product/name/UI/features" ([bool]$video) ($(if($video){$video.Name}else{"missing"})) "Add CatLife_demo_video_v1.mp4"))
-$checks.Add((New-Result "Poster" "Portrait 70cm x 150cm poster, jpg/jpeg/png, includes title/slogan/visual" ([bool]$poster) ($(if($poster){$poster.Name}else{"missing"})) "Add CatLife_poster_v1.png"))
+$checks.Add((New-Result "Poster" "Portrait 70cm x 150cm poster, jpg/jpeg/png, includes title/slogan/visual" ([bool]$poster) ($(if($poster){$poster.Name}else{"missing"})) ($(if($poster){"Keep the local poster and complete manual upload-preview review"}else{"Add CatLife_作品海报_v1.png"}))))
 $checks.Add((New-Result "APK" "Runnable Android APK, installable and launchable on device" ([bool]$apk) ($(if($apk){$apk.Name}else{"missing"})) "Keep the local APK, then add adb/cloud-device install evidence"))
 $checks.Add((New-Result "Code package" "Large-model code package zip, API call marked, no secrets" ([bool]$codePackage) ($(if($codePackage){$codePackage.Name}else{"missing"})) "Keep the local code package and manifest; rerun package-llm-code.ps1 after LLM changes"))
 
@@ -142,7 +142,7 @@ try {
     $privateConfigIgnored = $false
 }
 $privateConfigEvidence = "exists=$privateConfigExists; ignored=$privateConfigIgnored; value=REDACTED"
-$checks.Add((New-Result "Private APK credential boundary" "Real APK can include local ignored vivo cloud key, while Git/code package excludes plaintext key" ($privateConfigExists -and $privateConfigIgnored) $privateConfigEvidence "Keep private Resources ignored and record only redacted evidence"))
+$checks.Add((New-Result "Private APK credential boundary" "Real APK includes local ignored vivo cloud key for cloud-device recording, while Git/code package excludes plaintext key" ($privateConfigExists -and $privateConfigIgnored) $privateConfigEvidence "Keep private Resources ignored and record only redacted evidence"))
 
 $secretPatterns = @(
     "sk-[A-Za-z0-9]",
