@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using System.Text;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace CatLife.LLM
 {
@@ -8,6 +10,8 @@ namespace CatLife.LLM
     {
         [SerializeField] private bool enableClient = true;
         [SerializeField] private float simulatedLatencySeconds = 0.15f;
+        [SerializeField] private bool preferVivoCloudWhenConfigured = true;
+        [SerializeField] private int cloudTimeoutSeconds = 8;
 
         public bool Enabled { get { return enableClient; } }
         public bool IsBusy { get; private set; }
@@ -44,6 +48,45 @@ namespace CatLife.LLM
         private IEnumerator CoRespond(CatPromptContext context, Action<LLMBehaviorSuggestion> onSuccess)
         {
             IsBusy = true;
+
+            VivoCloudDemoConfig config = VivoCloudDemoConfig.Load();
+            if (preferVivoCloudWhenConfigured && config.HasUsableCloudCredentials)
+            {
+                bool cloudCompleted = false;
+                LLMBehaviorSuggestion cloudSuggestion = null;
+                string cloudError = "";
+                yield return StartCoroutine(CoRequestVivoCloud(
+                    config,
+                    context,
+                    new CatPromptBuilder(),
+                    suggestion =>
+                    {
+                        cloudSuggestion = suggestion;
+                        cloudCompleted = true;
+                    },
+                    error =>
+                    {
+                        cloudError = error;
+                        cloudCompleted = true;
+                    }));
+
+                if (cloudCompleted && cloudSuggestion != null)
+                {
+                    IsBusy = false;
+                    if (onSuccess != null)
+                    {
+                        onSuccess(LLMBehaviorSuggestion.ClampToWhitelist(cloudSuggestion));
+                    }
+
+                    yield break;
+                }
+
+                if (!string.IsNullOrEmpty(cloudError))
+                {
+                    Debug.LogWarning("[CatLife] vivo cloud LLM fallback: " + cloudError);
+                }
+            }
+
             yield return new WaitForSecondsRealtime(Mathf.Max(0f, simulatedLatencySeconds));
 
             LLMBehaviorSuggestion suggestion = new LLMBehaviorSuggestion();
@@ -95,6 +138,117 @@ namespace CatLife.LLM
             {
                 onSuccess(LLMBehaviorSuggestion.ClampToWhitelist(suggestion));
             }
+        }
+
+        private IEnumerator CoRequestVivoCloud(
+            VivoCloudDemoConfig config,
+            CatPromptContext context,
+            CatPromptBuilder builder,
+            Action<LLMBehaviorSuggestion> onSuccess,
+            Action<string> onError)
+        {
+            string requestId = Guid.NewGuid().ToString("N");
+            VivoChatRequest body = VivoChatRequest.Create(config.model, builder, context);
+            string bodyJson = JsonUtility.ToJson(body);
+
+            using (UnityWebRequest req = new UnityWebRequest(config.apiEndpoint, UnityWebRequest.kHttpVerbPOST))
+            {
+                byte[] payload = Encoding.UTF8.GetBytes(bodyJson);
+                req.uploadHandler = new UploadHandlerRaw(payload);
+                req.downloadHandler = new DownloadHandlerBuffer();
+                req.timeout = Mathf.Max(1, cloudTimeoutSeconds);
+                req.SetRequestHeader("Content-Type", "application/json");
+                req.SetRequestHeader("Authorization", "Bearer " + config.appKey);
+                req.SetRequestHeader("requestId", requestId);
+
+                yield return req.SendWebRequest();
+
+                if (req.result != UnityWebRequest.Result.Success)
+                {
+                    if (onError != null)
+                    {
+                        onError("vivo_cloud_network_" + req.responseCode + "_" + req.error);
+                    }
+
+                    yield break;
+                }
+
+                VivoChatResponse response = null;
+                try
+                {
+                    response = JsonUtility.FromJson<VivoChatResponse>(req.downloadHandler.text);
+                }
+                catch (Exception ex)
+                {
+                    if (onError != null)
+                    {
+                        onError("vivo_cloud_response_parse_" + ex.GetType().Name);
+                    }
+
+                    yield break;
+                }
+
+                string content = response != null ? response.FirstContent() : "";
+                string suggestionJson = ExtractJsonObject(content);
+                if (string.IsNullOrEmpty(suggestionJson))
+                {
+                    if (onError != null)
+                    {
+                        onError("vivo_cloud_missing_suggestion_json");
+                    }
+
+                    yield break;
+                }
+
+                LLMBehaviorSuggestion suggestion = null;
+                try
+                {
+                    suggestion = JsonUtility.FromJson<LLMBehaviorSuggestion>(suggestionJson);
+                }
+                catch (Exception ex)
+                {
+                    if (onError != null)
+                    {
+                        onError("vivo_cloud_suggestion_parse_" + ex.GetType().Name);
+                    }
+
+                    yield break;
+                }
+
+                LLMBehaviorSuggestion safeSuggestion;
+                string reason;
+                if (!LLMBehaviorSuggestion.TryBuildSafe(suggestion, out safeSuggestion, out reason))
+                {
+                    if (onError != null)
+                    {
+                        onError("vivo_cloud_unsafe_output_" + reason);
+                    }
+
+                    yield break;
+                }
+
+                if (onSuccess != null)
+                {
+                    onSuccess(safeSuggestion);
+                }
+            }
+        }
+
+        private static string ExtractJsonObject(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return "";
+            }
+
+            int start = text.IndexOf('{');
+            int end = text.LastIndexOf('}');
+            if (start < 0 || end <= start)
+            {
+                return "";
+            }
+
+            return text.Substring(start, end - start + 1);
         }
 
         private static void ApplySceneInteractionBias(
@@ -153,6 +307,71 @@ namespace CatLife.LLM
             }
 
             return false;
+        }
+
+        [Serializable]
+        private sealed class VivoChatRequest
+        {
+            public string model;
+            public VivoChatMessage[] messages;
+            public bool stream;
+            public float temperature;
+            public float top_p;
+            public int max_tokens;
+
+            public static VivoChatRequest Create(string model, CatPromptBuilder builder, CatPromptContext context)
+            {
+                return new VivoChatRequest
+                {
+                    model = model,
+                    stream = false,
+                    temperature = 0f,
+                    top_p = 1f,
+                    max_tokens = 256,
+                    messages = new[]
+                    {
+                        new VivoChatMessage
+                        {
+                            role = "system",
+                            content = builder.BuildSystemPrompt() + "\n" + builder.BuildDeveloperPrompt()
+                        },
+                        new VivoChatMessage
+                        {
+                            role = "user",
+                            content = builder.BuildUserContextPrompt(context) + "\nReturn only JSON matching:\n" + builder.BuildOutputJsonSchemaPrompt()
+                        }
+                    }
+                };
+            }
+        }
+
+        [Serializable]
+        private sealed class VivoChatMessage
+        {
+            public string role;
+            public string content;
+        }
+
+        [Serializable]
+        private sealed class VivoChatResponse
+        {
+            public VivoChatChoice[] choices;
+
+            public string FirstContent()
+            {
+                if (choices == null || choices.Length == 0 || choices[0] == null || choices[0].message == null)
+                {
+                    return "";
+                }
+
+                return choices[0].message.content ?? "";
+            }
+        }
+
+        [Serializable]
+        private sealed class VivoChatChoice
+        {
+            public VivoChatMessage message;
         }
     }
 }
