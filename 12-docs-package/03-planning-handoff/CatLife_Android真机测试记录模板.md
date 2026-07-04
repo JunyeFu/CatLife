@@ -55,7 +55,7 @@ adb shell dumpsys package com.catlife.mvp | Select-String version
 | T09 | 横竖屏 | 保持目标方向 | 构图不破坏 | 待填 | 录屏 |
 | T10 | 稳定性 | 连续运行 3 分钟 | 无 crash/ANR | 待填 | logcat |
 | T11 | vivo 云端大模型调用 | 进入主场景并等待 LLM 刷新周期，或触发猫咪/专注状态变化 | logcat 能显示真实调用成功，或显示失败原因并 fallback | 待填 | vivo-cloud-llm-logcat |
-| T12 | 密钥安全 | 检查 GitHub/代码包，不检查 APK 内部私密配置 | 代码包无明文 AppKEY；录制 APK 可包含本机私密配置 | 待填 | git grep / 手动记录 |
+| T12 | 密钥安全 | 检查 GitHub/代码包，不检查 APK 内部私密配置 | 代码包无明文 AppKEY；真实版/最终提交 APK 可包含云真机可用 key | 待填 | git grep / 手动记录 |
 
 ## 4. 性能记录
 

@@ -3,7 +3,7 @@
 日期：2026-06-29
 目标：让复赛“大模型调用代码包”可解释、可审阅、可降级，不把隐私风险或密钥带进提交包。
 
-> 2026-07-05 更新：为满足“导出 APK 后直接安装到 vivo 云平台录制演示视频”，当前 Unity 工程已加入 vivo 云端 API Demo 配置路径。可提交示例为 `Assets/Configs/vivo_cloud_credentials.example.json`，真实 AppKEY 仅保存在本机忽略目录 `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json`，导出本机 APK 时会被 Unity 打包读取，但不得进入 GitHub、代码包、公开文档或日志。
+> 2026-07-05 更新：为满足“导出真实版 APK 后直接安装到 vivo 云平台录制演示视频”，当前 Unity 工程已加入 vivo 云端 API Demo 配置路径。可提交示例为 `Assets/Configs/vivo_cloud_credentials.example.json`，真实 AppKEY 仅保存在本机忽略目录 `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json`；从本机导出的真实版/最终提交 APK 会包含云真机可用 key，但 GitHub、代码包、公开文档或日志不得包含明文 AppKEY。
 
 ## 1. 复赛表达口径
 
@@ -100,7 +100,7 @@ flowchart LR
 |---|---|
 | 无网络 | 使用 `LocalTemplateFallback` |
 | 无 API Key | 使用本地模板，UI 标记为“本地反馈” |
-| 本机录制 APK 有私密配置 | 优先请求 vivo 云端 API，返回结构化 JSON 后再进入输出安全门 |
+| 真实版 APK 有私密配置 | 优先请求 vivo 云端 API，返回结构化 JSON 后再进入输出安全门 |
 | API 超时 | 1.5 秒超时，返回模板 |
 | API 错误 | 记录错误码，不展示技术错误给用户 |
 | 隐私网关失败 | 不调用模型，返回安全模板 |
@@ -145,7 +145,7 @@ P0 和 P1 划分：
 
 | 优先级 | 模型路线 | 用途 |
 |---|---|---|
-| P0 | vivo 云端 API 或可运行的最小 LLM Demo | 证明“通过 API 调用实现产品功能”；当前录制 APK 使用本机私密 Resources 配置 |
+| P0 | vivo 云端 API 或可运行的最小 LLM Demo | 证明“通过 API 调用实现产品功能”；当前真实版/最终提交 APK 使用本机私密 Resources 配置 |
 | P1 | vivo 蓝心 3B 端侧模型 | 加分项：隐私、安全、低延迟、离线猫咪短回复 |
 | P2 | 端侧 + 云端混合 | 决赛或深度打磨：端侧实时反馈，云端复杂总结 |
 
@@ -168,6 +168,6 @@ P0 和 P1 划分：
 | 模型名 | `Doubao-Seed-2.0-mini`，可按 vivo 平台权限调整 |
 | 私密 AppKEY | 仅在本机 `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json` |
 | GitHub 状态 | `.gitignore` 已忽略 `Assets/Resources/CatLifePrivate/` |
-| APK 行为 | 本机导出 APK 会读取私密配置并优先调用 vivo 云端 API |
+| APK 行为 | 本机导出的真实版/最终提交 APK 会读取私密配置并优先调用 vivo 云端 API |
 | 失败行为 | 网络失败、解析失败、输出违规时自动回退本地 mock/template |
 | 代码审查口径 | 代码包展示调用位置、隐私网关、示例配置和降级，不包含真实 AppKEY |

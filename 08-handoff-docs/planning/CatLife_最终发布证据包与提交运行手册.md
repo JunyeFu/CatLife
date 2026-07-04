@@ -11,7 +11,7 @@
 - APK 至少在一台 Android 设备或 vivo 云真机上可安装、可启动、可跑主流程；
 - 演示视频来自真实运行画面，不是纯设计稿；
 - 大模型调用代码包没有密钥，且能看出 API/SDK 调用位置；
-- 录制用 APK 可以内置本机私密 vivo 云端 Demo 凭据，但最终代码包和 GitHub 不能包含真实 AppKEY；
+- 真实版/最终提交 APK 可以内置本机私密 vivo 云端 Demo 凭据，即包含云真机可用 key；最终代码包和 GitHub 不能包含真实 AppKEY；
 - PPT、海报、视频使用同一版截图和同一版产品口径。
 
 ## 2. 官方口径
@@ -139,7 +139,7 @@ Get-FileHash -Algorithm SHA256 "06-deliverables/final-submission/CatLife_MVP_And
 5. 录制至少一段完整状态链：普通 -> 过渡 -> 专注 -> 奖励。
 6. 从录屏中截取 PPT/海报需要的真实画面。
 7. 生成最终演示视频并检查时长、分辨率、隐私。
-8. 确认录制用 APK 已包含本机私密 vivo 云端配置，且 GitHub/代码包不包含真实 AppKEY。
+8. 确认真实版/最终提交 APK 已包含本机私密 vivo 云端配置和云真机可用 key，且 GitHub/代码包不包含真实 AppKEY。
 9. 打包大模型代码包并确认无密钥。
 10. 运行最终检查脚本，上传平台后保存成功截图。
 
