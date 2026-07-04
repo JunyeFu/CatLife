@@ -26,6 +26,8 @@ namespace CatLife.EditorTools
         private const string ProjectStructurePath = "Assets/PROJECT_STRUCTURE.md";
         private const string BehaviorEventSchemaPath = "Assets/Configs/behavior_event_schema.json";
         private const string LlmFeedbackSchemaPath = "Assets/Configs/llm_feedback_schema.json";
+        private const string BlueLmFeedbackSchemaPath = "Assets/Configs/bluelm_catlife_feedback_schema.json";
+        private const string BlueLmUnityRequestSchemaPath = "Assets/Configs/bluelm_unity_request_schema.json";
 
         private static readonly string[] RequiredWalkAreas =
         {
@@ -162,7 +164,7 @@ namespace CatLife.EditorTools
 
             if (issues.Count == 0)
             {
-                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, BlueLM Unity adapter, Android BlueLM bridge skeleton, config schemas, UI binding, and 11 animator states are present.";
+                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, BlueLM Unity adapter, Android BlueLM bridge skeleton, BlueLM JSON guards, config schemas, UI binding, and 11 animator states are present.";
             }
 
             return "FAIL CatLife runtime assembly validation:\n- " + string.Join("\n- ", issues.ToArray());
@@ -224,6 +226,39 @@ namespace CatLife.EditorTools
             {
                 issues.Add("BlueLmAndroidEvent failure status was not preserved.");
             }
+
+            LLMBehaviorSuggestion strictSuggestion = new LLMBehaviorSuggestion
+            {
+                version = LLMBehaviorSuggestion.ExpectedVersion,
+                suggestedLine = "Stay close.",
+                moodBias = "quiet",
+                roamWeightBias = 0.05f,
+                quietIdleWeightBias = 0.1f,
+                socialResponseWeightBias = 0f,
+                recommendedLocalAction = "quiet_idle",
+                rawTextRequested = false,
+                coordinateCommandIncluded = false,
+                animatorCommandIncluded = false,
+                navMeshCommandIncluded = false,
+                transformCommandIncluded = false,
+                privacyInferenceIncluded = false,
+                showBubble = false
+            };
+            LLMBehaviorSuggestion safeStrictSuggestion;
+            if (!LLMBehaviorSuggestion.TryBuildSafe(strictSuggestion, out safeStrictSuggestion, out reason))
+            {
+                issues.Add("LLMBehaviorSuggestion rejected strict BlueLM schema output: " + reason);
+            }
+            else if (safeStrictSuggestion.moodBias != "quiet" || safeStrictSuggestion.recommendedLocalAction != "quiet_idle")
+            {
+                issues.Add("LLMBehaviorSuggestion did not preserve strict BlueLM safe fields.");
+            }
+
+            strictSuggestion.animatorCommandIncluded = true;
+            if (LLMBehaviorSuggestion.TryBuildSafe(strictSuggestion, out safeStrictSuggestion, out reason))
+            {
+                issues.Add("LLMBehaviorSuggestion accepted unsafe BlueLM output flags.");
+            }
         }
 
         private static void ValidateAndroidBlueLmPlugin(List<string> issues)
@@ -252,7 +287,30 @@ namespace CatLife.EditorTools
                 issues,
                 "DEFAULT_MODEL_PATH",
                 "CODE_SDK_NOT_LINKED",
-                "generateJsonAsync");
+                "generateJsonAsync",
+                "BlueLmJsonGuard.validateRequest",
+                "BlueLmPromptBuilder.buildPromptEnvelope");
+
+            ValidateProjectFileContains(
+                "Assets/Plugins/Android/src/main/java/com/catlife/bluelm/BlueLmJsonGuard.java",
+                issues,
+                "BLOCKED_INPUT_TERMS",
+                "validateRequest",
+                "validateOutput",
+                "rawtext",
+                "clipboard",
+                "screencontent",
+                "animator",
+                "navmesh",
+                "microphone");
+
+            ValidateProjectFileContains(
+                "Assets/Plugins/Android/src/main/java/com/catlife/bluelm/BlueLmPromptBuilder.java",
+                issues,
+                "catlife.bluelm.prompt.v1",
+                "strictJsonOnly",
+                "privacyPolicy",
+                "outputSchemaReminder");
 
             ValidateProjectFileContains(
                 "Assets/Plugins/Android/src/main/java/com/catlife/bluelm/BlueLmUnityCallback.java",
@@ -368,6 +426,30 @@ namespace CatLife.EditorTools
                 "contains_blame",
                 "contains_medical_claim",
                 "contains_sensitive_inference");
+
+            ValidateTextAssetContains(
+                BlueLmFeedbackSchemaPath,
+                issues,
+                "catlife.bluelm.feedback.v1",
+                "recommendedLocalAction",
+                "rawTextRequested",
+                "coordinateCommandIncluded",
+                "animatorCommandIncluded",
+                "navMeshCommandIncluded",
+                "transformCommandIncluded",
+                "privacyInferenceIncluded");
+
+            ValidateTextAssetContains(
+                BlueLmUnityRequestSchemaPath,
+                issues,
+                "catlife.bluelm.request.v1",
+                "requestId",
+                "userContextJson",
+                "outputSchemaJson",
+                "rawText",
+                "packageName",
+                "clipboard",
+                "screenContent");
         }
 
         private static void ValidateTextAssetContains(
@@ -715,7 +797,7 @@ namespace CatLife.EditorTools
             MockRecognitionProvider recognitionProvider = RequireComponent<MockRecognitionProvider>(systems.gameObject, issues);
             RealtimeFeatureEngine featureEngine = RequireComponent<RealtimeFeatureEngine>(systems.gameObject, issues);
             RequireComponent<MockCatLLMClient>(systems.gameObject, issues);
-            RequireComponent<PrivacyGateway>(systems.gameObject, issues);
+            PrivacyGateway privacyGateway = RequireComponent<PrivacyGateway>(systems.gameObject, issues);
             FocusFeedbackProvider feedbackProvider = RequireComponent<FocusFeedbackProvider>(systems.gameObject, issues);
 
             if (recognitionProvider != null)
@@ -731,6 +813,42 @@ namespace CatLife.EditorTools
             if (featureEngine == null)
             {
                 issues.Add("RealtimeFeatureEngine is required for local recognition features.");
+            }
+
+            if (privacyGateway != null)
+            {
+                ValidatePrivacyGatewayStage3Terms(privacyGateway, issues);
+            }
+        }
+
+        private static void ValidatePrivacyGatewayStage3Terms(PrivacyGateway privacyGateway, List<string> issues)
+        {
+            string[] blockedTerms =
+            {
+                "rawText",
+                "\"x\"",
+                "\"y\"",
+                "packageName",
+                "clipboard",
+                "screenContent"
+            };
+
+            for (int i = 0; i < blockedTerms.Length; i++)
+            {
+                CatPromptContext context = CatPromptContext.Create(
+                    RecognitionSnapshot.CreateDefault(),
+                    CatBehaviorState.Roam,
+                    0.2f,
+                    "curious",
+                    new[] { "stage3_guard" },
+                    default(RealtimeFeatureSnapshot),
+                    false);
+                context.safeLocalSummary = "blocked " + blockedTerms[i];
+                string reason;
+                if (privacyGateway.TryValidate(context, out reason))
+                {
+                    issues.Add("PrivacyGateway accepted stage3 blocked input term: " + blockedTerms[i]);
+                }
             }
         }
 

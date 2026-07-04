@@ -6,14 +6,24 @@ namespace CatLife.LLM
     [Serializable]
     public sealed class LLMBehaviorSuggestion
     {
+        public const string ExpectedVersion = "catlife.bluelm.feedback.v1";
+
         private const int MaxSuggestedLineChars = 48;
         private const float MaxWeightBias = 0.35f;
 
+        public string version = ExpectedVersion;
         public string suggestedLine = "";
         public string moodBias = "calm";
         public float roamWeightBias;
         public float quietIdleWeightBias;
         public float socialResponseWeightBias;
+        public string recommendedLocalAction = "none";
+        public bool rawTextRequested;
+        public bool coordinateCommandIncluded;
+        public bool animatorCommandIncluded;
+        public bool navMeshCommandIncluded;
+        public bool transformCommandIncluded;
+        public bool privacyInferenceIncluded;
         public bool showBubble;
 
         public static LLMBehaviorSuggestion Default()
@@ -40,6 +50,23 @@ namespace CatLife.LLM
                 return false;
             }
 
+            if (!string.IsNullOrEmpty(raw.version) && raw.version != ExpectedVersion)
+            {
+                reason = "unexpected_schema_version";
+                return false;
+            }
+
+            if (raw.rawTextRequested ||
+                raw.coordinateCommandIncluded ||
+                raw.animatorCommandIncluded ||
+                raw.navMeshCommandIncluded ||
+                raw.transformCommandIncluded ||
+                raw.privacyInferenceIncluded)
+            {
+                reason = "unsafe_output_flags";
+                return false;
+            }
+
             string safeLine = SanitizeLine(raw.suggestedLine);
             if (ContainsBlockedOutputText(safeLine))
             {
@@ -48,23 +75,33 @@ namespace CatLife.LLM
             }
 
             string safeMood = SanitizeMood(raw.moodBias);
+            string safeAction = SanitizeRecommendedAction(raw.recommendedLocalAction);
             float safeRoam = Mathf.Clamp(raw.roamWeightBias, -MaxWeightBias, MaxWeightBias);
             float safeQuiet = Mathf.Clamp(raw.quietIdleWeightBias, -MaxWeightBias, MaxWeightBias);
             float safeSocial = Mathf.Clamp(raw.socialResponseWeightBias, -MaxWeightBias, MaxWeightBias);
 
             safe = new LLMBehaviorSuggestion
             {
+                version = ExpectedVersion,
                 suggestedLine = safeLine,
                 moodBias = safeMood,
                 roamWeightBias = safeRoam,
                 quietIdleWeightBias = safeQuiet,
                 socialResponseWeightBias = safeSocial,
+                recommendedLocalAction = safeAction,
+                rawTextRequested = false,
+                coordinateCommandIncluded = false,
+                animatorCommandIncluded = false,
+                navMeshCommandIncluded = false,
+                transformCommandIncluded = false,
+                privacyInferenceIncluded = false,
                 showBubble = raw.showBubble
             };
 
             bool changed =
                 safeLine != (raw.suggestedLine ?? string.Empty).Trim() ||
                 safeMood != (raw.moodBias ?? string.Empty).ToLowerInvariant() ||
+                safeAction != (raw.recommendedLocalAction ?? string.Empty).ToLowerInvariant() ||
                 !Mathf.Approximately(safeRoam, raw.roamWeightBias) ||
                 !Mathf.Approximately(safeQuiet, raw.quietIdleWeightBias) ||
                 !Mathf.Approximately(safeSocial, raw.socialResponseWeightBias);
@@ -110,10 +147,15 @@ namespace CatLife.LLM
                    lower.Contains("contact") ||
                    lower.Contains("message") ||
                    lower.Contains("coordinate") ||
+                   lower.Contains("position") ||
                    lower.Contains("transform") ||
                    lower.Contains("physics") ||
                    lower.Contains("navmesh") ||
                    lower.Contains("animator") ||
+                   lower.Contains("camera") ||
+                   lower.Contains("microphone") ||
+                   lower.Contains("clipboard") ||
+                   lower.Contains("package") ||
                    lower.Contains("command");
         }
 
@@ -121,6 +163,7 @@ namespace CatLife.LLM
         {
             switch ((mood ?? string.Empty).ToLowerInvariant())
             {
+                case "quiet":
                 case "calm":
                 case "curious":
                 case "affectionate":
@@ -128,6 +171,22 @@ namespace CatLife.LLM
                     return mood.ToLowerInvariant();
                 default:
                     return "calm";
+            }
+        }
+
+        private static string SanitizeRecommendedAction(string action)
+        {
+            switch ((action ?? string.Empty).ToLowerInvariant())
+            {
+                case "":
+                case "none":
+                    return "none";
+                case "quiet_idle":
+                case "soft_roam":
+                case "social_response":
+                    return action.ToLowerInvariant();
+                default:
+                    return "none";
             }
         }
     }

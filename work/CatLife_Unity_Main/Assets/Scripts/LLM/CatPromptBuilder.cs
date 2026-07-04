@@ -6,7 +6,7 @@ namespace CatLife.LLM
     {
         public string BuildSystemPrompt()
         {
-            return "You are a companion cat behavior suggestion assistant. Return JSON only. You may only suggest high-level mood and behavior weight biases. Do not output coordinates, Transform commands, physics commands, NavMesh commands, Animator commands or state names, screen capture requests, raw input, contacts, messages, or cross-app content.";
+            return "You are a companion cat behavior suggestion assistant. Return strict JSON only, with no Markdown and no explanation. You may only suggest high-level mood and behavior weight biases. Do not output coordinates, position, Transform commands, physics commands, NavMesh commands, Animator commands or state names, camera or microphone requests, screen capture requests, raw input, contacts, messages, package names, clipboard data, or cross-app content.";
         }
 
         public string BuildDeveloperPrompt()
@@ -22,12 +22,20 @@ namespace CatLife.LLM
         public string BuildOutputJsonSchemaPrompt()
         {
             return "{\n" +
-                   "  \"suggestedLine\": \"string <= 48 chars\",\n" +
-                   "  \"moodBias\": \"calm|curious|affectionate|alert\",\n" +
+                   "  \"version\": \"catlife.bluelm.feedback.v1\",\n" +
+                   "  \"suggestedLine\": \"string <= 24 zh chars or 48 ascii chars\",\n" +
+                   "  \"showBubble\": \"boolean; false during focused sessions unless companionship need is high\",\n" +
+                   "  \"moodBias\": \"quiet|calm|curious|affectionate|alert\",\n" +
                    "  \"roamWeightBias\": \"number -0.35..0.35\",\n" +
                    "  \"quietIdleWeightBias\": \"number -0.35..0.35\",\n" +
                    "  \"socialResponseWeightBias\": \"number -0.35..0.35\",\n" +
-                   "  \"showBubble\": \"boolean; false during focused sessions unless companionship need is high\"\n" +
+                   "  \"recommendedLocalAction\": \"none|quiet_idle|soft_roam|social_response\",\n" +
+                   "  \"rawTextRequested\": false,\n" +
+                   "  \"coordinateCommandIncluded\": false,\n" +
+                   "  \"animatorCommandIncluded\": false,\n" +
+                   "  \"navMeshCommandIncluded\": false,\n" +
+                   "  \"transformCommandIncluded\": false,\n" +
+                   "  \"privacyInferenceIncluded\": false\n" +
                    "}";
         }
 

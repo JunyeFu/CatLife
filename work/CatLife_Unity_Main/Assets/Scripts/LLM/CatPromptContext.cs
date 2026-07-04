@@ -127,8 +127,15 @@ namespace CatLife.LLM
                     "roamWeightBias",
                     "quietIdleWeightBias",
                     "socialResponseWeightBias",
+                    "recommendedLocalAction",
                     "suggestedLine",
-                    "showBubble"
+                    "showBubble",
+                    "rawTextRequested=false",
+                    "coordinateCommandIncluded=false",
+                    "animatorCommandIncluded=false",
+                    "navMeshCommandIncluded=false",
+                    "transformCommandIncluded=false",
+                    "privacyInferenceIncluded=false"
                 },
                 blockedOutputs = new[]
                 {

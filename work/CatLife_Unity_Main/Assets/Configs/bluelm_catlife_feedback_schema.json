@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://catlife.local/schemas/bluelm_catlife_feedback_schema.json",
+  "title": "CatLife BlueLM Behavior Feedback",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "suggestedLine",
+    "showBubble",
+    "moodBias",
+    "roamWeightBias",
+    "quietIdleWeightBias",
+    "socialResponseWeightBias",
+    "recommendedLocalAction",
+    "rawTextRequested",
+    "coordinateCommandIncluded",
+    "animatorCommandIncluded",
+    "navMeshCommandIncluded",
+    "transformCommandIncluded",
+    "privacyInferenceIncluded"
+  ],
+  "properties": {
+    "version": { "const": "catlife.bluelm.feedback.v1" },
+    "suggestedLine": {
+      "type": "string",
+      "maxLength": 48,
+      "description": "Short companion line, roughly 24 Chinese chars max. Empty string is allowed."
+    },
+    "showBubble": { "type": "boolean" },
+    "moodBias": {
+      "type": "string",
+      "enum": ["quiet", "calm", "curious", "affectionate", "alert"]
+    },
+    "roamWeightBias": { "type": "number", "minimum": -0.35, "maximum": 0.35 },
+    "quietIdleWeightBias": { "type": "number", "minimum": -0.35, "maximum": 0.35 },
+    "socialResponseWeightBias": { "type": "number", "minimum": -0.35, "maximum": 0.35 },
+    "recommendedLocalAction": {
+      "type": "string",
+      "enum": ["none", "quiet_idle", "soft_roam", "social_response"]
+    },
+    "rawTextRequested": { "type": "boolean", "const": false },
+    "coordinateCommandIncluded": { "type": "boolean", "const": false },
+    "animatorCommandIncluded": { "type": "boolean", "const": false },
+    "navMeshCommandIncluded": { "type": "boolean", "const": false },
+    "transformCommandIncluded": { "type": "boolean", "const": false },
+    "privacyInferenceIncluded": { "type": "boolean", "const": false }
+  }
+}

@@ -168,11 +168,20 @@ namespace CatLife.LLM
             return lower.Contains("http://") ||
                 lower.Contains("https://") ||
                 lower.Contains("file://") ||
+                lower.Contains("rawtext") ||
                 lower.Contains("screen capture") ||
                 lower.Contains("screenshot") ||
+                lower.Contains("screencontent") ||
+                lower.Contains("screen content") ||
                 lower.Contains("raw input") ||
                 lower.Contains("raw text") ||
                 lower.Contains("cross-app") ||
+                lower.Contains("package name") ||
+                lower.Contains("packagename") ||
+                lower.Contains("clipboard") ||
+                lower.Contains(" x/y") ||
+                lower.Contains("\"x\"") ||
+                lower.Contains("\"y\"") ||
                 lower.Contains("transform command") ||
                 lower.Contains("navmesh command") ||
                 lower.Contains("animator command");

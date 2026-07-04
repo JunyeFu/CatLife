@@ -44,10 +44,18 @@ public final class BlueLmEngine {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String requestId = extractRequestId(safeRequestJson);
+                GuardResult inputGuard = BlueLmJsonGuard.validateRequest(safeRequestJson);
+                String requestId = inputGuard.requestId;
                 if (requestId.length() == 0) {
                     if (safeCallback != null) {
                         safeCallback.onComplete("", false, CODE_BAD_REQUEST, "REQUEST_ID_MISSING", "");
+                    }
+                    return;
+                }
+
+                if (!inputGuard.ok) {
+                    if (safeCallback != null) {
+                        safeCallback.onComplete(requestId, false, CODE_BAD_REQUEST, inputGuard.reason, "");
                     }
                     return;
                 }
@@ -61,7 +69,7 @@ public final class BlueLmEngine {
 
                 if (!sdkLinked) {
                     if (safeCallback != null) {
-                        safeCallback.onComplete(requestId, false, CODE_SDK_NOT_LINKED, "SDK_NOT_LINKED", "");
+                        safeCallback.onComplete(requestId, false, CODE_SDK_NOT_LINKED, "SDK_NOT_LINKED", BlueLmPromptBuilder.buildPromptEnvelope(safeRequestJson));
                     }
                     return;
                 }
@@ -71,19 +79,6 @@ public final class BlueLmEngine {
                 }
             }
         }, "CatLifeBlueLmGenerate").start();
-    }
-
-    private static String extractRequestId(String requestJson) {
-        if (requestJson == null || requestJson.length() == 0) {
-            return "";
-        }
-
-        try {
-            JSONObject object = new JSONObject(requestJson);
-            return object.optString("requestId", "");
-        } catch (Throwable ignored) {
-            return "";
-        }
     }
 
     private static String normalizePath(String requestedModelPath) {
@@ -96,6 +91,18 @@ public final class BlueLmEngine {
 
     public interface GenerateCallback {
         void onComplete(String requestId, boolean ok, int code, String message, String responseJson);
+    }
+
+    public static final class GuardResult {
+        public final boolean ok;
+        public final String requestId;
+        public final String reason;
+
+        public GuardResult(boolean ok, String requestId, String reason) {
+            this.ok = ok;
+            this.requestId = requestId == null ? "" : requestId;
+            this.reason = reason == null ? "" : reason;
+        }
     }
 
     public static final class InitResult {
