@@ -98,6 +98,7 @@ namespace CatLife.EditorTools
             }
 
             ValidateNavMeshRuntime(agent, safetyGuard, interestRegistry, issues);
+            ValidateCameraPreferredPlanning(planner, cat.transform, issues);
             ValidateRecognitionAndPrompt(driver, featureEngine, recognitionProvider, interestRegistry, issues);
             ValidateFocusFeedback(privacyGateway, feedbackProvider, issues);
             ValidateAnimatorRuntime(animator, agent, issues);
@@ -137,6 +138,56 @@ namespace CatLife.EditorTools
             {
                 issues.Add("CatInterestPointRegistry has too few points: " + interestRegistry.Count);
             }
+        }
+
+        private static void ValidateCameraPreferredPlanning(
+            CatDestinationPlanner planner,
+            Transform catTransform,
+            List<string> issues)
+        {
+            if (planner == null || catTransform == null)
+            {
+                return;
+            }
+
+            if (Camera.main == null)
+            {
+                issues.Add("Camera-preferred planning requires Camera.main.");
+                return;
+            }
+
+            if (planner.IsPointInPreferredCameraRange(catTransform.position))
+            {
+                return;
+            }
+
+            RecognitionSnapshot snapshot = RecognitionSnapshot.CreateDefault();
+            CatBehaviorDecision decision = CatBehaviorDecision.Create(
+                CatBehaviorState.Roam,
+                0f,
+                0f,
+                0,
+                CatActionInterruptPolicy.DropIfBusy,
+                false,
+                "smoke_camera_return");
+
+            for (int i = 0; i < 12; i++)
+            {
+                Vector3 target;
+                if (planner.TryPlanNext(
+                        snapshot,
+                        decision,
+                        CatNeedState.CreateDefault(),
+                        null,
+                        catTransform.position,
+                        out target) &&
+                    planner.IsPointInPreferredCameraRange(target))
+                {
+                    return;
+                }
+            }
+
+            issues.Add("Non-focus destination planner did not find a camera-preferred return target.");
         }
 
         private static void ValidateRecognitionAndPrompt(

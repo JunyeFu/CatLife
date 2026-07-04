@@ -341,10 +341,13 @@ namespace CatLife.EditorTools
 
             if (destinationPlanner != null)
             {
+                RequireSerializedObject(destinationPlanner, "planningCamera", issues);
                 RequireSerializedObject(destinationPlanner, "interestPointRegistry", issues);
                 RequireSerializedObject(destinationPlanner, "needModel", issues);
                 RequireSerializedObject(destinationPlanner, "behaviorMemory", issues);
                 RequireSerializedArray(destinationPlanner, "forbiddenZones", 1, issues);
+                RequireSerializedBool(destinationPlanner, "preferCameraRangeWhenNonFocused", true, issues);
+                RequireSerializedMinFloat(destinationPlanner, "cameraReturnBiasWeight", 1f, issues);
             }
         }
 
@@ -652,6 +655,48 @@ namespace CatLife.EditorTools
             if (!property.isArray || property.arraySize < minSize)
             {
                 issues.Add(target.name + " has too few entries in " + propertyName + ".");
+            }
+        }
+
+        private static void RequireSerializedBool(Object target, string propertyName, bool expectedValue, List<string> issues)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            SerializedObject serialized = new SerializedObject(target);
+            SerializedProperty property = serialized.FindProperty(propertyName);
+            if (property == null)
+            {
+                issues.Add(target.name + " missing serialized property: " + propertyName);
+                return;
+            }
+
+            if (property.propertyType != SerializedPropertyType.Boolean || property.boolValue != expectedValue)
+            {
+                issues.Add(target.name + " has invalid bool value for " + propertyName + ".");
+            }
+        }
+
+        private static void RequireSerializedMinFloat(Object target, string propertyName, float minValue, List<string> issues)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            SerializedObject serialized = new SerializedObject(target);
+            SerializedProperty property = serialized.FindProperty(propertyName);
+            if (property == null)
+            {
+                issues.Add(target.name + " missing serialized property: " + propertyName);
+                return;
+            }
+
+            if (property.propertyType != SerializedPropertyType.Float || property.floatValue < minValue)
+            {
+                issues.Add(target.name + " has invalid float value for " + propertyName + ".");
             }
         }
 

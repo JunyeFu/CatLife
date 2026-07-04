@@ -737,6 +737,7 @@ namespace CatLife.EditorTools
         {
             SerializedObject serialized = new SerializedObject(planner);
             serialized.FindProperty("userAnchor").objectReferenceValue = Camera.main != null ? Camera.main.transform : null;
+            serialized.FindProperty("planningCamera").objectReferenceValue = Camera.main;
             serialized.FindProperty("interestPointRegistry").objectReferenceValue = interestPointRegistry;
             serialized.FindProperty("needModel").objectReferenceValue = needModel;
             serialized.FindProperty("behaviorMemory").objectReferenceValue = behaviorMemory;
@@ -744,7 +745,12 @@ namespace CatLife.EditorTools
             serialized.FindProperty("focusSampleRadius").floatValue = 3.5f;
             serialized.FindProperty("minMoveDistance").floatValue = 1.1f;
             serialized.FindProperty("minDistanceFromUserAnchorWhenFocused").floatValue = 2.5f;
-            serialized.FindProperty("sampleAttempts").intValue = 24;
+            serialized.FindProperty("sampleAttempts").intValue = 32;
+            serialized.FindProperty("preferCameraRangeWhenNonFocused").boolValue = true;
+            serialized.FindProperty("viewportSafeMargin").floatValue = 0.08f;
+            serialized.FindProperty("viewportProbeHeight").floatValue = 0.28f;
+            serialized.FindProperty("cameraVisibleBiasWeight").floatValue = 4f;
+            serialized.FindProperty("cameraReturnBiasWeight").floatValue = 10f;
             serialized.FindProperty("blockerMask").intValue = 0;
             serialized.FindProperty("blockerCheckRadius").floatValue = 0.26f;
             serialized.FindProperty("navMeshProbeDistance").floatValue = 1.8f;
