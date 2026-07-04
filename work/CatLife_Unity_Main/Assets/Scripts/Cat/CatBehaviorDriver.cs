@@ -182,6 +182,11 @@ namespace CatLife.Cat
                     navigationAgent.StopSoft();
                 }
             }
+
+            if (animationController != null)
+            {
+                animationController.SetLocomotionPlaybackMultiplier(navigationSpeedMultiplier);
+            }
         }
 
         public void NotifyCatLongPressed()
@@ -374,6 +379,11 @@ namespace CatLife.Cat
             {
                 navigationAgent.SetSpeedMultiplier(navigationSpeedMultiplier);
                 navigationAgent.Configure(focused);
+            }
+
+            if (animationController != null)
+            {
+                animationController.SetLocomotionPlaybackMultiplier(navigationSpeedMultiplier);
             }
 
             if (state == CatBehaviorState.Roam || state == CatBehaviorState.FocusedRoam)

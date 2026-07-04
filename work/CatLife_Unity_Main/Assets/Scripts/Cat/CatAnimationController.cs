@@ -8,6 +8,8 @@ namespace CatLife.Cat
         [SerializeField] private Animator animator;
         [SerializeField] private float locomotionFade = 0.12f;
         [SerializeField] private float actionFade = 0.1f;
+        [SerializeField] private float minLocomotionPlaybackMultiplier = 0.1f;
+        [SerializeField] private float maxLocomotionPlaybackMultiplier = 3f;
 
         [Header("Animator Parameters")]
         [SerializeField] private string moveSpeed01Parameter = "MoveSpeed01";
@@ -37,6 +39,7 @@ namespace CatLife.Cat
         private int inFocusModeHash;
         private int arousal01Hash;
         private int legacyIsWalkingHash;
+        private float locomotionPlaybackMultiplier = 1f;
         private bool hasMoveSpeed01;
         private bool hasIsMoving;
         private bool hasInFocusMode;
@@ -71,10 +74,13 @@ namespace CatLife.Cat
             }
 
             SetAnimatorParameters(moveSpeed01, isMoving, inFocusMode, arousal01);
-            if (Time.time >= busyUntil || (isMoving && interruptibleByMove))
+            bool canUseLocomotion = Time.time >= busyUntil || (isMoving && interruptibleByMove);
+            if (canUseLocomotion)
             {
                 EnsureLocomotion(isMoving);
             }
+
+            ApplyPlaybackSpeed(isMoving && canUseLocomotion);
         }
 
         public void PlayAction(CatBehaviorState state, float holdSeconds, bool canInterruptByMove)
@@ -98,15 +104,25 @@ namespace CatLife.Cat
             }
 
             animator.CrossFadeInFixedTime(statePath, actionFade, 0);
+            ApplyPlaybackSpeed(false);
             busyUntil = Time.time + Mathf.Max(0f, holdSeconds);
             interruptibleByMove = canInterruptByMove;
             lastPlayedState = statePath;
+        }
+
+        public void SetLocomotionPlaybackMultiplier(float multiplier)
+        {
+            locomotionPlaybackMultiplier = Mathf.Clamp(
+                multiplier,
+                Mathf.Max(0.01f, minLocomotionPlaybackMultiplier),
+                Mathf.Max(minLocomotionPlaybackMultiplier, maxLocomotionPlaybackMultiplier));
         }
 
         public void ForceLocomotion(bool isMoving)
         {
             busyUntil = 0f;
             EnsureLocomotion(isMoving);
+            ApplyPlaybackSpeed(isMoving);
         }
 
         private void CacheAnimatorParameters()
@@ -199,6 +215,16 @@ namespace CatLife.Cat
 
             animator.CrossFadeInFixedTime(statePath, locomotionFade, 0);
             lastPlayedState = statePath;
+        }
+
+        private void ApplyPlaybackSpeed(bool useLocomotionSpeed)
+        {
+            if (animator == null)
+            {
+                return;
+            }
+
+            animator.speed = useLocomotionSpeed ? locomotionPlaybackMultiplier : 1f;
         }
 
         private bool HasAnimatorState(string statePath)
