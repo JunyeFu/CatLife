@@ -294,6 +294,73 @@ namespace CatLife.Cat
                 false));
         }
 
+        public bool NotifyGroundTapped(Vector3 worldPoint)
+        {
+            PushRecentEvent("ground_tap");
+            if (behaviorMemory != null)
+            {
+                behaviorMemory.RecordUserInteraction();
+            }
+
+            if (featureEngine != null)
+            {
+                featureEngine.RecordUiEvent("tap_ground");
+            }
+
+            if (!walkingEnabled || navigationAgent == null || destinationPlanner == null)
+            {
+                return false;
+            }
+
+            bool focused = snapshot.IsFocused;
+            navigationAgent.SetSpeedMultiplier(navigationSpeedMultiplier);
+            navigationAgent.Configure(focused);
+
+            Vector3 target;
+            if (!destinationPlanner.TryPlanRequestedPoint(snapshot, worldPoint, transform.position, out target))
+            {
+                RouteAction(CatActionRequest.Create(
+                    CatBehaviorState.LookBack,
+                    CatActionSource.User,
+                    "tap_ground_rejected",
+                    70,
+                    8f,
+                    1f,
+                    CatActionInterruptPolicy.DropIfBusy,
+                    false));
+                return false;
+            }
+
+            if (!navigationAgent.TryMoveTo(target))
+            {
+                return false;
+            }
+
+            currentState = focused ? CatBehaviorState.FocusedRoam : CatBehaviorState.Roam;
+            actionHoldUntil = 0f;
+            if (animationController != null)
+            {
+                animationController.ForceLocomotion(true);
+            }
+
+            if (actionRouter != null)
+            {
+                CatActionRequest sniffRequest = CatActionRequest.Create(
+                    CatBehaviorState.CuriousSniff,
+                    CatActionSource.User,
+                    "tap_ground_arrival",
+                    70,
+                    10f,
+                    3f,
+                    CatActionInterruptPolicy.QueueIfMoving,
+                    false);
+                CatActionRequest playableRequest;
+                actionRouter.TryRoute(sniffRequest, true, false, out playableRequest);
+            }
+
+            return true;
+        }
+
         public void NotifyUiAction(CatBehaviorState state, string reason)
         {
             if (state == CatBehaviorState.None)

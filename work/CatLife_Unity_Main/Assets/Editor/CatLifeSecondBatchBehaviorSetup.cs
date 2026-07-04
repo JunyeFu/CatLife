@@ -110,7 +110,9 @@ namespace CatLife.EditorTools
             CatBehaviorBrainScorer behaviorScorer = GetOrAdd<CatBehaviorBrainScorer>(cat);
             CatBehaviorDriver behaviorDriver = GetOrAdd<CatBehaviorDriver>(cat);
             CatBehaviorTelemetry behaviorTelemetry = GetOrAdd<CatBehaviorTelemetry>(cat);
+            CatInteractionMapper interactionMapper = GetOrAdd<CatInteractionMapper>(cat);
             Animator animator = cat.GetComponent<Animator>();
+            EnsureCatInteractionCollider(cat);
 
             AssignObject(navigationAgent, "agent", agent);
             AssignObject(safetyGuard, "agent", agent);
@@ -141,6 +143,7 @@ namespace CatLife.EditorTools
                 recognitionProvider,
                 llmClient,
                 featureEngine);
+            interactionMapper.Configure(behaviorDriver, Camera.main, cat.transform);
 
             CatTownWalker legacyWalker = cat.GetComponent<CatTownWalker>();
             if (legacyWalker != null)
@@ -366,6 +369,52 @@ namespace CatLife.EditorTools
 
             AddCenterPawPlatformForbiddenZone(parent, groundY, usedNames, zones);
             return zones.ToArray();
+        }
+
+        private static void EnsureCatInteractionCollider(GameObject cat)
+        {
+            BoxCollider collider = cat.GetComponent<BoxCollider>();
+            if (collider == null)
+            {
+                collider = cat.AddComponent<BoxCollider>();
+            }
+
+            Renderer[] renderers = cat.GetComponentsInChildren<Renderer>(true);
+            Bounds bounds = new Bounds(cat.transform.position + Vector3.up * 0.3f, new Vector3(0.7f, 0.7f, 1.0f));
+            bool hasBounds = false;
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                Renderer renderer = renderers[i];
+                if (renderer == null)
+                {
+                    continue;
+                }
+
+                if (!hasBounds)
+                {
+                    bounds = renderer.bounds;
+                    hasBounds = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(renderer.bounds);
+                }
+            }
+
+            Vector3 localCenter = cat.transform.InverseTransformPoint(bounds.center);
+            Vector3 lossy = cat.transform.lossyScale;
+            Vector3 localSize = new Vector3(
+                Mathf.Abs(lossy.x) > 0.0001f ? bounds.size.x / Mathf.Abs(lossy.x) : bounds.size.x,
+                Mathf.Abs(lossy.y) > 0.0001f ? bounds.size.y / Mathf.Abs(lossy.y) : bounds.size.y,
+                Mathf.Abs(lossy.z) > 0.0001f ? bounds.size.z / Mathf.Abs(lossy.z) : bounds.size.z);
+
+            collider.center = localCenter;
+            collider.size = new Vector3(
+                Mathf.Max(0.35f, localSize.x),
+                Mathf.Max(0.35f, localSize.y),
+                Mathf.Max(0.35f, localSize.z));
+            collider.isTrigger = true;
+            EditorUtility.SetDirty(cat);
         }
 
         private static void AddCenterPawPlatformForbiddenZone(

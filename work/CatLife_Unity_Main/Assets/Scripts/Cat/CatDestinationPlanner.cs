@@ -91,6 +91,32 @@ namespace CatLife.Cat
             return TryRandomPlan(focused, currentPosition, out result);
         }
 
+        public bool TryPlanRequestedPoint(
+            RecognitionSnapshot snapshot,
+            Vector3 requestedPoint,
+            Vector3 currentPosition,
+            out Vector3 result)
+        {
+            lastPlannedInterestPointId = "";
+
+            NavMeshHit hit;
+            if (!NavMesh.SamplePosition(requestedPoint, out hit, navMeshProbeDistance, NavMesh.AllAreas))
+            {
+                result = currentPosition;
+                return false;
+            }
+
+            bool focused = snapshot.IsFocused;
+            if (!IsDestinationValid(hit.position, currentPosition, focused))
+            {
+                result = currentPosition;
+                return false;
+            }
+
+            result = hit.position;
+            return true;
+        }
+
         private bool TryInterestPointPlan(
             RecognitionSnapshot snapshot,
             CatBehaviorDecision decision,

@@ -252,6 +252,7 @@ namespace CatLife.EditorTools
             RequireComponent<CatBehaviorMemory>(cat, issues);
             RequireComponent<CatBehaviorBrainScorer>(cat, issues);
             CatBehaviorTelemetry behaviorTelemetry = RequireComponent<CatBehaviorTelemetry>(cat, issues);
+            CatInteractionMapper interactionMapper = RequireComponent<CatInteractionMapper>(cat, issues);
             CatBehaviorDriver behaviorDriver = RequireComponent<CatBehaviorDriver>(cat, issues);
 
             if (animator != null && animator.runtimeAnimatorController == null)
@@ -263,6 +264,16 @@ namespace CatLife.EditorTools
             {
                 if (navMeshAgent.radius <= 0f) issues.Add("Cat NavMeshAgent radius is invalid.");
                 if (navMeshAgent.height <= 0f) issues.Add("Cat NavMeshAgent height is invalid.");
+            }
+
+            BoxCollider interactionCollider = cat.GetComponent<BoxCollider>();
+            if (interactionCollider == null)
+            {
+                issues.Add("Cat needs a BoxCollider for tap/long-press raycast interaction.");
+            }
+            else if (!interactionCollider.isTrigger)
+            {
+                issues.Add("Cat interaction BoxCollider should be trigger-only.");
             }
 
             if (behaviorDriver != null)
@@ -308,6 +319,13 @@ namespace CatLife.EditorTools
                 RequireSerializedObject(behaviorTelemetry, "recognitionProviderComponent", issues);
                 RequireSerializedObject(behaviorTelemetry, "llmClientComponent", issues);
                 RequireSerializedObject(behaviorTelemetry, "featureEngine", issues);
+            }
+
+            if (interactionMapper != null)
+            {
+                RequireSerializedObject(interactionMapper, "behaviorDriver", issues);
+                RequireSerializedObject(interactionMapper, "inputCamera", issues);
+                RequireSerializedObject(interactionMapper, "catRoot", issues);
             }
 
             CatTownWalker legacyWalker = cat.GetComponent<CatTownWalker>();

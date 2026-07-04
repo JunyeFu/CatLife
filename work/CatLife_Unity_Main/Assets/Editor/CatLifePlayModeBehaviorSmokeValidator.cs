@@ -67,6 +67,7 @@ namespace CatLife.EditorTools
             CatDestinationPlanner planner = cat.GetComponent<CatDestinationPlanner>();
             CatBehaviorMemory memory = cat.GetComponent<CatBehaviorMemory>();
             CatBehaviorTelemetry telemetry = cat.GetComponent<CatBehaviorTelemetry>();
+            CatInteractionMapper interactionMapper = cat.GetComponent<CatInteractionMapper>();
             CatNavMeshSafetyGuard safetyGuard = cat.GetComponent<CatNavMeshSafetyGuard>();
             Animator animator = cat.GetComponent<Animator>();
             RealtimeFeatureEngine featureEngine = systems.GetComponent<RealtimeFeatureEngine>();
@@ -78,6 +79,7 @@ namespace CatLife.EditorTools
             if (planner == null) issues.Add("Cat missing CatDestinationPlanner.");
             if (memory == null) issues.Add("Cat missing CatBehaviorMemory.");
             if (telemetry == null) issues.Add("Cat missing CatBehaviorTelemetry.");
+            if (interactionMapper == null) issues.Add("Cat missing CatInteractionMapper.");
             if (safetyGuard == null) issues.Add("Cat missing CatNavMeshSafetyGuard.");
             if (animator == null) issues.Add("Cat missing Animator.");
             if (featureEngine == null) issues.Add("Systems missing RealtimeFeatureEngine.");
@@ -89,7 +91,7 @@ namespace CatLife.EditorTools
             }
 
             ValidateNavMeshRuntime(agent, safetyGuard, interestRegistry, issues);
-            ValidateRecognitionAndPrompt(driver, featureEngine, recognitionProvider, issues);
+            ValidateRecognitionAndPrompt(driver, featureEngine, recognitionProvider, interestRegistry, issues);
             ValidateAnimatorRuntime(animator, agent, issues);
             ValidateTelemetryRuntime(telemetry, issues);
 
@@ -133,6 +135,7 @@ namespace CatLife.EditorTools
             CatBehaviorDriver driver,
             RealtimeFeatureEngine featureEngine,
             MockRecognitionProvider recognitionProvider,
+            CatInterestPointRegistry interestRegistry,
             List<string> issues)
         {
             driver.NotifyUiAction(CatBehaviorState.HeadTiltListen, "smoke_start_focus");
@@ -140,6 +143,11 @@ namespace CatLife.EditorTools
             driver.NotifyUiAction(CatBehaviorState.TailWagHappy, "smoke_cat_page");
             driver.NotifyUiAction(CatBehaviorState.HeadTiltListen, "smoke_record_page");
             driver.NotifyCatTapped();
+            if (!TryNotifyGroundTap(driver, interestRegistry))
+            {
+                issues.Add("Ground tap did not route to a valid NavMesh destination.");
+            }
+
             featureEngine.Tick(0.6f);
             recognitionProvider.Tick(0.6f);
 
@@ -184,6 +192,31 @@ namespace CatLife.EditorTools
             {
                 issues.Add("Composite prompt is missing behavior policy or blocked output contract.");
             }
+        }
+
+        private static bool TryNotifyGroundTap(CatBehaviorDriver driver, CatInterestPointRegistry interestRegistry)
+        {
+            if (driver == null || interestRegistry == null || interestRegistry.Points == null)
+            {
+                return false;
+            }
+
+            CatInterestPoint[] points = interestRegistry.Points;
+            for (int i = 0; i < points.Length; i++)
+            {
+                CatInterestPoint point = points[i];
+                if (point == null)
+                {
+                    continue;
+                }
+
+                if (driver.NotifyGroundTapped(point.transform.position))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void ValidateAnimatorRuntime(Animator animator, NavMeshAgent agent, List<string> issues)
