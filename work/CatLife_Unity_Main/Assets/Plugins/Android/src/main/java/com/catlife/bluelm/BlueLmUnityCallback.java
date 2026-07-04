@@ -19,7 +19,7 @@ public final class BlueLmUnityCallback {
 
     public static void sendGenerate(String callbackObject, String requestId, boolean ok, int code, String message, String responseJson) {
         String safeMessage = safe(message);
-        Log.i(TAG, "BlueLM generate requestId=" + safe(requestId) + " ok=" + ok + " code=" + code + " message=" + safeMessage);
+        Log.i(TAG, "BlueLM generate complete requestId=" + safe(requestId) + " ok=" + ok + " code=" + code + " message=" + safeMessage + " payloadBytes=" + safe(responseJson).length());
         sendEvent(callbackObject, buildEvent(safe(requestId), ok, code, ok ? "ok" : "error", safeMessage, responseJson));
     }
 
@@ -45,6 +45,7 @@ public final class BlueLmUnityCallback {
         sb.append("\"success\":").append(ok).append(',');
         sb.append("\"status\":\"").append(json(safe(status))).append("\",");
         sb.append("\"code\":").append(code).append(',');
+        sb.append("\"source\":\"").append(ok ? "bluelm_on_device" : "local_template").append("\",");
         if (ok) {
             sb.append("\"content\":\"").append(json(safe(payload))).append("\",");
         } else {

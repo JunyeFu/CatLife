@@ -164,7 +164,7 @@ namespace CatLife.EditorTools
 
             if (issues.Count == 0)
             {
-                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, BlueLM Unity adapter, Android BlueLM bridge skeleton, BlueLM JSON guards, config schemas, UI binding, and 11 animator states are present.";
+                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, BlueLM Unity adapter, Android BlueLM bridge skeleton, BlueLM JSON guards, BlueLM generate bridge, config schemas, UI binding, and 11 animator states are present.";
             }
 
             return "FAIL CatLife runtime assembly validation:\n- " + string.Join("\n- ", issues.ToArray());
@@ -198,7 +198,7 @@ namespace CatLife.EditorTools
 
             BlueLmAndroidEvent successEvent;
             string reason;
-            string successJson = "{\"requestId\":\"stage1_success\",\"ok\":true,\"suggestion\":{\"suggestedLine\":\"Stay close.\",\"moodBias\":\"curious\",\"roamWeightBias\":0.1,\"quietIdleWeightBias\":0.0,\"socialResponseWeightBias\":0.0,\"showBubble\":true}}";
+            string successJson = "{\"requestId\":\"stage1_success\",\"ok\":true,\"source\":\"bluelm_on_device\",\"suggestion\":{\"version\":\"catlife.bluelm.feedback.v1\",\"suggestedLine\":\"Stay close.\",\"moodBias\":\"curious\",\"roamWeightBias\":0.1,\"quietIdleWeightBias\":0.0,\"socialResponseWeightBias\":0.0,\"recommendedLocalAction\":\"none\",\"rawTextRequested\":false,\"coordinateCommandIncluded\":false,\"animatorCommandIncluded\":false,\"navMeshCommandIncluded\":false,\"transformCommandIncluded\":false,\"privacyInferenceIncluded\":false,\"showBubble\":true}}";
             if (!BlueLmAndroidEvent.TryParse(successJson, out successEvent, out reason))
             {
                 issues.Add("BlueLmAndroidEvent rejected valid success JSON: " + reason);
@@ -213,6 +213,10 @@ namespace CatLife.EditorTools
                 else if (suggestion.moodBias != "curious" || !suggestion.showBubble)
                 {
                     issues.Add("BlueLmAndroidEvent success suggestion fields were not preserved.");
+                }
+                else if (successEvent.source != "bluelm_on_device")
+                {
+                    issues.Add("BlueLmAndroidEvent did not preserve source.");
                 }
             }
 
@@ -287,9 +291,23 @@ namespace CatLife.EditorTools
                 issues,
                 "DEFAULT_MODEL_PATH",
                 "CODE_SDK_NOT_LINKED",
+                "CODE_GENERATE_FAILED",
+                "CODE_UNSAFE_OUTPUT",
                 "generateJsonAsync",
                 "BlueLmJsonGuard.validateRequest",
-                "BlueLmPromptBuilder.buildPromptEnvelope");
+                "BlueLmPromptBuilder.buildPromptEnvelope",
+                "BlueLmJsonGuard.extractJson",
+                "BlueLmJsonGuard.validateOutput",
+                "safeFallbackJson");
+
+            ValidateProjectFileContains(
+                "Assets/Plugins/Android/src/main/java/com/catlife/bluelm/BlueLmSdkAdapter.java",
+                issues,
+                "LlmManager",
+                "LlmConfig",
+                "TokenCallback",
+                "generate",
+                "Proxy.newProxyInstance");
 
             ValidateProjectFileContains(
                 "Assets/Plugins/Android/src/main/java/com/catlife/bluelm/BlueLmJsonGuard.java",
@@ -297,6 +315,7 @@ namespace CatLife.EditorTools
                 "BLOCKED_INPUT_TERMS",
                 "validateRequest",
                 "validateOutput",
+                "extractJson",
                 "rawtext",
                 "clipboard",
                 "screencontent",
@@ -317,7 +336,20 @@ namespace CatLife.EditorTools
                 issues,
                 "UnitySendMessage",
                 "BlueLM init ok=",
+                "BlueLM generate complete",
+                "source",
                 "OnBlueLmEvent");
+
+            ValidateProjectFileContains(
+                "Assets/Scripts/LLM/BlueLmAndroidEvent.cs",
+                issues,
+                "public string source");
+
+            ValidateProjectFileContains(
+                "Assets/Scripts/LLM/BlueLmOnDeviceClient.cs",
+                issues,
+                "LastSource",
+                "LastFailureReason");
 
             ValidateProjectFileContains(
                 "Assets/Plugins/Android/src/main/java/com/catlife/bluelm/BlueLmPermissionHelper.java",

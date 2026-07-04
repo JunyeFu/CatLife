@@ -12,6 +12,7 @@ namespace CatLife.LLM
         public bool success;
         public string status;
         public int code;
+        public string source;
         public string content;
         public string message;
         public string responseJson;

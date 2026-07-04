@@ -100,4 +100,18 @@ public final class BlueLmJsonGuard {
 
         return new BlueLmEngine.GuardResult(true, "", "PASSED");
     }
+
+    public static String extractJson(String text) {
+        if (text == null || text.length() == 0) {
+            return "";
+        }
+
+        int start = text.indexOf('{');
+        int end = text.lastIndexOf('}');
+        if (start < 0 || end <= start) {
+            return "";
+        }
+
+        return text.substring(start, end + 1);
+    }
 }

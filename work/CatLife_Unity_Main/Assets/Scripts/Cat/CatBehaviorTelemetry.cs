@@ -168,6 +168,12 @@ namespace CatLife.Cat
             builder.AppendLine();
             builder.Append("llm_enabled=").Append(llmClient != null && llmClient.Enabled);
             builder.Append("; llm_busy=").Append(llmClient != null && llmClient.IsBusy);
+            BlueLmOnDeviceClient blueLmClient = llmClientComponent as BlueLmOnDeviceClient;
+            if (blueLmClient != null)
+            {
+                builder.Append("; llm_source=").Append(blueLmClient.LastSource);
+                builder.Append("; llm_error=").Append(blueLmClient.LastFailureReason);
+            }
             builder.Append("; mood=").Append(suggestion != null ? suggestion.moodBias : "calm");
             builder.Append("; bubble=").Append(suggestion != null && suggestion.showBubble);
             builder.Append("; safety=").Append(behaviorDriver != null ? behaviorDriver.LastLlmSafetyReason : "missing_driver");

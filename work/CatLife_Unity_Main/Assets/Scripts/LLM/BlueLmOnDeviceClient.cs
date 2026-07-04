@@ -26,6 +26,8 @@ namespace CatLife.LLM
         }
 
         public bool IsBusy { get; private set; }
+        public string LastSource { get; private set; } = "local_template";
+        public string LastFailureReason { get; private set; } = "not_requested";
 
         private void Awake()
         {
@@ -115,6 +117,7 @@ namespace CatLife.LLM
             bool completed = false;
             LLMBehaviorSuggestion result = null;
             string failureReason = string.Empty;
+            string resultSource = "local_template";
 
             BlueLmCallbackReceiver.RegisterPending(
                 requestId,
@@ -125,10 +128,13 @@ namespace CatLife.LLM
                     if (androidEvent.TryBuildSuggestion(out safeSuggestion, out reason))
                     {
                         result = safeSuggestion;
+                        resultSource = string.IsNullOrEmpty(androidEvent.source) ? "bluelm_on_device" : androidEvent.source;
+                        failureReason = "passed";
                     }
                     else
                     {
                         failureReason = reason;
+                        resultSource = string.IsNullOrEmpty(androidEvent.source) ? "local_template" : androidEvent.source;
                     }
 
                     completed = true;
@@ -164,6 +170,8 @@ namespace CatLife.LLM
             IsBusy = false;
             if (result != null)
             {
+                LastSource = resultSource;
+                LastFailureReason = string.IsNullOrEmpty(failureReason) ? "passed" : failureReason;
                 if (onSuccess != null)
                 {
                     onSuccess(result);
@@ -243,6 +251,8 @@ namespace CatLife.LLM
                 Debug.Log("[CatLife] BlueLM fallback: " + (string.IsNullOrEmpty(reason) ? "unknown" : reason));
             }
 
+            LastSource = "local_template";
+            LastFailureReason = string.IsNullOrEmpty(reason) ? "unknown" : reason;
             if (onSuccess != null)
             {
                 onSuccess(BuildLocalFallbackSuggestion(context, reason));

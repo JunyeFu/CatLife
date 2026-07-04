@@ -2,7 +2,6 @@ package com.catlife.bluelm;
 
 import android.content.Context;
 import java.io.File;
-import org.json.JSONObject;
 
 public final class BlueLmEngine {
     public static final String DEFAULT_MODEL_PATH = "/sdcard/1225/1.7.0.4_1225_mtk9500";
@@ -10,11 +9,13 @@ public final class BlueLmEngine {
     public static final int CODE_MODEL_PATH_MISSING = 1101;
     public static final int CODE_PERMISSION_MISSING = 1102;
     public static final int CODE_SDK_NOT_LINKED = 1201;
+    public static final int CODE_GENERATE_FAILED = 1202;
     public static final int CODE_BAD_REQUEST = 1301;
+    public static final int CODE_UNSAFE_OUTPUT = 1302;
 
     private static String modelPath = DEFAULT_MODEL_PATH;
     private static boolean modelPathAvailable;
-    private static boolean sdkLinked;
+    private static BlueLmSdkAdapter sdkAdapter;
 
     private BlueLmEngine() {
     }
@@ -23,19 +24,26 @@ public final class BlueLmEngine {
         modelPath = normalizePath(requestedModelPath);
         if (!BlueLmPermissionHelper.hasManageAllFilesAccess()) {
             modelPathAvailable = false;
-            sdkLinked = false;
+            sdkAdapter = null;
             return new InitResult(false, CODE_PERMISSION_MISSING, "ALL_FILES_ACCESS_MISSING", modelPath);
         }
 
         File dir = new File(modelPath);
         modelPathAvailable = dir.exists() && dir.isDirectory();
         if (!modelPathAvailable) {
-            sdkLinked = false;
+            sdkAdapter = null;
             return new InitResult(false, CODE_MODEL_PATH_MISSING, "MODEL_PATH_MISSING", modelPath);
         }
 
-        sdkLinked = false;
-        return new InitResult(false, CODE_SDK_NOT_LINKED, "SDK_NOT_LINKED", modelPath);
+        BlueLmSdkAdapter adapter = new BlueLmSdkAdapter();
+        BlueLmSdkAdapter.InitOutcome outcome = adapter.init(modelPath);
+        if (!outcome.ok) {
+            sdkAdapter = null;
+            return new InitResult(false, outcome.code, outcome.message, modelPath);
+        }
+
+        sdkAdapter = adapter;
+        return new InitResult(true, CODE_OK, "OK", modelPath);
     }
 
     public static void generateJsonAsync(String requestJson, GenerateCallback callback) {
@@ -67,16 +75,38 @@ public final class BlueLmEngine {
                     return;
                 }
 
-                if (!sdkLinked) {
+                BlueLmSdkAdapter adapter = sdkAdapter;
+                if (adapter == null || !adapter.isReady()) {
                     if (safeCallback != null) {
                         safeCallback.onComplete(requestId, false, CODE_SDK_NOT_LINKED, "SDK_NOT_LINKED", BlueLmPromptBuilder.buildPromptEnvelope(safeRequestJson));
                     }
                     return;
                 }
 
-                if (safeCallback != null) {
-                    safeCallback.onComplete(requestId, false, CODE_SDK_NOT_LINKED, "SDK_NOT_LINKED", "");
-                }
+                String prompt = BlueLmPromptBuilder.buildPromptEnvelope(safeRequestJson) + "\n" + BlueLmPromptBuilder.outputSchemaReminder();
+                adapter.generate(prompt, new BlueLmSdkAdapter.GenerateOutcomeCallback() {
+                    @Override
+                    public void onComplete(BlueLmSdkAdapter.GenerateOutcome outcome) {
+                        if (safeCallback == null) {
+                            return;
+                        }
+
+                        if (outcome == null || !outcome.ok) {
+                            String reason = outcome == null ? "GENERATE_EMPTY_OUTCOME" : outcome.error;
+                            safeCallback.onComplete(requestId, false, CODE_GENERATE_FAILED, reason, safeFallbackJson());
+                            return;
+                        }
+
+                        String outputJson = BlueLmJsonGuard.extractJson(outcome.text);
+                        GuardResult outputGuard = BlueLmJsonGuard.validateOutput(outputJson);
+                        if (!outputGuard.ok) {
+                            safeCallback.onComplete(requestId, false, CODE_UNSAFE_OUTPUT, outputGuard.reason, safeFallbackJson());
+                            return;
+                        }
+
+                        safeCallback.onComplete(requestId, true, CODE_OK, "OK", outputJson);
+                    }
+                });
             }
         }, "CatLifeBlueLmGenerate").start();
     }
@@ -87,6 +117,25 @@ public final class BlueLmEngine {
         }
 
         return requestedModelPath.trim();
+    }
+
+    private static String safeFallbackJson() {
+        return "{" +
+            "\"version\":\"catlife.bluelm.feedback.v1\"," +
+            "\"suggestedLine\":\"\"," +
+            "\"showBubble\":false," +
+            "\"moodBias\":\"quiet\"," +
+            "\"roamWeightBias\":0.0," +
+            "\"quietIdleWeightBias\":0.0," +
+            "\"socialResponseWeightBias\":0.0," +
+            "\"recommendedLocalAction\":\"none\"," +
+            "\"rawTextRequested\":false," +
+            "\"coordinateCommandIncluded\":false," +
+            "\"animatorCommandIncluded\":false," +
+            "\"navMeshCommandIncluded\":false," +
+            "\"transformCommandIncluded\":false," +
+            "\"privacyInferenceIncluded\":false" +
+            "}";
     }
 
     public interface GenerateCallback {
