@@ -28,6 +28,7 @@ namespace CatLife.EditorTools
         private const string LlmFeedbackSchemaPath = "Assets/Configs/llm_feedback_schema.json";
         private const string BlueLmFeedbackSchemaPath = "Assets/Configs/bluelm_catlife_feedback_schema.json";
         private const string BlueLmUnityRequestSchemaPath = "Assets/Configs/bluelm_unity_request_schema.json";
+        private const string SplashTexturePath = "Assets/Resources/CatLifeSplash/CatLifeSplashLogo.png";
 
         private static readonly string[] RequiredWalkAreas =
         {
@@ -163,10 +164,11 @@ namespace CatLife.EditorTools
             ValidateAndroidBlueLmPlugin(issues);
             ValidateBehaviorEventBridge(issues);
             ValidateVivoCloudFallback(issues);
+            ValidateSplashIntegration(issues);
 
             if (issues.Count == 0)
             {
-                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, Android behavior event bridge, BlueLM Unity adapter, Android BlueLM bridge skeleton, BlueLM JSON guards, BlueLM generate bridge, BlueLM local behavior bias/action bridge, vivo cloud private APK fallback boundary, config schemas, UI binding, and 11 animator states are present.";
+                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, Android behavior event bridge, BlueLM Unity adapter, Android BlueLM bridge skeleton, BlueLM JSON guards, BlueLM generate bridge, BlueLM local behavior bias/action bridge, vivo cloud private APK fallback boundary, splash screen integration, config schemas, UI binding, and 11 animator states are present.";
             }
 
             return "FAIL CatLife runtime assembly validation:\n- " + string.Join("\n- ", issues.ToArray());
@@ -623,6 +625,45 @@ namespace CatLife.EditorTools
                 ".gitignore",
                 issues,
                 "work/CatLife_Unity_Main/Assets/Resources/CatLifePrivate/");
+        }
+
+        private static void ValidateSplashIntegration(List<string> issues)
+        {
+            Texture2D splashTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(SplashTexturePath);
+            if (splashTexture == null)
+            {
+                issues.Add("Missing splash texture asset: " + SplashTexturePath);
+            }
+            else
+            {
+                if (splashTexture.width <= 0 || splashTexture.height <= 0)
+                {
+                    issues.Add("Splash texture has invalid dimensions.");
+                }
+
+                float aspect = splashTexture.height > 0 ? (float)splashTexture.height / Mathf.Max(1, splashTexture.width) : 0f;
+                if (aspect < 1.8f || aspect > 2.4f)
+                {
+                    issues.Add("Splash texture should remain close to 20:9 portrait ratio.");
+                }
+            }
+
+            ValidateProjectFileContains(
+                "Assets/Scripts/UI/CatLifeHomeUiController.cs",
+                issues,
+                "CatLifeSplash/CatLifeSplashLogo",
+                "CatLifeSplashOverlay",
+                "BeginSplashScreen",
+                "UpdateSplashScreen",
+                "DismissSplashScreen",
+                "splashHoldSeconds = 1.55f",
+                "splashFadeSeconds = 0.45f");
+
+            string[] forestScenes = AssetDatabase.FindAssets("forest t:Scene", new[] { "Assets/Scenes" });
+            if (forestScenes != null && forestScenes.Length > 0)
+            {
+                issues.Add("Stage 8 must not add a forest scene.");
+            }
         }
 
         private static void ValidateProjectStructure(List<string> issues)

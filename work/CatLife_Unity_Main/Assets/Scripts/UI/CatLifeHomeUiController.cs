@@ -18,6 +18,7 @@ namespace CatLife.UI
         private const string LocalRecognitionKey = PrefPrefix + "LocalRecognitionEnabled";
         private const string SmartExplanationKey = PrefPrefix + "SmartExplanationEnabled";
         private const string FocusSessionSecondsKey = PrefPrefix + "FocusSessionSeconds";
+        private const string SplashTextureResourcePath = "CatLifeSplash/CatLifeSplashLogo";
         private const int MinFocusSessionMinutes = 1;
         private const int MaxFocusSessionMinutes = 180;
 
@@ -60,6 +61,9 @@ namespace CatLife.UI
         [SerializeField] private bool autoEnterFocusAfterDelay = true;
         [SerializeField] private bool localRecognitionDefault = true;
         [SerializeField] private bool smartExplanationDefault;
+        [SerializeField] private bool showSplashOnSceneStart = true;
+        [SerializeField] private float splashHoldSeconds = 1.55f;
+        [SerializeField] private float splashFadeSeconds = 0.45f;
 
         private int todayFocusMinutes;
         private int completedSessions;
@@ -86,6 +90,12 @@ namespace CatLife.UI
         private float latestFocusFeedbackConfidence = 1f;
         private string latestFocusFeedbackSafetyReason = "local";
         private bool latestFocusFeedbackDegraded = true;
+        private GameObject splashOverlayRoot;
+        private CanvasGroup splashCanvasGroup;
+        private bool splashActive;
+        private bool splashDismissed;
+        private float splashStartedAt;
+        private Sprite runtimeSplashSprite;
 
         private enum HomePage
         {
@@ -111,6 +121,7 @@ namespace CatLife.UI
             activeSessionSeconds = Mathf.Max(1, focusSessionSeconds);
             focusRemainingSeconds = activeSessionSeconds;
             SetPlaceholderVisible(false);
+            BeginSplashScreen();
             BeginRuntimeFocusDelay();
             UpdateStatusText(true);
         }
@@ -146,6 +157,7 @@ namespace CatLife.UI
 
             UpdateAutoFocusDelay();
             UpdateFocusFlow();
+            UpdateSplashScreen();
 
             if (!focusRunning)
             {
@@ -347,6 +359,144 @@ namespace CatLife.UI
             activeSessionSeconds = Mathf.Max(1, focusSessionSeconds);
             focusRemainingSeconds = activeSessionSeconds;
             ApplyFocusState(FocusFlowState.Normal, true);
+        }
+
+        private void BeginSplashScreen()
+        {
+            if (!showSplashOnSceneStart || splashDismissed)
+            {
+                return;
+            }
+
+            EnsureSplashOverlay();
+            if (splashOverlayRoot == null || splashCanvasGroup == null)
+            {
+                splashDismissed = true;
+                return;
+            }
+
+            splashStartedAt = Time.unscaledTime;
+            splashActive = true;
+            splashDismissed = false;
+            splashCanvasGroup.alpha = 1f;
+            splashCanvasGroup.blocksRaycasts = true;
+            splashCanvasGroup.interactable = true;
+            splashOverlayRoot.SetActive(true);
+            splashOverlayRoot.transform.SetAsLastSibling();
+        }
+
+        private void UpdateSplashScreen()
+        {
+            if (!splashActive || splashCanvasGroup == null)
+            {
+                return;
+            }
+
+            float hold = Mathf.Clamp(splashHoldSeconds, 0.5f, 2.2f);
+            float fade = Mathf.Clamp(splashFadeSeconds, 0.1f, 1f);
+            float elapsed = Time.unscaledTime - splashStartedAt;
+            if (elapsed <= hold)
+            {
+                splashCanvasGroup.alpha = 1f;
+                return;
+            }
+
+            float fade01 = Mathf.Clamp01((elapsed - hold) / fade);
+            splashCanvasGroup.alpha = 1f - fade01;
+            if (fade01 >= 1f)
+            {
+                DismissSplashScreen();
+            }
+        }
+
+        private void DismissSplashScreen()
+        {
+            splashActive = false;
+            splashDismissed = true;
+            if (splashCanvasGroup != null)
+            {
+                splashCanvasGroup.alpha = 0f;
+                splashCanvasGroup.blocksRaycasts = false;
+                splashCanvasGroup.interactable = false;
+            }
+
+            if (splashOverlayRoot != null)
+            {
+                splashOverlayRoot.SetActive(false);
+            }
+        }
+
+        private void EnsureSplashOverlay()
+        {
+            if (splashOverlayRoot != null)
+            {
+                return;
+            }
+
+            RectTransform canvasRect = transform as RectTransform;
+            if (canvasRect == null)
+            {
+                return;
+            }
+
+            GameObject root = new GameObject("CatLifeSplashOverlay", typeof(RectTransform), typeof(CanvasGroup), typeof(Image), typeof(Button));
+            root.transform.SetParent(canvasRect, false);
+            RectTransform rootRect = root.GetComponent<RectTransform>();
+            rootRect.anchorMin = Vector2.zero;
+            rootRect.anchorMax = Vector2.one;
+            rootRect.offsetMin = Vector2.zero;
+            rootRect.offsetMax = Vector2.zero;
+            rootRect.pivot = new Vector2(0.5f, 0.5f);
+
+            Image background = root.GetComponent<Image>();
+            background.color = Color.white;
+            background.raycastTarget = true;
+
+            Button skipButton = root.GetComponent<Button>();
+            skipButton.transition = Selectable.Transition.None;
+            skipButton.targetGraphic = background;
+            skipButton.onClick.AddListener(DismissSplashScreen);
+
+            splashCanvasGroup = root.GetComponent<CanvasGroup>();
+
+            GameObject imageObject = new GameObject("CatLifeSplashImage", typeof(RectTransform), typeof(Image));
+            imageObject.transform.SetParent(root.transform, false);
+            RectTransform imageRect = imageObject.GetComponent<RectTransform>();
+            imageRect.anchorMin = Vector2.zero;
+            imageRect.anchorMax = Vector2.one;
+            imageRect.offsetMin = Vector2.zero;
+            imageRect.offsetMax = Vector2.zero;
+            imageRect.pivot = new Vector2(0.5f, 0.5f);
+
+            Image splashImage = imageObject.GetComponent<Image>();
+            splashImage.sprite = LoadSplashSprite();
+            splashImage.preserveAspect = true;
+            splashImage.color = Color.white;
+            splashImage.raycastTarget = false;
+
+            splashOverlayRoot = root;
+            splashOverlayRoot.SetActive(false);
+        }
+
+        private Sprite LoadSplashSprite()
+        {
+            if (runtimeSplashSprite != null)
+            {
+                return runtimeSplashSprite;
+            }
+
+            Texture2D texture = Resources.Load<Texture2D>(SplashTextureResourcePath);
+            if (texture == null)
+            {
+                return null;
+            }
+
+            runtimeSplashSprite = Sprite.Create(
+                texture,
+                new Rect(0f, 0f, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f),
+                100f);
+            return runtimeSplashSprite;
         }
 
         private void ApplyFocusState(FocusFlowState nextState, bool force)
