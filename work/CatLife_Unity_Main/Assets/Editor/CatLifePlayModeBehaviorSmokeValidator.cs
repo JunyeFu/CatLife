@@ -76,6 +76,7 @@ namespace CatLife.EditorTools
             PrivacyGateway privacyGateway = systems.GetComponent<PrivacyGateway>();
             FocusFeedbackProvider feedbackProvider = systems.GetComponent<FocusFeedbackProvider>();
             CatBubblePresenter bubblePresenter = Object.FindAnyObjectByType<CatBubblePresenter>();
+            CatCameraRangeIndicator cameraRangeIndicator = Object.FindAnyObjectByType<CatCameraRangeIndicator>();
             CatInterestPointRegistry interestRegistry = Object.FindAnyObjectByType<CatInterestPointRegistry>();
 
             if (agent == null) issues.Add("Cat missing NavMeshAgent.");
@@ -91,6 +92,7 @@ namespace CatLife.EditorTools
             if (privacyGateway == null) issues.Add("Systems missing PrivacyGateway.");
             if (feedbackProvider == null) issues.Add("Systems missing FocusFeedbackProvider.");
             if (bubblePresenter == null) issues.Add("Scene missing CatBubblePresenter.");
+            if (cameraRangeIndicator == null) issues.Add("Scene missing CatCameraRangeIndicator.");
             if (interestRegistry == null) issues.Add("Scene missing CatInterestPointRegistry.");
             if (issues.Count > 0)
             {
@@ -99,6 +101,7 @@ namespace CatLife.EditorTools
 
             ValidateNavMeshRuntime(agent, safetyGuard, interestRegistry, issues);
             ValidateCameraPreferredPlanning(planner, cat.transform, issues);
+            ValidateFocusSpeedAndIndicator(driver, agent, cameraRangeIndicator, issues);
             ValidateRecognitionAndPrompt(driver, featureEngine, recognitionProvider, interestRegistry, issues);
             ValidateFocusFeedback(privacyGateway, feedbackProvider, issues);
             ValidateAnimatorRuntime(animator, agent, issues);
@@ -156,38 +159,117 @@ namespace CatLife.EditorTools
                 return;
             }
 
-            if (planner.IsPointInPreferredCameraRange(catTransform.position))
+            bool nonFocusOk = planner.IsPointInPreferredCameraRange(catTransform.position);
+            if (!nonFocusOk)
             {
-                return;
+                RecognitionSnapshot snapshot = RecognitionSnapshot.CreateDefault();
+                CatBehaviorDecision decision = CatBehaviorDecision.Create(
+                    CatBehaviorState.Roam,
+                    0f,
+                    0f,
+                    0,
+                    CatActionInterruptPolicy.DropIfBusy,
+                    false,
+                    "smoke_camera_return");
+
+                for (int i = 0; i < 12; i++)
+                {
+                    Vector3 target;
+                    if (planner.TryPlanNext(
+                            snapshot,
+                            decision,
+                            CatNeedState.CreateDefault(),
+                            null,
+                            catTransform.position,
+                            out target) &&
+                        planner.IsPointInPreferredCameraRange(target))
+                    {
+                        nonFocusOk = true;
+                        break;
+                    }
+                }
             }
 
+            if (!nonFocusOk)
+            {
+                issues.Add("Non-focus destination planner did not find a camera-preferred return target.");
+            }
+
+            ValidateFocusedCameraPreference(planner, catTransform, issues);
+        }
+
+        private static void ValidateFocusedCameraPreference(
+            CatDestinationPlanner planner,
+            Transform catTransform,
+            List<string> issues)
+        {
             RecognitionSnapshot snapshot = RecognitionSnapshot.CreateDefault();
+            snapshot.focusState = FocusState.Focused;
             CatBehaviorDecision decision = CatBehaviorDecision.Create(
-                CatBehaviorState.Roam,
+                CatBehaviorState.FocusedRoam,
                 0f,
                 0f,
                 0,
                 CatActionInterruptPolicy.DropIfBusy,
-                false,
-                "smoke_camera_return");
+                true,
+                "smoke_focused_camera_return");
 
-            for (int i = 0; i < 12; i++)
+            Vector3 target;
+            if (!planner.TryPlanNext(
+                    snapshot,
+                    decision,
+                    CatNeedState.CreateDefault(),
+                    null,
+                    catTransform.position,
+                    out target))
             {
-                Vector3 target;
-                if (planner.TryPlanNext(
-                        snapshot,
-                        decision,
-                        CatNeedState.CreateDefault(),
-                        null,
-                        catTransform.position,
-                        out target) &&
-                    planner.IsPointInPreferredCameraRange(target))
-                {
-                    return;
-                }
+                issues.Add("Focused destination planner could not produce a camera-range target.");
+                return;
             }
 
-            issues.Add("Non-focus destination planner did not find a camera-preferred return target.");
+            if (!planner.IsPointInPreferredCameraRange(target))
+            {
+                issues.Add("Focused destination planner target is not inside camera range.");
+            }
+        }
+
+        private static void ValidateFocusSpeedAndIndicator(
+            CatBehaviorDriver driver,
+            NavMeshAgent agent,
+            CatCameraRangeIndicator indicator,
+            List<string> issues)
+        {
+            if (driver == null || agent == null)
+            {
+                return;
+            }
+
+            driver.SetContinuousWalking(true, 1f);
+            driver.SetFocusMode(false);
+            float freeSpeed = agent.speed;
+
+            driver.SetContinuousWalking(true, 0.5f);
+            driver.SetFocusMode(true);
+            float focusSpeed = agent.speed;
+
+            driver.SetContinuousWalking(true, 1f);
+            driver.SetFocusMode(false);
+            float restoredSpeed = agent.speed;
+
+            if (freeSpeed <= 0.01f || Mathf.Abs(focusSpeed / freeSpeed - 0.5f) > 0.08f)
+            {
+                issues.Add("Focused cat speed should be approximately 50% of non-focus speed.");
+            }
+
+            if (freeSpeed > 0.01f && Mathf.Abs(restoredSpeed / freeSpeed - 1f) > 0.08f)
+            {
+                issues.Add("Cat speed did not restore after leaving focus mode.");
+            }
+
+            if (indicator == null || !indicator.HasCoreReferences)
+            {
+                issues.Add("CatCameraRangeIndicator is missing runtime references.");
+            }
         }
 
         private static void ValidateRecognitionAndPrompt(

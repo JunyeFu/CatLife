@@ -61,7 +61,7 @@ namespace CatLife.UI
                 return;
             }
 
-            Font font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             GameObject root = new GameObject("CatFeedbackBubble", typeof(RectTransform), typeof(Image));
             root.transform.SetParent(canvasRect, false);
             bubbleRoot = root.GetComponent<RectTransform>();

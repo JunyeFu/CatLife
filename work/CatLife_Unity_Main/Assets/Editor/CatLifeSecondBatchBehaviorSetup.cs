@@ -118,6 +118,7 @@ namespace CatLife.EditorTools
             EnsureCatInteractionCollider(cat);
 
             AssignObject(navigationAgent, "agent", agent);
+            AssignNavigationAgent(navigationAgent);
             AssignObject(safetyGuard, "agent", agent);
             AssignObject(safetyGuard, "navigationAgent", navigationAgent);
             AssignPlanner(destinationPlanner, anchors, forbiddenZones, interestPointRegistry, needModel, behaviorMemory);
@@ -167,6 +168,14 @@ namespace CatLife.EditorTools
                 }
 
                 AssignObject(uiController, "catBubblePresenter", bubblePresenter);
+
+                CatCameraRangeIndicator cameraRangeIndicator = uiController.GetComponent<CatCameraRangeIndicator>();
+                if (cameraRangeIndicator == null)
+                {
+                    cameraRangeIndicator = uiController.gameObject.AddComponent<CatCameraRangeIndicator>();
+                }
+
+                cameraRangeIndicator.Configure(cat.transform, Camera.main, destinationPlanner);
             }
 
             EditorUtility.SetDirty(cat);
@@ -723,8 +732,24 @@ namespace CatLife.EditorTools
             serialized.FindProperty("needModel").objectReferenceValue = needModel;
             serialized.FindProperty("behaviorMemory").objectReferenceValue = behaviorMemory;
             serialized.FindProperty("behaviorScorer").objectReferenceValue = behaviorScorer;
+            serialized.FindProperty("focusLookAtTarget").objectReferenceValue = Camera.main != null ? Camera.main.transform : null;
+            serialized.FindProperty("faceCameraWhenFocusedIdle").boolValue = true;
+            serialized.FindProperty("focusFaceCameraDegreesPerSecond").floatValue = 360f;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(driver);
+        }
+
+        private static void AssignNavigationAgent(CatNavigationAgent navigationAgent)
+        {
+            SerializedObject serialized = new SerializedObject(navigationAgent);
+            serialized.FindProperty("freeRoamSpeed").floatValue = 1.15f;
+            serialized.FindProperty("focusedRoamSpeed").floatValue = 1.15f;
+            serialized.FindProperty("freeAcceleration").floatValue = 6f;
+            serialized.FindProperty("focusedAcceleration").floatValue = 3f;
+            serialized.FindProperty("freeStoppingDistance").floatValue = 0.14f;
+            serialized.FindProperty("focusedStoppingDistance").floatValue = 0.22f;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(navigationAgent);
         }
 
         private static void AssignPlanner(
@@ -747,10 +772,13 @@ namespace CatLife.EditorTools
             serialized.FindProperty("minDistanceFromUserAnchorWhenFocused").floatValue = 2.5f;
             serialized.FindProperty("sampleAttempts").intValue = 32;
             serialized.FindProperty("preferCameraRangeWhenNonFocused").boolValue = true;
+            serialized.FindProperty("preferCameraRangeWhenFocused").boolValue = true;
             serialized.FindProperty("viewportSafeMargin").floatValue = 0.08f;
             serialized.FindProperty("viewportProbeHeight").floatValue = 0.28f;
             serialized.FindProperty("cameraVisibleBiasWeight").floatValue = 4f;
             serialized.FindProperty("cameraReturnBiasWeight").floatValue = 10f;
+            serialized.FindProperty("nonFocusNearCameraBiasWeight").floatValue = 2.5f;
+            serialized.FindProperty("focusFarCameraBiasWeight").floatValue = 3.5f;
             serialized.FindProperty("blockerMask").intValue = 0;
             serialized.FindProperty("blockerCheckRadius").floatValue = 0.26f;
             serialized.FindProperty("navMeshProbeDistance").floatValue = 1.8f;

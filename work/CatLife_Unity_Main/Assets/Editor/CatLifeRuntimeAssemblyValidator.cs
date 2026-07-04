@@ -266,6 +266,13 @@ namespace CatLife.EditorTools
                 if (navMeshAgent.height <= 0f) issues.Add("Cat NavMeshAgent height is invalid.");
             }
 
+            if (navigationAgent != null)
+            {
+                RequireSerializedObject(navigationAgent, "agent", issues);
+                RequireSerializedMinFloat(navigationAgent, "freeRoamSpeed", 1f, issues);
+                RequireSerializedMinFloat(navigationAgent, "focusedRoamSpeed", 1f, issues);
+            }
+
             BoxCollider interactionCollider = cat.GetComponent<BoxCollider>();
             if (interactionCollider == null)
             {
@@ -288,11 +295,8 @@ namespace CatLife.EditorTools
                 RequireSerializedObject(behaviorDriver, "needModel", issues);
                 RequireSerializedObject(behaviorDriver, "behaviorMemory", issues);
                 RequireSerializedObject(behaviorDriver, "behaviorScorer", issues);
-            }
-
-            if (navigationAgent != null)
-            {
-                RequireSerializedObject(navigationAgent, "agent", issues);
+                RequireSerializedObject(behaviorDriver, "focusLookAtTarget", issues);
+                RequireSerializedBool(behaviorDriver, "faceCameraWhenFocusedIdle", true, issues);
             }
 
             if (safetyGuard != null)
@@ -347,7 +351,10 @@ namespace CatLife.EditorTools
                 RequireSerializedObject(destinationPlanner, "behaviorMemory", issues);
                 RequireSerializedArray(destinationPlanner, "forbiddenZones", 1, issues);
                 RequireSerializedBool(destinationPlanner, "preferCameraRangeWhenNonFocused", true, issues);
+                RequireSerializedBool(destinationPlanner, "preferCameraRangeWhenFocused", true, issues);
                 RequireSerializedMinFloat(destinationPlanner, "cameraReturnBiasWeight", 1f, issues);
+                RequireSerializedMinFloat(destinationPlanner, "nonFocusNearCameraBiasWeight", 1f, issues);
+                RequireSerializedMinFloat(destinationPlanner, "focusFarCameraBiasWeight", 1f, issues);
             }
         }
 
@@ -542,6 +549,16 @@ namespace CatLife.EditorTools
             RequireSerializedObject(uiController, "catBehaviorDriver", issues);
             RequireSerializedObject(uiController, "focusFeedbackProvider", issues);
             RequireSerializedObject(uiController, "catBubblePresenter", issues);
+
+            CatCameraRangeIndicator indicator = uiController.GetComponent<CatCameraRangeIndicator>();
+            if (indicator == null)
+            {
+                issues.Add("CatLifeHomeUiController missing CatCameraRangeIndicator.");
+            }
+            else if (!indicator.HasCoreReferences)
+            {
+                issues.Add("CatCameraRangeIndicator has missing core references.");
+            }
         }
 
         private static void ValidateAnimatorAssets(List<string> issues)

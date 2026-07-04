@@ -101,11 +101,11 @@ namespace CatLife.Cat
 
             return new[]
             {
-                Candidate.Create(CatBehaviorState.FocusedRoam, 22f + needs.curiosity01 * 20f + roamBias * 70f - needs.interruptionSensitivity01 * 18f, "focus_slow_roam", "quiet", "path", "shade"),
-                Candidate.Create(CatBehaviorState.IdleBreath, 24f + needs.sleepiness01 * 28f + quietBias * 80f + needs.focusCompanionship01 * 12f, "focus_quiet_idle", "quiet", "shade"),
-                Candidate.Create(CatBehaviorState.EarTwitchAlert, 13f + risk * 24f + (1f - needs.safety01) * 20f, "focus_low_interrupt_alert", "quiet", "edge"),
-                Candidate.Create(CatBehaviorState.AlertLook, 6f + risk * 18f, "focus_attention_check", "path", "edge"),
-                Candidate.Create(CatBehaviorState.TailWagHappy, 3f + needs.affection01 * 8f + socialBias * 20f - needs.interruptionSensitivity01 * 10f, "focus_soft_social", "near_home", "quiet")
+                Candidate.Create(CatBehaviorState.IdleBreath, 58f + needs.sleepiness01 * 32f + quietBias * 90f + needs.focusCompanionship01 * 18f, "focus_quiet_idle", "quiet", "shade"),
+                Candidate.Create(CatBehaviorState.EarTwitchAlert, 14f + risk * 20f + (1f - needs.safety01) * 14f, "focus_low_interrupt_alert", "quiet", "edge"),
+                Candidate.Create(CatBehaviorState.FocusedRoam, 7f + needs.curiosity01 * 10f + roamBias * 40f - needs.interruptionSensitivity01 * 22f, "focus_camera_return_roam", "quiet", "path", "shade"),
+                Candidate.Create(CatBehaviorState.AlertLook, 5f + risk * 14f, "focus_attention_check", "path", "edge"),
+                Candidate.Create(CatBehaviorState.TailWagHappy, 2f + needs.affection01 * 5f + socialBias * 12f - needs.interruptionSensitivity01 * 10f, "focus_soft_social", "near_home", "quiet")
             };
         }
 

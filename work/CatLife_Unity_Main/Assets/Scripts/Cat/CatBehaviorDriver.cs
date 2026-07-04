@@ -18,6 +18,11 @@ namespace CatLife.Cat
         [SerializeField] private CatNeedModel needModel;
         [SerializeField] private CatBehaviorMemory behaviorMemory;
         [SerializeField] private CatBehaviorBrainScorer behaviorScorer;
+        [SerializeField] private Transform focusLookAtTarget;
+
+        [Header("Focus Presence")]
+        [SerializeField] private bool faceCameraWhenFocusedIdle = true;
+        [SerializeField] private float focusFaceCameraDegreesPerSecond = 360f;
 
         [Header("Timing")]
         [SerializeField] private float decisionInterval = 0.5f;
@@ -148,6 +153,7 @@ namespace CatLife.Cat
                 behaviorScorer = gameObject.AddComponent<CatBehaviorBrainScorer>();
             }
 
+            ResolveFocusLookAtTarget();
             ResolveFeatureEngine();
             recognitionProvider = recognitionProviderComponent as IRecognitionProvider;
             llmClient = llmClientComponent as ICatLLMClient;
@@ -191,6 +197,7 @@ namespace CatLife.Cat
             TickLlm();
             TickAnimation();
             TryPlayQueuedAction();
+            TickFocusedLookAtCamera(unscaledDeltaTime);
 
             if (Time.time < nextDecisionTime)
             {
@@ -238,10 +245,17 @@ namespace CatLife.Cat
             {
                 mock.SetFocusState(focused ? FocusState.Focused : FocusState.NonFocus);
                 snapshot = mock.Latest;
-                return;
+            }
+            else
+            {
+                snapshot.focusState = focused ? FocusState.Focused : FocusState.NonFocus;
             }
 
-            snapshot.focusState = focused ? FocusState.Focused : FocusState.NonFocus;
+            ApplyCurrentMovementConfiguration(focused);
+            if (focused)
+            {
+                TryReturnToCameraRangeForFocus();
+            }
         }
 
         public void SetContinuousWalking(bool enabled, float speedMultiplier)
@@ -252,10 +266,25 @@ namespace CatLife.Cat
             if (navigationAgent != null)
             {
                 navigationAgent.SetSpeedMultiplier(navigationSpeedMultiplier);
+                navigationAgent.Configure(snapshot.IsFocused);
                 if (!walkingEnabled)
                 {
                     navigationAgent.StopSoft();
                 }
+            }
+
+            if (animationController != null)
+            {
+                animationController.SetLocomotionPlaybackMultiplier(navigationSpeedMultiplier);
+            }
+        }
+
+        private void ApplyCurrentMovementConfiguration(bool focused)
+        {
+            if (navigationAgent != null)
+            {
+                navigationAgent.SetSpeedMultiplier(navigationSpeedMultiplier);
+                navigationAgent.Configure(focused);
             }
 
             if (animationController != null)
@@ -434,6 +463,76 @@ namespace CatLife.Cat
             {
                 featureEngine = FindAnyObjectByType<RealtimeFeatureEngine>();
             }
+        }
+
+        private void ResolveFocusLookAtTarget()
+        {
+            if (focusLookAtTarget != null)
+            {
+                return;
+            }
+
+            Camera camera = Camera.main;
+            if (camera != null)
+            {
+                focusLookAtTarget = camera.transform;
+            }
+        }
+
+        private void TryReturnToCameraRangeForFocus()
+        {
+            if (!walkingEnabled || navigationAgent == null || destinationPlanner == null)
+            {
+                return;
+            }
+
+            if (destinationPlanner.IsPointInPreferredCameraRange(transform.position))
+            {
+                return;
+            }
+
+            navigationAgent.SetSpeedMultiplier(navigationSpeedMultiplier);
+            navigationAgent.Configure(true);
+            TryStartMove(CatBehaviorDecision.Create(
+                CatBehaviorState.FocusedRoam,
+                0f,
+                0f,
+                80,
+                CatActionInterruptPolicy.DropIfBusy,
+                true,
+                "focus_enter_return_camera"));
+        }
+
+        private void TickFocusedLookAtCamera(float dt)
+        {
+            if (!faceCameraWhenFocusedIdle || !snapshot.IsFocused)
+            {
+                return;
+            }
+
+            if (navigationAgent != null && navigationAgent.IsMoving)
+            {
+                return;
+            }
+
+            ResolveFocusLookAtTarget();
+            if (focusLookAtTarget == null)
+            {
+                return;
+            }
+
+            Vector3 direction = focusLookAtTarget.position - transform.position;
+            direction.y = 0f;
+            if (direction.sqrMagnitude < 0.0001f)
+            {
+                return;
+            }
+
+            Quaternion targetRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation,
+                targetRotation,
+                Mathf.Max(1f, focusFaceCameraDegreesPerSecond) * Mathf.Max(0f, dt));
         }
 
         private void TickLlm()

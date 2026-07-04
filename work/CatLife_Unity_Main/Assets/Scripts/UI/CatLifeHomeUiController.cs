@@ -361,23 +361,23 @@ namespace CatLife.UI
             switch (focusState)
             {
                 case FocusFlowState.Transition:
-                    speedMultiplier = 0.55f;
+                    speedMultiplier = 0.75f;
                     focused = true;
                     break;
                 case FocusFlowState.Focus:
-                    speedMultiplier = 0.25f;
+                    speedMultiplier = 0.5f;
                     focused = true;
                     break;
                 case FocusFlowState.Reward:
-                    speedMultiplier = 1.4f;
+                    speedMultiplier = 1f;
                     break;
             }
 
             CatBehaviorDriver behaviorDriver = ResolveCatBehaviorDriver();
             if (behaviorDriver != null && behaviorDriver.isActiveAndEnabled)
             {
-                behaviorDriver.SetFocusMode(focused);
                 behaviorDriver.SetContinuousWalking(true, speedMultiplier);
+                behaviorDriver.SetFocusMode(focused);
                 return;
             }
 

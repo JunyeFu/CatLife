@@ -32,10 +32,13 @@ namespace CatLife.Cat
 
         [Header("Camera Preference")]
         [SerializeField] private bool preferCameraRangeWhenNonFocused = true;
+        [SerializeField] private bool preferCameraRangeWhenFocused = true;
         [SerializeField] private float viewportSafeMargin = 0.08f;
         [SerializeField] private float viewportProbeHeight = 0.28f;
         [SerializeField] private float cameraVisibleBiasWeight = 4f;
         [SerializeField] private float cameraReturnBiasWeight = 10f;
+        [SerializeField] private float nonFocusNearCameraBiasWeight = 2.5f;
+        [SerializeField] private float focusFarCameraBiasWeight = 3.5f;
 
         [Header("Validation")]
         [SerializeField] private LayerMask blockerMask;
@@ -97,13 +100,28 @@ namespace CatLife.Cat
             bool focused = snapshot.IsFocused || decision.state == CatBehaviorState.FocusedRoam;
             lastPlannedInterestPointId = "";
 
-            if (!focused && ShouldReturnToCamera(currentPosition) && TryCameraReturnPlan(currentPosition, out result))
+            if (focused && ShouldUseCameraPreference(true) && TryCameraReturnPlan(true, currentPosition, out result))
             {
                 return true;
             }
 
-            if (TryInterestPointPlan(snapshot, decision, needs, memory, currentPosition, out result))
+            if (!focused && ShouldReturnToCamera(false, currentPosition) && TryCameraReturnPlan(false, currentPosition, out result))
             {
+                return true;
+            }
+
+            Vector3 plannedResult;
+            if (TryInterestPointPlan(snapshot, decision, needs, memory, currentPosition, out plannedResult))
+            {
+                if (!focused &&
+                    ShouldUseCameraPreference(false) &&
+                    !IsPointInPreferredCameraRange(plannedResult) &&
+                    TryCameraReturnPlan(false, currentPosition, out result))
+                {
+                    return true;
+                }
+
+                result = plannedResult;
                 return true;
             }
 
@@ -226,26 +244,33 @@ namespace CatLife.Cat
             return TryRandomAroundCenter(origin, origin, radius, focused, out result);
         }
 
-        private bool ShouldReturnToCamera(Vector3 origin)
+        private bool ShouldReturnToCamera(bool focused, Vector3 origin)
         {
-            return preferCameraRangeWhenNonFocused &&
+            return ShouldUseCameraPreference(focused) &&
                 ResolvePlanningCamera() != null &&
                 !IsPointInPreferredCameraRange(origin);
         }
 
-        private bool TryCameraReturnPlan(Vector3 origin, out Vector3 result)
+        private bool TryCameraReturnPlan(bool focused, Vector3 origin, out Vector3 result)
         {
             if (anchors != null)
             {
                 for (int i = 0; i < anchors.Length; i++)
                 {
                     DestinationAnchor anchor = anchors[i];
-                    if (anchor == null || anchor.point == null || anchor.nonFocusWeight <= 0f)
+                    if (anchor == null || anchor.point == null)
                     {
                         continue;
                     }
 
-                    if (TryRandomAroundCenter(anchor.point.position, origin, nonFocusSampleRadius * 0.5f, false, out result) &&
+                    float weight = focused ? anchor.focusWeight : anchor.nonFocusWeight;
+                    if (weight <= 0f)
+                    {
+                        continue;
+                    }
+
+                    float radius = focused ? nonFocusSampleRadius * 0.75f : nonFocusSampleRadius * 0.5f;
+                    if (TryRandomAroundCenter(anchor.point.position, origin, radius, focused, out result) &&
                         IsPointInPreferredCameraRange(result))
                     {
                         return true;
@@ -253,7 +278,8 @@ namespace CatLife.Cat
                 }
             }
 
-            if (TryRandomAroundCenter(origin, origin, nonFocusSampleRadius, false, out result) &&
+            float fallbackRadius = focused ? nonFocusSampleRadius : nonFocusSampleRadius;
+            if (TryRandomAroundCenter(origin, origin, fallbackRadius, focused, out result) &&
                 IsPointInPreferredCameraRange(result))
             {
                 return true;
@@ -270,7 +296,7 @@ namespace CatLife.Cat
             bool focused,
             out Vector3 result)
         {
-            bool useCameraPreference = preferCameraRangeWhenNonFocused && !focused;
+            bool useCameraPreference = ShouldUseCameraPreference(focused);
             bool originInCameraRange = !useCameraPreference || IsPointInPreferredCameraRange(origin);
             Vector3 bestResult = origin;
             float bestScore = float.NegativeInfinity;
@@ -298,7 +324,7 @@ namespace CatLife.Cat
                     return true;
                 }
 
-                float score = ScoreCameraPreferredDestination(hit.position, originInCameraRange);
+                float score = ScoreCameraPreferredDestination(hit.position, originInCameraRange, focused);
                 score += UnityEngine.Random.value * 0.05f;
                 if (score > bestScore)
                 {
@@ -312,7 +338,12 @@ namespace CatLife.Cat
             return hasBestResult;
         }
 
-        private float ScoreCameraPreferredDestination(Vector3 point, bool originInCameraRange)
+        private bool ShouldUseCameraPreference(bool focused)
+        {
+            return focused ? preferCameraRangeWhenFocused : preferCameraRangeWhenNonFocused;
+        }
+
+        private float ScoreCameraPreferredDestination(Vector3 point, bool originInCameraRange, bool focused)
         {
             Camera camera = ResolvePlanningCamera();
             if (camera == null)
@@ -329,10 +360,15 @@ namespace CatLife.Cat
             float centerDistance = Vector2.Distance(new Vector2(viewport.x, viewport.y), new Vector2(0.5f, 0.5f));
             float centeredScore = Mathf.Clamp01(1f - centerDistance * 2f);
             float score = centeredScore;
+            float cameraDistance = Vector3.Distance(camera.transform.position, point);
 
             if (IsViewportInside(viewport, viewportSafeMargin))
             {
                 score += cameraVisibleBiasWeight;
+                score += focused
+                    ? Mathf.InverseLerp(3f, 10f, cameraDistance) * focusFarCameraBiasWeight
+                    : (1f - Mathf.InverseLerp(1.5f, 8f, cameraDistance)) * nonFocusNearCameraBiasWeight;
+
                 if (!originInCameraRange)
                 {
                     score += cameraReturnBiasWeight;

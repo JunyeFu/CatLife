@@ -10,7 +10,7 @@ namespace CatLife.Cat
         [Header("Agent")]
         [SerializeField] private NavMeshAgent agent;
         [SerializeField] private float freeRoamSpeed = 1.15f;
-        [SerializeField] private float focusedRoamSpeed = 0.55f;
+        [SerializeField] private float focusedRoamSpeed = 1.15f;
         [SerializeField] private float freeAcceleration = 6f;
         [SerializeField] private float focusedAcceleration = 3f;
         [SerializeField] private float freeStoppingDistance = 0.14f;
