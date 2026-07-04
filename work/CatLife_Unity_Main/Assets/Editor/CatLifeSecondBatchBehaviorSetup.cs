@@ -86,6 +86,9 @@ namespace CatLife.EditorTools
             MockRecognitionProvider recognitionProvider = GetOrAdd<MockRecognitionProvider>(systemsRoot.gameObject);
             RealtimeFeatureEngine featureEngine = GetOrAdd<RealtimeFeatureEngine>(systemsRoot.gameObject);
             MockCatLLMClient llmClient = GetOrAdd<MockCatLLMClient>(systemsRoot.gameObject);
+            PrivacyGateway privacyGateway = GetOrAdd<PrivacyGateway>(systemsRoot.gameObject);
+            FocusFeedbackProvider focusFeedbackProvider = GetOrAdd<FocusFeedbackProvider>(systemsRoot.gameObject);
+            focusFeedbackProvider.Configure(privacyGateway);
             AssignObject(recognitionProvider, "featureEngine", featureEngine);
 
             NavMeshAgent agent = GetOrAdd<NavMeshAgent>(cat);
@@ -156,6 +159,14 @@ namespace CatLife.EditorTools
             {
                 AssignObject(uiController, "catBehaviorDriver", behaviorDriver);
                 AssignObject(uiController, "catWalker", legacyWalker);
+                AssignObject(uiController, "focusFeedbackProvider", focusFeedbackProvider);
+                CatBubblePresenter bubblePresenter = uiController.GetComponent<CatBubblePresenter>();
+                if (bubblePresenter == null)
+                {
+                    bubblePresenter = uiController.gameObject.AddComponent<CatBubblePresenter>();
+                }
+
+                AssignObject(uiController, "catBubblePresenter", bubblePresenter);
             }
 
             EditorUtility.SetDirty(cat);

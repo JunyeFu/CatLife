@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using CatLife.Cat;
 using CatLife.LLM;
 using CatLife.Recognition;
+using CatLife.UI;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
@@ -72,6 +73,9 @@ namespace CatLife.EditorTools
             Animator animator = cat.GetComponent<Animator>();
             RealtimeFeatureEngine featureEngine = systems.GetComponent<RealtimeFeatureEngine>();
             MockRecognitionProvider recognitionProvider = systems.GetComponent<MockRecognitionProvider>();
+            PrivacyGateway privacyGateway = systems.GetComponent<PrivacyGateway>();
+            FocusFeedbackProvider feedbackProvider = systems.GetComponent<FocusFeedbackProvider>();
+            CatBubblePresenter bubblePresenter = Object.FindAnyObjectByType<CatBubblePresenter>();
             CatInterestPointRegistry interestRegistry = Object.FindAnyObjectByType<CatInterestPointRegistry>();
 
             if (agent == null) issues.Add("Cat missing NavMeshAgent.");
@@ -84,6 +88,9 @@ namespace CatLife.EditorTools
             if (animator == null) issues.Add("Cat missing Animator.");
             if (featureEngine == null) issues.Add("Systems missing RealtimeFeatureEngine.");
             if (recognitionProvider == null) issues.Add("Systems missing MockRecognitionProvider.");
+            if (privacyGateway == null) issues.Add("Systems missing PrivacyGateway.");
+            if (feedbackProvider == null) issues.Add("Systems missing FocusFeedbackProvider.");
+            if (bubblePresenter == null) issues.Add("Scene missing CatBubblePresenter.");
             if (interestRegistry == null) issues.Add("Scene missing CatInterestPointRegistry.");
             if (issues.Count > 0)
             {
@@ -92,6 +99,7 @@ namespace CatLife.EditorTools
 
             ValidateNavMeshRuntime(agent, safetyGuard, interestRegistry, issues);
             ValidateRecognitionAndPrompt(driver, featureEngine, recognitionProvider, interestRegistry, issues);
+            ValidateFocusFeedback(privacyGateway, feedbackProvider, issues);
             ValidateAnimatorRuntime(animator, agent, issues);
             ValidateTelemetryRuntime(telemetry, issues);
 
@@ -247,6 +255,46 @@ namespace CatLife.EditorTools
             }
         }
 
+        private static void ValidateFocusFeedback(
+            PrivacyGateway privacyGateway,
+            FocusFeedbackProvider feedbackProvider,
+            List<string> issues)
+        {
+            if (privacyGateway == null || feedbackProvider == null)
+            {
+                return;
+            }
+
+            BehaviorFeatureSummary summary = BehaviorFeatureSummary.CreateLocalSession(
+                "smoke-focus-feedback",
+                1500,
+                1380,
+                1,
+                1,
+                25,
+                1380,
+                true);
+
+            string reason;
+            if (!privacyGateway.TryValidate(summary, out reason))
+            {
+                issues.Add("PrivacyGateway rejected safe smoke summary: " + reason);
+            }
+
+            FocusFeedback fallback = feedbackProvider.BuildImmediateFallback(summary, false);
+            if (fallback == null || string.IsNullOrEmpty(fallback.text))
+            {
+                issues.Add("FocusFeedbackProvider failed to build local fallback feedback.");
+            }
+
+            BehaviorFeatureSummary blocked = summary;
+            blocked.rawTextIncluded = true;
+            if (privacyGateway.TryValidate(blocked, out reason))
+            {
+                issues.Add("PrivacyGateway accepted a blocked raw-text summary.");
+            }
+        }
+
         private static void ValidateTelemetryRuntime(CatBehaviorTelemetry telemetry, List<string> issues)
         {
             if (telemetry == null)
@@ -290,7 +338,7 @@ namespace CatLife.EditorTools
         {
             if (issues.Count == 0)
             {
-                return "PASS CatLife Play Mode behavior smoke: NavMesh runtime, safety guard, recognition features, prompt context, telemetry, and animator states are responsive.";
+                return "PASS CatLife Play Mode behavior smoke: NavMesh runtime, safety guard, recognition features, prompt context, focus feedback, telemetry, and animator states are responsive.";
             }
 
             return "FAIL CatLife Play Mode behavior smoke:\n- " + string.Join("\n- ", issues.ToArray());

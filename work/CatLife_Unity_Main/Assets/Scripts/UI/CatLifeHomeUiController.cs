@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Text;
 using CatLife.Cat;
+using CatLife.LLM;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -39,6 +40,8 @@ namespace CatLife.UI
         [SerializeField] private Sprite settingsPageIcon;
         [SerializeField] private CatBehaviorDriver catBehaviorDriver;
         [SerializeField] private CatTownWalker catWalker;
+        [SerializeField] private FocusFeedbackProvider focusFeedbackProvider;
+        [SerializeField] private CatBubblePresenter catBubblePresenter;
         [SerializeField] private GameObject startFocusButtonGroup;
         [SerializeField] private GameObject focusPillGroup;
         [SerializeField] private GameObject focusUnlockSliderGroup;
@@ -68,6 +71,9 @@ namespace CatLife.UI
         private bool listenersBound;
         private HomePage activePage;
         private FocusFlowState focusState = FocusFlowState.Normal;
+        private string latestFocusFeedbackText = "完成第一段专注后生成猫咪反馈";
+        private string latestFocusFeedbackSource = "local_template";
+        private bool latestFocusFeedbackDegraded = true;
 
         private enum HomePage
         {
@@ -89,6 +95,7 @@ namespace CatLife.UI
         {
             LoadRuntimeData();
             EnsureFocusUnlockSlider();
+            EnsureCatBubblePresenter();
             activeSessionSeconds = Mathf.Max(1, focusSessionSeconds);
             focusRemainingSeconds = activeSessionSeconds;
             SetPlaceholderVisible(false);
@@ -100,6 +107,7 @@ namespace CatLife.UI
         {
             BindListeners();
             EnsureFocusUnlockSlider();
+            EnsureCatBubblePresenter();
             BeginRuntimeFocusDelay();
             UpdateStatusText(true);
         }
@@ -107,6 +115,7 @@ namespace CatLife.UI
         private void Start()
         {
             EnsureFocusUnlockSlider();
+            EnsureCatBubblePresenter();
             BeginRuntimeFocusDelay();
             UpdateStatusText(true);
         }
@@ -179,11 +188,13 @@ namespace CatLife.UI
             focusRunning = false;
             NotifyCatFocusSessionEnded(false);
             autoFocusConsumed = true;
+            int interruptedSeconds = Mathf.Max(1, Mathf.RoundToInt(activeSessionSeconds - focusRemainingSeconds));
             focusRemainingSeconds = Mathf.Max(1, focusSessionSeconds);
             SaveRuntimeData();
             ApplyFocusState(FocusFlowState.Normal, false);
             UpdateStatusText(true);
             RefreshActivePage();
+            RequestFocusFeedback(false, interruptedSeconds);
         }
 
         public void ShowCatPage()
@@ -270,6 +281,7 @@ namespace CatLife.UI
             NotifyCatUiAction(CatBehaviorState.PawWave, "session_completed");
             UpdateStatusText(true);
             RefreshActivePage();
+            RequestFocusFeedback(true, finishedSeconds);
         }
 
         private void UpdateFocusFlow()
@@ -553,6 +565,10 @@ namespace CatLife.UI
             body.AppendLine("奖励：星星果 x " + Mathf.Max(0, completedSessions));
             body.AppendLine("小镇变化：" + BuildTownFeedbackText());
             body.AppendLine("洞察：" + BuildFocusInsightText());
+            body.AppendLine();
+            body.AppendLine(ColorTitle("猫咪反馈"));
+            body.AppendLine(latestFocusFeedbackText);
+            body.AppendLine("来源：" + GetFeedbackSourceLabel(latestFocusFeedbackSource));
             return body.ToString();
         }
 
@@ -563,12 +579,14 @@ namespace CatLife.UI
             body.AppendLine("本地行为识别：" + BoolText(localRecognitionEnabled));
             body.AppendLine("智能解释：" + BoolText(smartExplanationEnabled));
             body.AppendLine("大模型建议：" + (smartExplanationEnabled ? "根据用户主动开启后的会话摘要生成建议" : "关闭，仅保留本地统计"));
+            body.AppendLine("反馈降级状态：" + (latestFocusFeedbackDegraded ? "本地安全模板" : "智能反馈"));
             body.AppendLine();
             body.AppendLine(ColorTitle("隐私边界"));
             body.AppendLine("不录屏");
             body.AppendLine("不读取输入内容");
             body.AppendLine("不跨 App 监控");
             body.AppendLine("默认只保存专注时长、打断次数、猫咪反馈状态");
+            body.AppendLine("隐私网关：仅允许聚合时长、分数、次数和猫咪状态序列");
             body.AppendLine();
             body.AppendLine(ColorTitle("数据操作"));
             body.AppendLine("当前数据日期：" + FormatDisplayDate(DateTime.Now.Date));
@@ -772,6 +790,83 @@ namespace CatLife.UI
 
             catWalker = FindAnyObjectByType<CatTownWalker>();
             return catWalker;
+        }
+
+        private FocusFeedbackProvider ResolveFocusFeedbackProvider()
+        {
+            if (focusFeedbackProvider != null)
+            {
+                return focusFeedbackProvider;
+            }
+
+            focusFeedbackProvider = FindAnyObjectByType<FocusFeedbackProvider>();
+            return focusFeedbackProvider;
+        }
+
+        private void RequestFocusFeedback(bool completed, int finishedSeconds)
+        {
+            FocusFeedbackProvider provider = ResolveFocusFeedbackProvider();
+            if (provider == null)
+            {
+                ApplyFocusFeedback(LocalTemplateFallback.Generate(
+                    BuildFeatureSummary(completed, finishedSeconds),
+                    "feedback_provider_missing"));
+                return;
+            }
+
+            BehaviorFeatureSummary summary = BuildFeatureSummary(completed, finishedSeconds);
+            provider.RequestFeedback(summary, smartExplanationEnabled, ApplyFocusFeedback);
+        }
+
+        private BehaviorFeatureSummary BuildFeatureSummary(bool completed, int finishedSeconds)
+        {
+            int safeFinishedSeconds = Mathf.Max(1, finishedSeconds);
+            string sessionId = "catlife-" + currentDateKey + "-" + completedSessions.ToString(CultureInfo.InvariantCulture);
+            return BehaviorFeatureSummary.CreateLocalSession(
+                sessionId,
+                safeFinishedSeconds,
+                completed ? safeFinishedSeconds : Mathf.Max(1, Mathf.RoundToInt(safeFinishedSeconds * 0.65f)),
+                interruptionCount,
+                completedSessions,
+                todayFocusMinutes,
+                longestStableSeconds,
+                completed);
+        }
+
+        private void ApplyFocusFeedback(FocusFeedback feedback)
+        {
+            if (feedback == null)
+            {
+                feedback = FocusFeedback.Create("", "local_template", true, "empty_feedback");
+            }
+
+            latestFocusFeedbackText = feedback.text;
+            latestFocusFeedbackSource = feedback.source;
+            latestFocusFeedbackDegraded = feedback.isDegraded;
+
+            EnsureCatBubblePresenter();
+            if (catBubblePresenter != null)
+            {
+                catBubblePresenter.Show(latestFocusFeedbackText, latestFocusFeedbackSource);
+            }
+
+            RefreshActivePage();
+        }
+
+        private void EnsureCatBubblePresenter()
+        {
+            if (catBubblePresenter != null)
+            {
+                return;
+            }
+
+            catBubblePresenter = GetComponent<CatBubblePresenter>();
+            if (catBubblePresenter != null)
+            {
+                return;
+            }
+
+            catBubblePresenter = gameObject.AddComponent<CatBubblePresenter>();
         }
 
         private GameObject ResolveMenuGroup(ref GameObject cachedGroup, string groupName, Button fallbackButton)
@@ -1065,6 +1160,11 @@ namespace CatLife.UI
         private static string BoolText(bool value)
         {
             return value ? "开" : "关";
+        }
+
+        private static string GetFeedbackSourceLabel(string source)
+        {
+            return source == "mock_llm" ? "智能反馈" : "本地反馈";
         }
 
         private static string ColorTitle(string title)

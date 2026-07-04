@@ -508,10 +508,17 @@ namespace CatLife.EditorTools
             MockRecognitionProvider recognitionProvider = RequireComponent<MockRecognitionProvider>(systems.gameObject, issues);
             RealtimeFeatureEngine featureEngine = RequireComponent<RealtimeFeatureEngine>(systems.gameObject, issues);
             RequireComponent<MockCatLLMClient>(systems.gameObject, issues);
+            RequireComponent<PrivacyGateway>(systems.gameObject, issues);
+            FocusFeedbackProvider feedbackProvider = RequireComponent<FocusFeedbackProvider>(systems.gameObject, issues);
 
             if (recognitionProvider != null)
             {
                 RequireSerializedObject(recognitionProvider, "featureEngine", issues);
+            }
+
+            if (feedbackProvider != null)
+            {
+                RequireSerializedObject(feedbackProvider, "privacyGateway", issues);
             }
 
             if (featureEngine == null)
@@ -530,6 +537,8 @@ namespace CatLife.EditorTools
             }
 
             RequireSerializedObject(uiController, "catBehaviorDriver", issues);
+            RequireSerializedObject(uiController, "focusFeedbackProvider", issues);
+            RequireSerializedObject(uiController, "catBubblePresenter", issues);
         }
 
         private static void ValidateAnimatorAssets(List<string> issues)
