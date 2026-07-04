@@ -73,6 +73,18 @@ function Test-SubstantiveEvidenceFile {
         if ($File.Name -eq "unity-build-settings.txt" -and $content -match "Unity version:\s*TODO") {
             return $false
         }
+        if ($File.Name -eq "adb_devices.txt") {
+            $deviceLines = $content -split "`r?`n" | Where-Object { $_ -match "\tdevice$" -or $_ -match "\sdevice$" }
+            if ($deviceLines.Count -eq 0) {
+                return $false
+            }
+        }
+        if ($content -match "Not attempted: no connected adb device" -or $content -match "Skipped by -Skip") {
+            return $false
+        }
+        if ($content -match "no devices/emulators found" -or $content -match "no devices found") {
+            return $false
+        }
     }
 
     return $true

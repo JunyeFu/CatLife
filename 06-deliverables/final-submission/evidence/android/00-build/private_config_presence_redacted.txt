@@ -1,7 +1,7 @@
 ﻿Private config path: work/CatLife_Unity_Main/Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json
 Exists: True
-Unity Resources loadable: True
-Unity Resources bytes: 223
+Unity Resources source path: Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json
+Unity Resources source exists: True
 Git ignored: True
 AppID: 2026414599
 AppKEY present: True

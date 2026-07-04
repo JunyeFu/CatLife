@@ -2,6 +2,7 @@ param(
     [string]$ProjectRoot = (Resolve-Path "$PSScriptRoot\..\..").Path,
     [string]$ApkPath = "",
     [string]$PackageName = "com.catlife.mvp",
+    [string]$AdbPath = "",
     [string]$DeviceSerial = "",
     [string]$CloudAdbEndpoint = "",
     [int]$StartupLogcatSeconds = 20,
@@ -70,6 +71,62 @@ function Add-SummaryLine {
     $script:summaryLines.Add($Line) | Out-Null
 }
 
+function Resolve-AdbExecutable {
+    if (-not [string]::IsNullOrWhiteSpace($AdbPath)) {
+        if (Test-Path -LiteralPath $AdbPath) {
+            return (Resolve-Path -LiteralPath $AdbPath).Path
+        }
+        return $AdbPath
+    }
+
+    $pathAdb = Get-Command adb -ErrorAction SilentlyContinue
+    if ($pathAdb) {
+        return $pathAdb.Source
+    }
+
+    $unityAdbCandidates = @(
+        "D:\UnityEngine\6000.4.9f1\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\platform-tools\adb.exe",
+        "D:\UnityEngine\6000.3.15f1\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\platform-tools\adb.exe"
+    )
+    foreach ($candidate in $unityAdbCandidates) {
+        if (Test-Path -LiteralPath $candidate) {
+            return $candidate
+        }
+    }
+
+    $unityRoot = "D:\UnityEngine"
+    if (Test-Path -LiteralPath $unityRoot) {
+        $candidate = Get-ChildItem -Path $unityRoot -Recurse -Filter adb.exe -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match "\\AndroidPlayer\\SDK\\platform-tools\\adb\.exe$" } |
+            Sort-Object FullName -Descending |
+            Select-Object -First 1
+        if ($candidate) {
+            return $candidate.FullName
+        }
+    }
+
+    return ""
+}
+
+function ConvertTo-ProcessArgumentString {
+    param([string[]]$Arguments)
+
+    $escaped = @()
+    foreach ($arg in $Arguments) {
+        if ($null -eq $arg) {
+            continue
+        }
+
+        if ($arg -match '[\s"]') {
+            $escaped += '"' + ($arg -replace '"', '\"') + '"'
+        } else {
+            $escaped += $arg
+        }
+    }
+
+    return ($escaped -join " ")
+}
+
 function Invoke-External {
     param(
         [string]$FilePath,
@@ -80,9 +137,7 @@ function Invoke-External {
 
     $psi = New-Object System.Diagnostics.ProcessStartInfo
     $psi.FileName = $FilePath
-    foreach ($arg in $Arguments) {
-        [void]$psi.ArgumentList.Add($arg)
-    }
+    $psi.Arguments = ConvertTo-ProcessArgumentString $Arguments
     $psi.RedirectStandardOutput = $true
     $psi.RedirectStandardError = $true
     $psi.UseShellExecute = $false
@@ -136,7 +191,7 @@ function Invoke-Adb {
         [switch]$AllowFailure
     )
 
-    return Invoke-External -FilePath "adb" -Arguments (Get-AdbArguments $Arguments) -OutputPath $OutputPath -AllowFailure:$AllowFailure
+    return Invoke-External -FilePath $script:AdbExecutable -Arguments (Get-AdbArguments $Arguments) -OutputPath $OutputPath -AllowFailure:$AllowFailure
 }
 
 function Capture-LogcatWindow {
@@ -149,10 +204,8 @@ function Capture-LogcatWindow {
     $rawPath = $OutputPath + ".raw"
     $adbArgs = Get-AdbArguments @("logcat", "-v", "time")
     $psi = New-Object System.Diagnostics.ProcessStartInfo
-    $psi.FileName = "adb"
-    foreach ($arg in $adbArgs) {
-        [void]$psi.ArgumentList.Add($arg)
-    }
+    $psi.FileName = $script:AdbExecutable
+    $psi.Arguments = ConvertTo-ProcessArgumentString $adbArgs
     $psi.RedirectStandardOutput = $true
     $psi.RedirectStandardError = $true
     $psi.UseShellExecute = $false
@@ -192,6 +245,7 @@ function Test-SecretInFile {
 }
 
 $script:summaryLines = New-Object System.Collections.Generic.List[string]
+$script:AdbExecutable = Resolve-AdbExecutable
 Add-SummaryLine "# CatLife Stage9 Android Evidence Summary"
 Add-SummaryLine ""
 Add-SummaryLine "Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
@@ -202,6 +256,8 @@ Add-SummaryLine ""
 $privateConfigLines = New-Object System.Collections.Generic.List[string]
 $privateConfigLines.Add("Private config path: $privateConfigRelative") | Out-Null
 $privateConfigLines.Add("Exists: " + (Test-Path -LiteralPath $privateConfigPath)) | Out-Null
+$privateConfigLines.Add("Unity Resources source path: Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json") | Out-Null
+$privateConfigLines.Add("Unity Resources source exists: " + (Test-Path -LiteralPath $privateConfigPath)) | Out-Null
 
 $ignored = $false
 try {
@@ -260,12 +316,12 @@ if (Test-Path -LiteralPath $ApkPath) {
     )
 }
 
-$adb = Get-Command adb -ErrorAction SilentlyContinue
+$adbAvailable = -not [string]::IsNullOrWhiteSpace($script:AdbExecutable)
 Add-SummaryLine "## 2. ADB"
 Add-SummaryLine ""
-Add-SummaryLine "- adb available: $([bool]$adb)"
-if ($adb) {
-    Add-SummaryLine "- adb path: $($adb.Source)"
+Add-SummaryLine "- adb available: $adbAvailable"
+if ($adbAvailable) {
+    Add-SummaryLine "- adb path: $script:AdbExecutable"
 } else {
     Add-SummaryLine "- adb path: missing"
 }
@@ -278,51 +334,69 @@ Add-SummaryLine ""
 
 if ($DryRun) {
     Add-SummaryLine "Dry run requested. No adb install, launch, logcat, or screenrecord commands were executed."
-} elseif (-not $adb) {
-    Add-SummaryLine "ADB is not available on PATH. Stage9 cloud-device evidence remains incomplete until adb or cloud-device web evidence is provided."
+} elseif (-not $adbAvailable) {
+    Add-SummaryLine "ADB is not available. Stage9 cloud-device evidence remains incomplete until adb or cloud-device web evidence is provided."
 } else {
     if (-not [string]::IsNullOrWhiteSpace($CloudAdbEndpoint)) {
-        Invoke-External -FilePath "adb" -Arguments @("connect", $CloudAdbEndpoint) -OutputPath (Join-Path $evidenceRoot "01-install\adb_connect.txt") -AllowFailure | Out-Null
+        Invoke-External -FilePath $script:AdbExecutable -Arguments @("connect", $CloudAdbEndpoint) -OutputPath (Join-Path $evidenceRoot "01-install\adb_connect.txt") -AllowFailure | Out-Null
     }
 
-    Invoke-External -FilePath "adb" -Arguments @("devices") -OutputPath (Join-Path $evidenceRoot "01-install\adb_devices.txt") -AllowFailure | Out-Null
+    $devicesResult = Invoke-External -FilePath $script:AdbExecutable -Arguments @("devices") -OutputPath (Join-Path $evidenceRoot "01-install\adb_devices.txt") -AllowFailure
+    $deviceLines = @()
+    if (-not [string]::IsNullOrWhiteSpace($devicesResult.Stdout)) {
+        $deviceLines = $devicesResult.Stdout -split "`r?`n" |
+            Where-Object { $_ -match "\tdevice$" -or $_ -match "\sdevice$" }
+    }
+    $hasConnectedDevice = $deviceLines.Count -gt 0
+    Add-SummaryLine "- Connected adb device count: $($deviceLines.Count)"
 
-    if (-not $SkipInstall) {
-        if (Test-Path -LiteralPath $ApkPath) {
-            Invoke-Adb -Arguments @("install", "-r", $ApkPath) -OutputPath (Join-Path $evidenceRoot "01-install\install.log") -AllowFailure | Out-Null
+    if (-not $hasConnectedDevice) {
+        Write-TextFile -Path (Join-Path $evidenceRoot "01-install\install.log") -Lines @("Not attempted: no connected adb device.")
+        Write-TextFile -Path (Join-Path $evidenceRoot "02-startup\logcat_startup.txt") -Lines @("Not attempted: no connected adb device.")
+        Write-TextFile -Path (Join-Path $evidenceRoot "03-llm\logcat_vivo_cloud_llm.txt") -Lines @("Not attempted: no connected adb device.")
+        Write-TextFile -Path (Join-Path $evidenceRoot "03-llm\logcat_bluelm_init.txt") -Lines @("Not attempted: no connected adb device.")
+        Write-TextFile -Path (Join-Path $evidenceRoot "03-llm\logcat_bluelm_generate.txt") -Lines @("Not attempted: no connected adb device.")
+        Write-TextFile -Path (Join-Path $evidenceRoot "04-focus\logcat_5min_focus.txt") -Lines @("Not attempted: no connected adb device.")
+        Add-SummaryLine "ADB is available, but no connected device was detected. Stage9 still needs vivo cloud-device ADB endpoint or manually supplied cloud-device web evidence."
+    } else {
+
+        if (-not $SkipInstall) {
+            if (Test-Path -LiteralPath $ApkPath) {
+                Invoke-Adb -Arguments @("install", "-r", $ApkPath) -OutputPath (Join-Path $evidenceRoot "01-install\install.log") -AllowFailure | Out-Null
+            } else {
+                Write-TextFile -Path (Join-Path $evidenceRoot "01-install\install.log") -Lines @("APK missing: $ApkPath")
+            }
         } else {
-            Write-TextFile -Path (Join-Path $evidenceRoot "01-install\install.log") -Lines @("APK missing: $ApkPath")
+            Write-TextFile -Path (Join-Path $evidenceRoot "01-install\install.log") -Lines @("Skipped by -SkipInstall")
         }
-    } else {
-        Write-TextFile -Path (Join-Path $evidenceRoot "01-install\install.log") -Lines @("Skipped by -SkipInstall")
+
+        Invoke-Adb -Arguments @("shell", "getprop", "ro.product.model") -OutputPath (Join-Path $evidenceRoot "01-install\device_model.txt") -AllowFailure | Out-Null
+        Invoke-Adb -Arguments @("shell", "getprop", "ro.build.version.release") -OutputPath (Join-Path $evidenceRoot "01-install\android_version.txt") -AllowFailure | Out-Null
+        Invoke-Adb -Arguments @("logcat", "-c") -OutputPath (Join-Path $evidenceRoot "02-startup\logcat_clear.txt") -AllowFailure | Out-Null
+        Invoke-Adb -Arguments @("shell", "monkey", "-p", $PackageName, "1") -OutputPath (Join-Path $evidenceRoot "02-startup\launch_monkey.txt") -AllowFailure | Out-Null
+
+        if (-not $SkipRecording) {
+            $startupRemote = "/sdcard/catlife-stage9-startup.mp4"
+            Invoke-Adb -Arguments @("shell", "screenrecord", "--bit-rate", "8000000", "--time-limit", "$StartupRecordSeconds", $startupRemote) -OutputPath (Join-Path $evidenceRoot "02-startup\screenrecord_startup.log") -AllowFailure | Out-Null
+            Invoke-Adb -Arguments @("pull", $startupRemote, (Join-Path $evidenceRoot "02-startup\startup_screenrecord.mp4")) -OutputPath (Join-Path $evidenceRoot "02-startup\screenrecord_startup_pull.log") -AllowFailure | Out-Null
+        } else {
+            Write-TextFile -Path (Join-Path $evidenceRoot "02-startup\screenrecord_startup.log") -Lines @("Skipped by -SkipRecording")
+        }
+
+        Capture-LogcatWindow -Seconds $StartupLogcatSeconds -OutputPath (Join-Path $evidenceRoot "02-startup\logcat_startup.txt")
+        Capture-LogcatWindow -Seconds $StartupLogcatSeconds -OutputPath (Join-Path $evidenceRoot "03-llm\logcat_vivo_cloud_llm.txt")
+        Capture-LogcatWindow -Seconds $StartupLogcatSeconds -OutputPath (Join-Path $evidenceRoot "03-llm\logcat_bluelm_init.txt") -FilterRegex "BlueLM|BlueLm|bluelm|init|SDK_NOT_LINKED|MODEL_PATH|ALL_FILES_ACCESS|fallback|Unity"
+        Capture-LogcatWindow -Seconds $StartupLogcatSeconds -OutputPath (Join-Path $evidenceRoot "03-llm\logcat_bluelm_generate.txt") -FilterRegex "BlueLM|BlueLm|bluelm|generate|requestId|llm_source|llm_error|vivo_cloud|fallback|Unity"
+
+        if (-not $SkipRecording) {
+            $focusRemote = "/sdcard/catlife-stage9-focus.mp4"
+            Invoke-Adb -Arguments @("shell", "screenrecord", "--bit-rate", "8000000", "--time-limit", "$FocusRecordSeconds", $focusRemote) -OutputPath (Join-Path $evidenceRoot "04-focus\screenrecord_focus.log") -AllowFailure | Out-Null
+            Invoke-Adb -Arguments @("pull", $focusRemote, (Join-Path $evidenceRoot "04-focus\focus_5min_screenrecord.mp4")) -OutputPath (Join-Path $evidenceRoot "04-focus\screenrecord_focus_pull.log") -AllowFailure | Out-Null
+        } else {
+            Write-TextFile -Path (Join-Path $evidenceRoot "04-focus\screenrecord_focus.log") -Lines @("Skipped by -SkipRecording")
+        }
+        Capture-LogcatWindow -Seconds $FocusLogcatSeconds -OutputPath (Join-Path $evidenceRoot "04-focus\logcat_5min_focus.txt")
     }
-
-    Invoke-Adb -Arguments @("shell", "getprop", "ro.product.model") -OutputPath (Join-Path $evidenceRoot "01-install\device_model.txt") -AllowFailure | Out-Null
-    Invoke-Adb -Arguments @("shell", "getprop", "ro.build.version.release") -OutputPath (Join-Path $evidenceRoot "01-install\android_version.txt") -AllowFailure | Out-Null
-    Invoke-Adb -Arguments @("logcat", "-c") -OutputPath (Join-Path $evidenceRoot "02-startup\logcat_clear.txt") -AllowFailure | Out-Null
-    Invoke-Adb -Arguments @("shell", "monkey", "-p", $PackageName, "1") -OutputPath (Join-Path $evidenceRoot "02-startup\launch_monkey.txt") -AllowFailure | Out-Null
-
-    if (-not $SkipRecording) {
-        $startupRemote = "/sdcard/catlife-stage9-startup.mp4"
-        Invoke-Adb -Arguments @("shell", "screenrecord", "--bit-rate", "8000000", "--time-limit", "$StartupRecordSeconds", $startupRemote) -OutputPath (Join-Path $evidenceRoot "02-startup\screenrecord_startup.log") -AllowFailure | Out-Null
-        Invoke-Adb -Arguments @("pull", $startupRemote, (Join-Path $evidenceRoot "02-startup\startup_screenrecord.mp4")) -OutputPath (Join-Path $evidenceRoot "02-startup\screenrecord_startup_pull.log") -AllowFailure | Out-Null
-    } else {
-        Write-TextFile -Path (Join-Path $evidenceRoot "02-startup\screenrecord_startup.log") -Lines @("Skipped by -SkipRecording")
-    }
-
-    Capture-LogcatWindow -Seconds $StartupLogcatSeconds -OutputPath (Join-Path $evidenceRoot "02-startup\logcat_startup.txt")
-    Capture-LogcatWindow -Seconds $StartupLogcatSeconds -OutputPath (Join-Path $evidenceRoot "03-llm\logcat_vivo_cloud_llm.txt")
-    Capture-LogcatWindow -Seconds $StartupLogcatSeconds -OutputPath (Join-Path $evidenceRoot "03-llm\logcat_bluelm_init.txt") -FilterRegex "BlueLM|BlueLm|bluelm|init|SDK_NOT_LINKED|MODEL_PATH|ALL_FILES_ACCESS|fallback|Unity"
-    Capture-LogcatWindow -Seconds $StartupLogcatSeconds -OutputPath (Join-Path $evidenceRoot "03-llm\logcat_bluelm_generate.txt") -FilterRegex "BlueLM|BlueLm|bluelm|generate|requestId|llm_source|llm_error|vivo_cloud|fallback|Unity"
-
-    if (-not $SkipRecording) {
-        $focusRemote = "/sdcard/catlife-stage9-focus.mp4"
-        Invoke-Adb -Arguments @("shell", "screenrecord", "--bit-rate", "8000000", "--time-limit", "$FocusRecordSeconds", $focusRemote) -OutputPath (Join-Path $evidenceRoot "04-focus\screenrecord_focus.log") -AllowFailure | Out-Null
-        Invoke-Adb -Arguments @("pull", $focusRemote, (Join-Path $evidenceRoot "04-focus\focus_5min_screenrecord.mp4")) -OutputPath (Join-Path $evidenceRoot "04-focus\screenrecord_focus_pull.log") -AllowFailure | Out-Null
-    } else {
-        Write-TextFile -Path (Join-Path $evidenceRoot "04-focus\screenrecord_focus.log") -Lines @("Skipped by -SkipRecording")
-    }
-    Capture-LogcatWindow -Seconds $FocusLogcatSeconds -OutputPath (Join-Path $evidenceRoot "04-focus\logcat_5min_focus.txt")
 }
 
 Add-SummaryLine "## 3. Secret Scan"
@@ -354,7 +428,7 @@ Add-SummaryLine ""
 
 Add-SummaryLine "## 4. Stage9 Status"
 Add-SummaryLine ""
-$stage9Ready = (Test-Path -LiteralPath $ApkPath) -and [bool]$adb -and ($secretHits.Count -eq 0)
+$stage9Ready = (Test-Path -LiteralPath $ApkPath) -and $adbAvailable -and $hasConnectedDevice -and ($secretHits.Count -eq 0)
 if ($stage9Ready) {
     Add-SummaryLine "Evidence collection commands were attempted. Review install/logcat/screenrecord files before marking Stage9 complete."
 } else {
@@ -362,8 +436,11 @@ if ($stage9Ready) {
     if (-not (Test-Path -LiteralPath $ApkPath)) {
         Add-SummaryLine "- Missing APK: $ApkPath"
     }
-    if (-not [bool]$adb) {
-        Add-SummaryLine "- Missing adb on PATH or no cloud-device web evidence supplied."
+    if (-not $adbAvailable) {
+        Add-SummaryLine "- Missing adb executable or no cloud-device web evidence supplied."
+    }
+    if ($adbAvailable -and -not $hasConnectedDevice) {
+        Add-SummaryLine "- ADB is available, but no connected cloud device was detected."
     }
     if ($secretHits.Count -gt 0) {
         Add-SummaryLine "- Generated evidence contains potential secret text and must be redacted."

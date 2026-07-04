@@ -1,0 +1,5 @@
+﻿> D:\UnityEngine\6000.4.9f1\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\platform-tools\adb.exe devices
+exit_code=0
+
+STDOUT:
+List of devices attached
