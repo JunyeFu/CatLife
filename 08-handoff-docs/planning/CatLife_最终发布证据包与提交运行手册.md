@@ -130,6 +130,22 @@ adb pull /sdcard/catlife-demo.mp4 "06-deliverables/final-submission/evidence/04-
 Get-FileHash -Algorithm SHA256 "06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk"
 ```
 
+如果 vivo 云真机网页端不能提供 ADB endpoint，但能下载安装日志、logcat、截图或录屏，则使用人工导入脚本统一落到标准证据目录：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-device-evidence.ps1 `
+  -SourceDir "<云真机下载文件目录>" `
+  -InstallLog "install.log" `
+  -StartupLogcat "logcat_startup.txt" `
+  -LlmLogcat "logcat_vivo_cloud_llm.txt" `
+  -FocusLogcat "logcat_5min_focus.txt" `
+  -FocusRecording "focus_5min_screenrecord.mp4" `
+  -LaunchScreenshot "launch.png" `
+  -TownScreenshot "town-main.png"
+```
+
+该脚本会对文本证据做 AppKEY、Authorization、Bearer、token 脱敏，复制到 `evidence/android/`、`evidence/03-screenshots/` 和 `evidence/04-recordings/`，并生成 `evidence/android/05-summary/manual_cloud_device_import.md`。导入完成后仍必须运行最终自检脚本。
+
 ## 7. 提交前顺序
 
 1. 初始化 `evidence/` 目录。

@@ -72,6 +72,20 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/collect-stage9-a
   -CloudAdbEndpoint "<vivo cloud adb ip:port>"
 ```
 
+If the vivo cloud-device page only provides downloadable logs, screenshots, or recordings instead of an ADB endpoint, import those files with:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-device-evidence.ps1 `
+  -SourceDir "<folder containing downloaded cloud-device files>" `
+  -InstallLog "install.log" `
+  -StartupLogcat "logcat_startup.txt" `
+  -LlmLogcat "logcat_vivo_cloud_llm.txt" `
+  -FocusLogcat "logcat_5min_focus.txt" `
+  -FocusRecording "focus_5min_screenrecord.mp4" `
+  -LaunchScreenshot "launch.png" `
+  -TownScreenshot "town-main.png"
+```
+
 The Stage9 collector writes only redacted credential status. The real APK must contain the local ignored `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json` when it is exported for vivo cloud-device recording, so the cloud phone can try the real vivo API without extra setup. Generated logs, summaries, code package files, GitHub files, screenshots, PPT, poster, and video subtitles must not contain the plaintext AppKEY.
 
 To prepare a draft large-model code package for review:
