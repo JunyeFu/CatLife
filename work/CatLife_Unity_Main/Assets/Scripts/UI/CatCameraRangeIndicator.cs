@@ -11,17 +11,19 @@ namespace CatLife.UI
         [SerializeField] private Camera targetCamera;
         [SerializeField] private CatDestinationPlanner destinationPlanner;
         [SerializeField] private RectTransform indicatorRoot;
-        [SerializeField] private Text indicatorText;
-        [SerializeField] private float sidePadding = 82f;
+        [SerializeField] private Image indicatorBorder;
+        [SerializeField] private Image indicatorFill;
+        [SerializeField] private Image indicatorIcon;
+        [SerializeField] private Sprite catIconSprite;
+        [SerializeField] private float sidePadding = 22f;
         [SerializeField] private float verticalOffset = 0f;
 
-        private const string RightIndicatorText = "猫  ▶";
-        private const string LeftIndicatorText = "◀  猫";
         private bool lastShownRight;
+        private static Sprite circleSprite;
 
         public bool HasCoreReferences
         {
-            get { return catTarget != null && ResolveCamera() != null && destinationPlanner != null; }
+            get { return catTarget != null && ResolveCamera() != null && destinationPlanner != null && indicatorIcon != null; }
         }
 
         private void Awake()
@@ -35,7 +37,7 @@ namespace CatLife.UI
         {
             ResolveFrameReferences();
             EnsureIndicator();
-            if (indicatorRoot == null || indicatorText == null || catTarget == null)
+            if (indicatorRoot == null || indicatorIcon == null || catTarget == null)
             {
                 return;
             }
@@ -57,7 +59,6 @@ namespace CatLife.UI
             PositionIndicator(showRight);
             if (!indicatorRoot.gameObject.activeSelf || showRight != lastShownRight)
             {
-                indicatorText.text = showRight ? RightIndicatorText : LeftIndicatorText;
                 lastShownRight = showRight;
             }
 
@@ -69,6 +70,7 @@ namespace CatLife.UI
             catTarget = target;
             targetCamera = camera;
             destinationPlanner = planner;
+            sidePadding = 22f;
             ResolveReferences();
             EnsureIndicator();
         }
@@ -148,8 +150,9 @@ namespace CatLife.UI
 
         private void EnsureIndicator()
         {
-            if (indicatorRoot != null && indicatorText != null)
+            if (indicatorRoot != null && indicatorBorder != null && indicatorFill != null && indicatorIcon != null)
             {
+                RefreshIconSprite();
                 return;
             }
 
@@ -159,31 +162,161 @@ namespace CatLife.UI
                 return;
             }
 
-            Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            GameObject root = new GameObject("CatCameraRangeIndicator", typeof(RectTransform), typeof(Image));
-            root.transform.SetParent(canvasRect, false);
-            indicatorRoot = root.GetComponent<RectTransform>();
-            indicatorRoot.sizeDelta = new Vector2(132f, 96f);
+            if (indicatorRoot == null)
+            {
+                GameObject root = new GameObject("CatCameraRangeIndicator", typeof(RectTransform), typeof(Image));
+                root.transform.SetParent(canvasRect, false);
+                indicatorRoot = root.GetComponent<RectTransform>();
+            }
 
-            Image background = root.GetComponent<Image>();
-            background.color = new Color(1f, 0.77f, 0.22f, 0.82f);
-            background.raycastTarget = false;
+            indicatorRoot.sizeDelta = new Vector2(92f, 92f);
+            indicatorBorder = indicatorRoot.GetComponent<Image>();
+            if (indicatorBorder == null)
+            {
+                indicatorBorder = indicatorRoot.gameObject.AddComponent<Image>();
+            }
 
-            GameObject textObject = new GameObject("CatCameraRangeIndicatorText", typeof(RectTransform), typeof(Text));
-            textObject.transform.SetParent(root.transform, false);
-            RectTransform textRect = textObject.GetComponent<RectTransform>();
-            textRect.anchorMin = Vector2.zero;
-            textRect.anchorMax = Vector2.one;
-            textRect.offsetMin = Vector2.zero;
-            textRect.offsetMax = Vector2.zero;
+            indicatorBorder.sprite = GetCircleSprite();
+            indicatorBorder.color = new Color(1f, 0.92f, 0.38f, 0.96f);
+            indicatorBorder.raycastTarget = false;
 
-            indicatorText = textObject.GetComponent<Text>();
-            indicatorText.font = font;
-            indicatorText.fontSize = 30;
-            indicatorText.fontStyle = FontStyle.Bold;
-            indicatorText.alignment = TextAnchor.MiddleCenter;
-            indicatorText.color = Color.white;
-            indicatorText.raycastTarget = false;
+            indicatorFill = EnsureChildImage("CatCameraRangeIndicatorFill", indicatorRoot, Vector2.zero, new Vector2(78f, 78f));
+            indicatorFill.sprite = GetCircleSprite();
+            indicatorFill.color = new Color(1f, 0.56f, 0.10f, 0.92f);
+            indicatorFill.raycastTarget = false;
+
+            indicatorIcon = EnsureChildImage("CatCameraRangeIndicatorIcon", indicatorRoot, Vector2.zero, new Vector2(52f, 52f));
+            indicatorIcon.color = Color.white;
+            indicatorIcon.raycastTarget = false;
+            RefreshIconSprite();
+            HideLegacyTextChildren();
+        }
+
+        private Image EnsureChildImage(string childName, RectTransform parent, Vector2 position, Vector2 size)
+        {
+            Transform child = parent.Find(childName);
+            GameObject childObject;
+            if (child == null)
+            {
+                childObject = new GameObject(childName, typeof(RectTransform), typeof(Image));
+                childObject.transform.SetParent(parent, false);
+            }
+            else
+            {
+                childObject = child.gameObject;
+            }
+
+            RectTransform rect = childObject.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+
+            Image image = childObject.GetComponent<Image>();
+            if (image == null)
+            {
+                image = childObject.AddComponent<Image>();
+            }
+
+            return image;
+        }
+
+        private void RefreshIconSprite()
+        {
+            if (indicatorIcon == null)
+            {
+                return;
+            }
+
+            if (catIconSprite == null)
+            {
+                catIconSprite = ResolveCatButtonIconSprite();
+            }
+
+            indicatorIcon.sprite = catIconSprite;
+            indicatorIcon.enabled = catIconSprite != null;
+        }
+
+        private static Sprite ResolveCatButtonIconSprite()
+        {
+            Image[] images = Object.FindObjectsByType<Image>(FindObjectsInactive.Include);
+            for (int i = 0; i < images.Length; i++)
+            {
+                Image image = images[i];
+                if (image != null &&
+                    image.name == "Icon" &&
+                    image.sprite != null &&
+                    HasParentNamed(image.transform, "MenuGroup_猫咪"))
+                {
+                    return image.sprite;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool HasParentNamed(Transform transform, string parentName)
+        {
+            Transform current = transform;
+            while (current != null)
+            {
+                if (current.name == parentName)
+                {
+                    return true;
+                }
+
+                current = current.parent;
+            }
+
+            return false;
+        }
+
+        private void HideLegacyTextChildren()
+        {
+            if (indicatorRoot == null)
+            {
+                return;
+            }
+
+            Text[] textChildren = indicatorRoot.GetComponentsInChildren<Text>(true);
+            for (int i = 0; i < textChildren.Length; i++)
+            {
+                if (textChildren[i] != null)
+                {
+                    textChildren[i].gameObject.SetActive(false);
+                }
+            }
+        }
+
+        private static Sprite GetCircleSprite()
+        {
+            if (circleSprite != null)
+            {
+                return circleSprite;
+            }
+
+            const int size = 128;
+            Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            texture.name = "cat_camera_indicator_circle";
+            Color clear = new Color(1f, 1f, 1f, 0f);
+            Color white = Color.white;
+            Vector2 center = new Vector2((size - 1) * 0.5f, (size - 1) * 0.5f);
+            float radius = size * 0.48f;
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float distance = Vector2.Distance(new Vector2(x, y), center);
+                    texture.SetPixel(x, y, distance <= radius ? white : clear);
+                }
+            }
+
+            texture.Apply(false, true);
+            circleSprite = Sprite.Create(texture, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), size);
+            circleSprite.name = "CatCameraIndicatorCircleSprite";
+            return circleSprite;
         }
     }
 }
