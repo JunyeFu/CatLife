@@ -8,6 +8,8 @@ $ErrorActionPreference = "Stop"
 $finalDir = Join-Path $ProjectRoot "06-deliverables\final-submission"
 $llmTemplateDir = Join-Path $ProjectRoot "06-deliverables\llm-code-package-template"
 $outputPath = Join-Path $finalDir $OutputName
+$privateConfigRelative = "work/CatLife_Unity_Main/Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json"
+$privateConfigPath = Join-Path $ProjectRoot $privateConfigRelative
 
 function New-Result {
     param(
@@ -65,6 +67,12 @@ function Test-SubstantiveEvidenceFile {
         if ($content -match "\bTODO\b") {
             return $false
         }
+        if ($File.Name -eq "apk-sha256.txt" -and $content -match "SHA256:\s*missing") {
+            return $false
+        }
+        if ($File.Name -eq "unity-build-settings.txt" -and $content -match "Unity version:\s*TODO") {
+            return $false
+        }
     }
 
     return $true
@@ -113,6 +121,17 @@ $checks.Add((New-Result "Code package" "Large-model code package zip, API call m
 $llmTemplateExists = Test-Path -LiteralPath $llmTemplateDir
 $checks.Add((New-Result "LLM template" "Large-model code package template exists" $llmTemplateExists ($(if($llmTemplateExists){$llmTemplateDir}else{"missing"})) "Keep template or package it as final code bundle"))
 
+$privateConfigExists = Test-Path -LiteralPath $privateConfigPath
+$privateConfigIgnored = $false
+try {
+    git -C $ProjectRoot check-ignore -q -- $privateConfigRelative
+    $privateConfigIgnored = ($LASTEXITCODE -eq 0)
+} catch {
+    $privateConfigIgnored = $false
+}
+$privateConfigEvidence = "exists=$privateConfigExists; ignored=$privateConfigIgnored; value=REDACTED"
+$checks.Add((New-Result "Private APK credential boundary" "Real APK can include local ignored vivo cloud key, while Git/code package excludes plaintext key" ($privateConfigExists -and $privateConfigIgnored) $privateConfigEvidence "Create local private Resources credential and verify .gitignore before real APK build"))
+
 $secretPatterns = @(
     "sk-[A-Za-z0-9]",
     "api[_-]key\s*[:=]",
@@ -142,12 +161,14 @@ foreach ($root in $scanRoots) {
 $checks.Add((New-Result "Secret scan" "final-submission and LLM template contain no common secret patterns" ($secretHits.Count -eq 0) ("hits=" + $secretHits.Count) "Review and remove matched text"))
 
 $buildEvidence = Find-FirstEvidenceFile @("*build*.log", "unity-build-settings.txt", "apk-sha256.txt")
-$installEvidence = Find-FirstEvidenceFile @("*install*.txt", "device-info.txt")
+$installEvidence = Find-FirstEvidenceFile @("*install*.txt", "*install*.log", "device-info.txt", "adb_devices.txt")
 $runtimeEvidence = Find-FirstEvidenceFile @("*logcat*.txt", "*android-runtime*.txt", "smoke-test-notes.md")
-$recordingEvidence = Find-FirstEvidenceFile @("*device*.mp4", "*recording*.mp4", "raw-device-recording.mp4")
+$llmEvidence = Find-FirstEvidenceFile @("logcat_vivo_cloud_llm.txt", "logcat_bluelm_init.txt", "logcat_bluelm_generate.txt", "*vivo-cloud-llm-logcat.txt")
+$recordingEvidence = Find-FirstEvidenceFile @("*device*.mp4", "*recording*.mp4", "raw-device-recording.mp4", "startup_screenrecord.mp4", "focus_5min_screenrecord.mp4")
 $deviceEvidence = if ($installEvidence) { $installEvidence } elseif ($runtimeEvidence) { $runtimeEvidence } else { $null }
-$checks.Add((New-Result "Build evidence" "Build settings/log/hash evidence exists under final-submission/evidence" ([bool]$buildEvidence) ($(if($buildEvidence){$buildEvidence.FullName}else{"missing"})) "Run init-final-evidence.ps1 and save build log/settings/hash"))
+$checks.Add((New-Result "Build evidence" "Real build settings/log/hash evidence exists under final-submission/evidence" ([bool]$buildEvidence) ($(if($buildEvidence){$buildEvidence.FullName}else{"missing"})) "Build the APK, then run collect-stage9-android-evidence.ps1 to save build log/settings/hash"))
 $checks.Add((New-Result "Android evidence" "Install/runtime/logcat evidence exists" ([bool]$deviceEvidence) ($(if($deviceEvidence){$deviceEvidence.FullName}else{"missing"})) "Save adb install and logcat evidence after device test"))
+$checks.Add((New-Result "LLM runtime evidence" "logcat can distinguish vivo_cloud, bluelm_on_device, local_template, failure code, or fallback state" ([bool]$llmEvidence) ($(if($llmEvidence){$llmEvidence.FullName}else{"missing"})) "Run collect-stage9-android-evidence.ps1 after APK install or save cloud-device LLM logcat"))
 $checks.Add((New-Result "Recording evidence" "Raw device or cloud-device recording exists under evidence/04-recordings" ([bool]$recordingEvidence) ($(if($recordingEvidence){$recordingEvidence.FullName}else{"missing"})) "Record APK or cloud-device flow before editing final video"))
 
 $hashRows = @()

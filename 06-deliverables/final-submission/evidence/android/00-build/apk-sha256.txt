@@ -1,0 +1,3 @@
+﻿APK file: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\CatLife_MVP_Android_v0.1.0.apk
+Size bytes: missing
+SHA256: missing

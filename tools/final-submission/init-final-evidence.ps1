@@ -11,9 +11,18 @@ $dirs = @(
     "00-build",
     "01-install",
     "02-runtime",
+    "02-startup",
+    "03-llm",
     "03-screenshots",
+    "04-focus",
     "04-recordings",
-    "05-review"
+    "05-review",
+    "android\00-build",
+    "android\01-install",
+    "android\02-startup",
+    "android\03-llm",
+    "android\04-focus",
+    "android\05-summary"
 )
 
 New-Item -ItemType Directory -Force -Path $finalDir | Out-Null
@@ -54,6 +63,15 @@ New-TemplateFile -Path (Join-Path $evidenceDir "00-build\apk-sha256.txt") -Lines
     "SHA256: TODO"
 )
 
+New-TemplateFile -Path (Join-Path $evidenceDir "android\00-build\private_config_presence_redacted.txt") -Lines @(
+    "Private config path: work/CatLife_Unity_Main/Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json",
+    "Exists: TODO",
+    "Git ignored: TODO",
+    "AppID: 2026414599",
+    "AppKEY present: TODO",
+    "AppKEY value: REDACTED"
+)
+
 New-TemplateFile -Path (Join-Path $evidenceDir "01-install\device-info.txt") -Lines @(
     "Test date: TODO",
     "Tester: TODO",
@@ -76,7 +94,8 @@ New-TemplateFile -Path (Join-Path $evidenceDir "02-runtime\smoke-test-notes.md")
     "| Transition state | TODO | evidence/04-recordings/raw-device-recording.mp4 |",
     "| Focus state | TODO | evidence/03-screenshots/focus-state.png |",
     "| Reward state | TODO | evidence/03-screenshots/reward-state.png |",
-    "| 3 minute stability | TODO | evidence/02-runtime/android-runtime-logcat.txt |"
+    "| 3 minute stability | TODO | evidence/02-runtime/android-runtime-logcat.txt |",
+    "| vivo cloud or BlueLM evidence | TODO | evidence/android/03-llm/logcat_vivo_cloud_llm.txt |"
 )
 
 New-TemplateFile -Path (Join-Path $evidenceDir "05-review\manual-review-notes.md") -Lines @(

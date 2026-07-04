@@ -32,6 +32,32 @@ adb logcat -d > "06-deliverables/final-submission/android-runtime-logcat.txt"
 adb logcat -d | Select-String "CatLife|vivo|LLM|fallback" > "06-deliverables/final-submission/vivo-cloud-llm-logcat.txt"
 ```
 
+推荐使用 Stage9 采证脚本统一保存证据：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/collect-stage9-android-evidence.ps1 `
+  -ApkPath "06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk" `
+  -CloudAdbEndpoint "<vivo cloud adb ip:port>"
+```
+
+脚本输出目录：
+
+```text
+06-deliverables/final-submission/evidence/android/
+  00-build/private_config_presence_redacted.txt
+  00-build/apk-sha256.txt
+  01-install/adb_devices.txt
+  01-install/install.log
+  02-startup/logcat_startup.txt
+  03-llm/logcat_vivo_cloud_llm.txt
+  03-llm/logcat_bluelm_init.txt
+  03-llm/logcat_bluelm_generate.txt
+  04-focus/logcat_5min_focus.txt
+  05-summary/stage9_cloud_phone_result.md
+```
+
+注意：`private_config_presence_redacted.txt` 只能记录私有配置存在、是否被 `.gitignore` 忽略、AppID 和 AppKEY 是否存在，不得记录完整 AppKEY。
+
 设备信息：
 
 ```powershell

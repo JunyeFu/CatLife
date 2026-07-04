@@ -55,6 +55,16 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/init-final-evide
 
 This creates `06-deliverables/final-submission/evidence/` with build, install, runtime, screenshot, recording, and manual review subfolders.
 
+To collect Stage9 Android/vivo cloud-device evidence after the APK exists:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/collect-stage9-android-evidence.ps1 `
+  -ApkPath "06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk" `
+  -CloudAdbEndpoint "<vivo cloud adb ip:port>"
+```
+
+The Stage9 collector writes only redacted credential status. The real APK can contain the local ignored `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json`, but generated logs, summaries, code package files, and public docs must not contain the plaintext AppKEY.
+
 To prepare a draft large-model code package for review:
 
 ```powershell
