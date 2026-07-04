@@ -285,6 +285,7 @@ namespace CatLife.EditorTools
             if (safetyGuard != null)
             {
                 RequireSerializedObject(safetyGuard, "agent", issues);
+                RequireSerializedObject(safetyGuard, "navigationAgent", issues);
             }
 
             if (animationController != null)

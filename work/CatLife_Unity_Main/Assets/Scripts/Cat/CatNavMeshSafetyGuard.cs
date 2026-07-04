@@ -8,6 +8,7 @@ namespace CatLife.Cat
     public sealed class CatNavMeshSafetyGuard : MonoBehaviour
     {
         [SerializeField] private NavMeshAgent agent;
+        [SerializeField] private CatNavigationAgent navigationAgent;
         [SerializeField] private bool autoRecover = true;
         [SerializeField] private float navMeshProbeDistance = 0.9f;
         [SerializeField] private float maxSurfaceDrift = 0.35f;
@@ -58,6 +59,7 @@ namespace CatLife.Cat
         private void Reset()
         {
             agent = GetComponent<NavMeshAgent>();
+            navigationAgent = GetComponent<CatNavigationAgent>();
         }
 
         private void Awake()
@@ -65,6 +67,11 @@ namespace CatLife.Cat
             if (agent == null)
             {
                 agent = GetComponent<NavMeshAgent>();
+            }
+
+            if (navigationAgent == null)
+            {
+                navigationAgent = GetComponent<CatNavigationAgent>();
             }
 
             previousPosition = transform.position;
@@ -223,6 +230,11 @@ namespace CatLife.Cat
 
             if (agent.Warp(position))
             {
+                if (navigationAgent != null)
+                {
+                    navigationAgent.SyncVisualTransformToAgent();
+                }
+
                 recoveryCount += 1;
                 lastRecoveryReason = reason;
             }

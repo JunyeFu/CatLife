@@ -15,9 +15,12 @@ namespace CatLife.Cat
         [SerializeField] private float focusedAcceleration = 3f;
         [SerializeField] private float freeStoppingDistance = 0.14f;
         [SerializeField] private float focusedStoppingDistance = 0.22f;
+        [SerializeField] private bool preserveSceneHeightInPlayMode = true;
         [SerializeField] private bool drawDebugPath = true;
 
         private float speedMultiplier = 1f;
+        private float sceneVisualY;
+        private bool hasSceneVisualY;
 
         public bool IsOnNavMesh
         {
@@ -56,10 +59,16 @@ namespace CatLife.Cat
 
             if (agent != null)
             {
-                agent.updatePosition = true;
+                CaptureSceneVisualHeight();
+                agent.updatePosition = !preserveSceneHeightInPlayMode;
                 agent.updateRotation = true;
                 agent.autoBraking = false;
             }
+        }
+
+        private void LateUpdate()
+        {
+            SyncVisualTransformToAgent();
         }
 
         public void SetSpeedMultiplier(float multiplier)
@@ -86,13 +95,20 @@ namespace CatLife.Cat
                 return false;
             }
 
+            CaptureSceneVisualHeight();
             NavMeshHit hit;
             if (!NavMesh.SamplePosition(transform.position, out hit, maxDistance, NavMesh.AllAreas))
             {
                 return false;
             }
 
-            return agent.Warp(hit.position);
+            bool warped = agent.Warp(hit.position);
+            if (warped)
+            {
+                SyncVisualTransformToAgent();
+            }
+
+            return warped;
         }
 
         public bool TryMoveTo(Vector3 target)
@@ -119,6 +135,22 @@ namespace CatLife.Cat
             }
 
             agent.isStopped = true;
+        }
+
+        public void SyncVisualTransformToAgent()
+        {
+            if (!preserveSceneHeightInPlayMode || agent == null || !agent.enabled || agent.updatePosition || !agent.isOnNavMesh)
+            {
+                return;
+            }
+
+            if (!hasSceneVisualY)
+            {
+                CaptureSceneVisualHeight();
+            }
+
+            Vector3 next = agent.nextPosition;
+            transform.position = new Vector3(next.x, sceneVisualY, next.z);
         }
 
         public bool HasArrived()
@@ -160,6 +192,17 @@ namespace CatLife.Cat
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawSphere(agent.destination + Vector3.up * 0.05f, 0.08f);
             }
+        }
+
+        private void CaptureSceneVisualHeight()
+        {
+            if (hasSceneVisualY)
+            {
+                return;
+            }
+
+            sceneVisualY = transform.position.y;
+            hasSceneVisualY = true;
         }
     }
 }

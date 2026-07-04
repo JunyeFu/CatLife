@@ -107,6 +107,7 @@ namespace CatLife.EditorTools
 
             AssignObject(navigationAgent, "agent", agent);
             AssignObject(safetyGuard, "agent", agent);
+            AssignObject(safetyGuard, "navigationAgent", navigationAgent);
             AssignPlanner(destinationPlanner, anchors, forbiddenZones);
             AssignObject(animationController, "animator", animator);
             AssignDriver(
