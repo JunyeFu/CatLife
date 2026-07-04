@@ -17,6 +17,9 @@ namespace CatLife.Cat
 
         [Header("Context")]
         [SerializeField] private Transform userAnchor;
+        [SerializeField] private CatInterestPointRegistry interestPointRegistry;
+        [SerializeField] private CatNeedModel needModel;
+        [SerializeField] private CatBehaviorMemory behaviorMemory;
         [SerializeField] private DestinationAnchor[] anchors;
 
         [Header("Sampling")]
@@ -34,6 +37,12 @@ namespace CatLife.Cat
         [SerializeField] private float forbiddenPathSampleStep = 0.25f;
 
         private readonly Collider[] overlapBuffer = new Collider[12];
+        private string lastPlannedInterestPointId = "";
+
+        public string LastPlannedInterestPointId
+        {
+            get { return lastPlannedInterestPointId; }
+        }
 
         public bool TryPlanNext(
             RecognitionSnapshot snapshot,
@@ -41,7 +50,38 @@ namespace CatLife.Cat
             Vector3 currentPosition,
             out Vector3 result)
         {
-            bool focused = snapshot.IsFocused || behaviorState == CatBehaviorState.FocusedRoam;
+            CatBehaviorDecision decision = CatBehaviorDecision.Create(
+                behaviorState,
+                0f,
+                0f,
+                0,
+                CatActionInterruptPolicy.DropIfBusy,
+                false,
+                "legacy_plan");
+            return TryPlanNext(
+                snapshot,
+                decision,
+                needModel != null ? needModel.Current : CatNeedState.CreateDefault(),
+                behaviorMemory,
+                currentPosition,
+                out result);
+        }
+
+        public bool TryPlanNext(
+            RecognitionSnapshot snapshot,
+            CatBehaviorDecision decision,
+            CatNeedState needs,
+            CatBehaviorMemory memory,
+            Vector3 currentPosition,
+            out Vector3 result)
+        {
+            bool focused = snapshot.IsFocused || decision.state == CatBehaviorState.FocusedRoam;
+            lastPlannedInterestPointId = "";
+
+            if (TryInterestPointPlan(snapshot, decision, needs, memory, currentPosition, out result))
+            {
+                return true;
+            }
 
             if (anchors != null && anchors.Length > 0 && TryAnchorPlan(focused, currentPosition, out result))
             {
@@ -49,6 +89,38 @@ namespace CatLife.Cat
             }
 
             return TryRandomPlan(focused, currentPosition, out result);
+        }
+
+        private bool TryInterestPointPlan(
+            RecognitionSnapshot snapshot,
+            CatBehaviorDecision decision,
+            CatNeedState needs,
+            CatBehaviorMemory memory,
+            Vector3 origin,
+            out Vector3 result)
+        {
+            if (interestPointRegistry == null || !decision.IsLocomotion)
+            {
+                result = origin;
+                return false;
+            }
+
+            CatInterestPoint point;
+            if (!interestPointRegistry.TryPickPoint(snapshot, decision, needs, memory, origin, out point) || point == null)
+            {
+                result = origin;
+                return false;
+            }
+
+            bool focused = snapshot.IsFocused || decision.state == CatBehaviorState.FocusedRoam;
+            if (TryRandomAroundCenter(point.transform.position, origin, point.SampleRadius, focused, out result))
+            {
+                lastPlannedInterestPointId = point.InterestId;
+                return true;
+            }
+
+            result = origin;
+            return false;
         }
 
         private bool TryAnchorPlan(bool focused, Vector3 origin, out Vector3 result)

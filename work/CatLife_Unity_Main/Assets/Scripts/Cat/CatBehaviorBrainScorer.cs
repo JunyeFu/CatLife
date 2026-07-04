@@ -80,11 +80,11 @@ namespace CatLife.Cat
             float socialBias = suggestion != null ? suggestion.socialResponseWeightBias : 0f;
             return new[]
             {
-                Candidate.Create(CatBehaviorState.Roam, 58f + needs.curiosity01 * 32f + roamBias * 100f, "nonfocus_roam"),
-                Candidate.Create(CatBehaviorState.CuriousSniff, 9f + needs.curiosity01 * 20f, "nonfocus_curiosity"),
-                Candidate.Create(CatBehaviorState.LookBack, 8f + (1f - needs.safety01) * 24f, "nonfocus_safety_check"),
-                Candidate.Create(CatBehaviorState.TailWagHappy, 6f + needs.affection01 * 20f + socialBias * 40f, "nonfocus_social"),
-                Candidate.Create(CatBehaviorState.StretchYawn, 5f + needs.sleepiness01 * 22f, "nonfocus_rest")
+                Candidate.Create(CatBehaviorState.Roam, 58f + needs.curiosity01 * 32f + roamBias * 100f, "nonfocus_roam", "plaza", "path", "garden", "bench", "shade"),
+                Candidate.Create(CatBehaviorState.CuriousSniff, 9f + needs.curiosity01 * 20f, "nonfocus_curiosity", "garden", "flower", "bench"),
+                Candidate.Create(CatBehaviorState.LookBack, 8f + (1f - needs.safety01) * 24f, "nonfocus_safety_check", "path", "edge"),
+                Candidate.Create(CatBehaviorState.TailWagHappy, 6f + needs.affection01 * 20f + socialBias * 40f, "nonfocus_social", "plaza", "near_home"),
+                Candidate.Create(CatBehaviorState.StretchYawn, 5f + needs.sleepiness01 * 22f, "nonfocus_rest", "shade", "quiet")
             };
         }
 
@@ -101,11 +101,11 @@ namespace CatLife.Cat
 
             return new[]
             {
-                Candidate.Create(CatBehaviorState.FocusedRoam, 22f + needs.curiosity01 * 20f + roamBias * 70f - needs.interruptionSensitivity01 * 18f, "focus_slow_roam"),
-                Candidate.Create(CatBehaviorState.IdleBreath, 24f + needs.sleepiness01 * 28f + quietBias * 80f + needs.focusCompanionship01 * 12f, "focus_quiet_idle"),
-                Candidate.Create(CatBehaviorState.EarTwitchAlert, 13f + risk * 24f + (1f - needs.safety01) * 20f, "focus_low_interrupt_alert"),
-                Candidate.Create(CatBehaviorState.AlertLook, 6f + risk * 18f, "focus_attention_check"),
-                Candidate.Create(CatBehaviorState.TailWagHappy, 3f + needs.affection01 * 8f + socialBias * 20f - needs.interruptionSensitivity01 * 10f, "focus_soft_social")
+                Candidate.Create(CatBehaviorState.FocusedRoam, 22f + needs.curiosity01 * 20f + roamBias * 70f - needs.interruptionSensitivity01 * 18f, "focus_slow_roam", "quiet", "path", "shade"),
+                Candidate.Create(CatBehaviorState.IdleBreath, 24f + needs.sleepiness01 * 28f + quietBias * 80f + needs.focusCompanionship01 * 12f, "focus_quiet_idle", "quiet", "shade"),
+                Candidate.Create(CatBehaviorState.EarTwitchAlert, 13f + risk * 24f + (1f - needs.safety01) * 20f, "focus_low_interrupt_alert", "quiet", "edge"),
+                Candidate.Create(CatBehaviorState.AlertLook, 6f + risk * 18f, "focus_attention_check", "path", "edge"),
+                Candidate.Create(CatBehaviorState.TailWagHappy, 3f + needs.affection01 * 8f + socialBias * 20f - needs.interruptionSensitivity01 * 10f, "focus_soft_social", "near_home", "quiet")
             };
         }
 
@@ -118,7 +118,8 @@ namespace CatLife.Cat
                 focused ? 50 : 10,
                 CatActionInterruptPolicy.DropIfBusy,
                 focused,
-                candidate.reason);
+                candidate.reason,
+                candidate.preferredInterestTags);
         }
 
         private static float GetHoldSeconds(CatBehaviorState state, bool focused)
@@ -162,14 +163,16 @@ namespace CatLife.Cat
             public CatBehaviorState state;
             public float score;
             public string reason;
+            public string[] preferredInterestTags;
 
-            public static Candidate Create(CatBehaviorState state, float score, string reason)
+            public static Candidate Create(CatBehaviorState state, float score, string reason, params string[] preferredInterestTags)
             {
                 return new Candidate
                 {
                     state = state,
                     score = score,
-                    reason = reason
+                    reason = reason,
+                    preferredInterestTags = preferredInterestTags
                 };
             }
         }

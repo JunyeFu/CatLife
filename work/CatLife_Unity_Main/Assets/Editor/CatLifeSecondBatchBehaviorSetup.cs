@@ -20,6 +20,7 @@ namespace CatLife.EditorTools
         private const string SystemsName = "CatBehaviorSystems";
         private const string AnchorRootName = "CatDestinationAnchors";
         private const string ForbiddenRootName = "CatForbiddenZones";
+        private const string InterestRootName = "CatInterestPoints";
         private const string CatName = "CatCompanionModel";
         private const float ForbiddenProjectionScale = 1.05f;
         private const float ForbiddenZoneHeight = 0.9f;
@@ -43,6 +44,7 @@ namespace CatLife.EditorTools
             Transform systemsRoot = GetOrCreateChild(runtime, SystemsName);
             Transform anchorRoot = GetOrCreateChild(navigationRoot, AnchorRootName);
             Transform forbiddenRoot = GetOrCreateChild(navigationRoot, ForbiddenRootName);
+            Transform interestRoot = GetOrCreateChild(navigationRoot, InterestRootName);
 
             float groundY = cat.transform.position.y;
             CreateWalkArea(navigationRoot, "CatWalkableArea_MainPlaza", new Vector3(0f, groundY - 0.06f, -6.8f), new Vector3(7.4f, 0.12f, 4.5f));
@@ -76,6 +78,10 @@ namespace CatLife.EditorTools
                 GetOrCreateAnchor(anchorRoot, "Anchor_LeftFront", new Vector3(-2.4f, groundY, -8.6f)),
                 GetOrCreateAnchor(anchorRoot, "Anchor_RightFront", new Vector3(2.4f, groundY, -8.6f)),
             };
+            CatInterestPoint[] interestPoints = CreateInterestPoints(interestRoot, groundY);
+            CatInterestPointRegistry interestPointRegistry = GetOrAdd<CatInterestPointRegistry>(navigationRoot.gameObject);
+            interestPointRegistry.SetPoints(interestPoints);
+            EditorUtility.SetDirty(interestPointRegistry);
 
             MockRecognitionProvider recognitionProvider = GetOrAdd<MockRecognitionProvider>(systemsRoot.gameObject);
             RealtimeFeatureEngine featureEngine = GetOrAdd<RealtimeFeatureEngine>(systemsRoot.gameObject);
@@ -108,7 +114,7 @@ namespace CatLife.EditorTools
             AssignObject(navigationAgent, "agent", agent);
             AssignObject(safetyGuard, "agent", agent);
             AssignObject(safetyGuard, "navigationAgent", navigationAgent);
-            AssignPlanner(destinationPlanner, anchors, forbiddenZones);
+            AssignPlanner(destinationPlanner, anchors, forbiddenZones, interestPointRegistry, needModel, behaviorMemory);
             AssignObject(animationController, "animator", animator);
             AssignDriver(
                 behaviorDriver,
@@ -139,6 +145,7 @@ namespace CatLife.EditorTools
             EditorUtility.SetDirty(cat);
             EditorUtility.SetDirty(navigationRoot.gameObject);
             EditorUtility.SetDirty(forbiddenRoot.gameObject);
+            EditorUtility.SetDirty(interestRoot.gameObject);
             EditorUtility.SetDirty(systemsRoot.gameObject);
             EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
             EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
@@ -243,6 +250,53 @@ namespace CatLife.EditorTools
 
             anchor.position = position;
             return anchor;
+        }
+
+        private static CatInterestPoint[] CreateInterestPoints(Transform parent, float groundY)
+        {
+            return new[]
+            {
+                GetOrCreateInterestPoint(parent, "Interest_Plaza_HomeFront", "plaza_home_front", new Vector3(-0.3f, groundY, -6.78f), new[] { "plaza", "near_home", "path", "quiet" }, 1.4f, 0.7f, 0.7f, true),
+                GetOrCreateInterestPoint(parent, "Interest_Front_Path", "front_path", new Vector3(0f, groundY, -8.9f), new[] { "path", "edge" }, 1.2f, 0.45f, 0.8f, true),
+                GetOrCreateInterestPoint(parent, "Interest_Left_Garden", "left_garden", new Vector3(-3.4f, groundY, -6.4f), new[] { "garden", "flower", "shade" }, 1.45f, 0.35f, 0.75f, true),
+                GetOrCreateInterestPoint(parent, "Interest_Right_Garden", "right_garden", new Vector3(3.4f, groundY, -6.4f), new[] { "garden", "flower", "shade" }, 1.45f, 0.35f, 0.75f, true),
+                GetOrCreateInterestPoint(parent, "Interest_Left_Bench_Path", "left_bench_path", new Vector3(-2.4f, groundY, -8.6f), new[] { "bench", "path", "quiet" }, 1.1f, 0.65f, 0.65f, true),
+                GetOrCreateInterestPoint(parent, "Interest_Right_Front_Path", "right_front_path", new Vector3(2.4f, groundY, -8.6f), new[] { "path", "edge" }, 1.1f, 0.45f, 0.65f, true),
+                GetOrCreateInterestPoint(parent, "Interest_SecondRing_West", "second_ring_west", new Vector3(-3.15f, groundY, 0.18f), new[] { "path", "plaza", "edge" }, 1.0f, 0.25f, 0.65f, true),
+                GetOrCreateInterestPoint(parent, "Interest_SecondRing_East", "second_ring_east", new Vector3(3.15f, groundY, 0.18f), new[] { "path", "plaza", "edge" }, 1.0f, 0.25f, 0.65f, true),
+                GetOrCreateInterestPoint(parent, "Interest_Quiet_North_Path", "quiet_north_path", new Vector3(0f, groundY, 3.35f), new[] { "quiet", "path", "shade" }, 0.85f, 0.8f, 0.65f, true)
+            };
+        }
+
+        private static CatInterestPoint GetOrCreateInterestPoint(
+            Transform parent,
+            string objectName,
+            string interestId,
+            Vector3 position,
+            string[] tags,
+            float nonFocusWeight,
+            float focusWeight,
+            float sampleRadius,
+            bool allowedInFocus)
+        {
+            Transform existing = parent.Find(objectName);
+            GameObject pointObject;
+            if (existing == null)
+            {
+                pointObject = new GameObject(objectName);
+                Undo.RegisterCreatedObjectUndo(pointObject, "Create cat interest point");
+                pointObject.transform.SetParent(parent, false);
+            }
+            else
+            {
+                pointObject = existing.gameObject;
+            }
+
+            pointObject.transform.position = position;
+            CatInterestPoint point = GetOrAdd<CatInterestPoint>(pointObject);
+            point.Configure(interestId, tags, nonFocusWeight, focusWeight, sampleRadius, allowedInFocus);
+            EditorUtility.SetDirty(pointObject);
+            return point;
         }
 
         private static CatForbiddenZone[] BuildForbiddenZones(Transform parent, Transform navigationRoot, float groundY)
@@ -600,10 +654,19 @@ namespace CatLife.EditorTools
             EditorUtility.SetDirty(driver);
         }
 
-        private static void AssignPlanner(CatDestinationPlanner planner, Transform[] anchors, CatForbiddenZone[] forbiddenZones)
+        private static void AssignPlanner(
+            CatDestinationPlanner planner,
+            Transform[] anchors,
+            CatForbiddenZone[] forbiddenZones,
+            CatInterestPointRegistry interestPointRegistry,
+            CatNeedModel needModel,
+            CatBehaviorMemory behaviorMemory)
         {
             SerializedObject serialized = new SerializedObject(planner);
             serialized.FindProperty("userAnchor").objectReferenceValue = Camera.main != null ? Camera.main.transform : null;
+            serialized.FindProperty("interestPointRegistry").objectReferenceValue = interestPointRegistry;
+            serialized.FindProperty("needModel").objectReferenceValue = needModel;
+            serialized.FindProperty("behaviorMemory").objectReferenceValue = behaviorMemory;
             serialized.FindProperty("nonFocusSampleRadius").floatValue = 8.5f;
             serialized.FindProperty("focusSampleRadius").floatValue = 3.5f;
             serialized.FindProperty("minMoveDistance").floatValue = 1.1f;

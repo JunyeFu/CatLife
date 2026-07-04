@@ -12,6 +12,7 @@ namespace CatLife.Cat
         public CatActionInterruptPolicy interruptPolicy;
         public bool canInterruptByMove;
         public string reason;
+        public string[] preferredInterestTags;
 
         public bool IsValid
         {
@@ -32,6 +33,27 @@ namespace CatLife.Cat
             bool canInterruptByMove,
             string reason)
         {
+            return Create(
+                state,
+                holdSeconds,
+                cooldownSeconds,
+                priority,
+                interruptPolicy,
+                canInterruptByMove,
+                reason,
+                Array.Empty<string>());
+        }
+
+        public static CatBehaviorDecision Create(
+            CatBehaviorState state,
+            float holdSeconds,
+            float cooldownSeconds,
+            int priority,
+            CatActionInterruptPolicy interruptPolicy,
+            bool canInterruptByMove,
+            string reason,
+            string[] preferredInterestTags)
+        {
             return new CatBehaviorDecision
             {
                 state = state,
@@ -40,7 +62,8 @@ namespace CatLife.Cat
                 priority = priority,
                 interruptPolicy = interruptPolicy,
                 canInterruptByMove = canInterruptByMove,
-                reason = string.IsNullOrEmpty(reason) ? "scored_behavior" : reason
+                reason = string.IsNullOrEmpty(reason) ? "scored_behavior" : reason,
+                preferredInterestTags = preferredInterestTags ?? Array.Empty<string>()
             };
         }
     }

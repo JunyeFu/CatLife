@@ -64,23 +64,29 @@ namespace CatLife.EditorTools
 
             NavMeshAgent agent = cat.GetComponent<NavMeshAgent>();
             CatBehaviorDriver driver = cat.GetComponent<CatBehaviorDriver>();
+            CatDestinationPlanner planner = cat.GetComponent<CatDestinationPlanner>();
+            CatBehaviorMemory memory = cat.GetComponent<CatBehaviorMemory>();
             CatNavMeshSafetyGuard safetyGuard = cat.GetComponent<CatNavMeshSafetyGuard>();
             Animator animator = cat.GetComponent<Animator>();
             RealtimeFeatureEngine featureEngine = systems.GetComponent<RealtimeFeatureEngine>();
             MockRecognitionProvider recognitionProvider = systems.GetComponent<MockRecognitionProvider>();
+            CatInterestPointRegistry interestRegistry = Object.FindAnyObjectByType<CatInterestPointRegistry>();
 
             if (agent == null) issues.Add("Cat missing NavMeshAgent.");
             if (driver == null) issues.Add("Cat missing CatBehaviorDriver.");
+            if (planner == null) issues.Add("Cat missing CatDestinationPlanner.");
+            if (memory == null) issues.Add("Cat missing CatBehaviorMemory.");
             if (safetyGuard == null) issues.Add("Cat missing CatNavMeshSafetyGuard.");
             if (animator == null) issues.Add("Cat missing Animator.");
             if (featureEngine == null) issues.Add("Systems missing RealtimeFeatureEngine.");
             if (recognitionProvider == null) issues.Add("Systems missing MockRecognitionProvider.");
+            if (interestRegistry == null) issues.Add("Scene missing CatInterestPointRegistry.");
             if (issues.Count > 0)
             {
                 return BuildReport(issues);
             }
 
-            ValidateNavMeshRuntime(agent, safetyGuard, issues);
+            ValidateNavMeshRuntime(agent, safetyGuard, interestRegistry, issues);
             ValidateRecognitionAndPrompt(driver, featureEngine, recognitionProvider, issues);
             ValidateAnimatorRuntime(animator, agent, issues);
 
@@ -90,6 +96,7 @@ namespace CatLife.EditorTools
         private static void ValidateNavMeshRuntime(
             NavMeshAgent agent,
             CatNavMeshSafetyGuard safetyGuard,
+            CatInterestPointRegistry interestRegistry,
             List<string> issues)
         {
             if (!agent.enabled)
@@ -111,6 +118,11 @@ namespace CatLife.EditorTools
             if (safetyGuard.LastNavMeshDistance > 0.4f)
             {
                 issues.Add("Cat is drifting too far from NavMesh: " + safetyGuard.LastNavMeshDistance.ToString("F3"));
+            }
+
+            if (interestRegistry.Count < 8)
+            {
+                issues.Add("CatInterestPointRegistry has too few points: " + interestRegistry.Count);
             }
         }
 

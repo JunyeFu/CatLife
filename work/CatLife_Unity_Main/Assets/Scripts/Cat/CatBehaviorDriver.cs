@@ -521,7 +521,7 @@ namespace CatLife.Cat
                     return;
                 }
 
-                if (TryStartMove(decision.state) && behaviorMemory != null)
+                if (TryStartMove(decision) && behaviorMemory != null)
                 {
                     behaviorMemory.RecordDecision(decision, Time.time);
                 }
@@ -547,6 +547,18 @@ namespace CatLife.Cat
 
         private bool TryStartMove(CatBehaviorState state)
         {
+            return TryStartMove(CatBehaviorDecision.Create(
+                state,
+                0f,
+                0f,
+                0,
+                CatActionInterruptPolicy.DropIfBusy,
+                false,
+                "legacy_move"));
+        }
+
+        private bool TryStartMove(CatBehaviorDecision decision)
+        {
             if (navigationAgent == null || destinationPlanner == null)
             {
                 PlayIdleFallback();
@@ -554,7 +566,13 @@ namespace CatLife.Cat
             }
 
             Vector3 target;
-            if (!destinationPlanner.TryPlanNext(snapshot, state, transform.position, out target))
+            if (!destinationPlanner.TryPlanNext(
+                    snapshot,
+                    decision,
+                    needModel != null ? needModel.Current : CatNeedState.CreateDefault(),
+                    behaviorMemory,
+                    transform.position,
+                    out target))
             {
                 PlayIdleFallback();
                 return false;
@@ -570,6 +588,11 @@ namespace CatLife.Cat
             if (animationController != null)
             {
                 animationController.ForceLocomotion(true);
+            }
+
+            if (behaviorMemory != null)
+            {
+                behaviorMemory.RecordInterestPointVisit(destinationPlanner.LastPlannedInterestPointId);
             }
 
             return true;

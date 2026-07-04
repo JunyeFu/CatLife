@@ -21,6 +21,7 @@ namespace CatLife.EditorTools
         private const string SystemsName = "CatBehaviorSystems";
         private const string AnchorRootName = "CatDestinationAnchors";
         private const string ForbiddenRootName = "CatForbiddenZones";
+        private const string InterestRootName = "CatInterestPoints";
         private const string ControllerPath = "Assets/Art/Cat/Animator/CatLife_TownWalker.controller";
         private const string ProjectStructurePath = "Assets/PROJECT_STRUCTURE.md";
 
@@ -306,6 +307,9 @@ namespace CatLife.EditorTools
 
             if (destinationPlanner != null)
             {
+                RequireSerializedObject(destinationPlanner, "interestPointRegistry", issues);
+                RequireSerializedObject(destinationPlanner, "needModel", issues);
+                RequireSerializedObject(destinationPlanner, "behaviorMemory", issues);
                 RequireSerializedArray(destinationPlanner, "forbiddenZones", 1, issues);
             }
         }
@@ -366,7 +370,34 @@ namespace CatLife.EditorTools
                 issues.Add("Expected at least 6 cat destination anchors, found " + anchorRoot.childCount + ".");
             }
 
+            ValidateInterestPoints(navigation, issues);
             ValidateForbiddenZones(navigation, issues);
+        }
+
+        private static void ValidateInterestPoints(Transform navigation, List<string> issues)
+        {
+            CatInterestPointRegistry registry = navigation.GetComponent<CatInterestPointRegistry>();
+            if (registry == null)
+            {
+                issues.Add("Runtime/Navigation missing CatInterestPointRegistry.");
+            }
+            else if (registry.Count < 8)
+            {
+                issues.Add("Expected at least 8 cat interest points in registry, found " + registry.Count + ".");
+            }
+
+            Transform interestRoot = navigation.Find(InterestRootName);
+            if (interestRoot == null)
+            {
+                issues.Add("Missing CatInterestPoints root.");
+                return;
+            }
+
+            CatInterestPoint[] points = interestRoot.GetComponentsInChildren<CatInterestPoint>(true);
+            if (points.Length < 8)
+            {
+                issues.Add("Expected at least 8 CatInterestPoint components, found " + points.Length + ".");
+            }
         }
 
         private static void ValidateForbiddenZones(Transform navigation, List<string> issues)
