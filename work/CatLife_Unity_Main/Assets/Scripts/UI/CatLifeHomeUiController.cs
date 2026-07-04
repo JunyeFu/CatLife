@@ -266,6 +266,7 @@ namespace CatLife.UI
                 BuildSettingsPageBody());
             EnsureFocusDurationSettingsRow();
             SyncFocusDurationInputText();
+            ApplySettingsPageLayout();
             SetGameObjectVisible(focusDurationSettingsRow, true);
         }
 
@@ -587,12 +588,6 @@ namespace CatLife.UI
         private string BuildSettingsPageBody()
         {
             StringBuilder body = new StringBuilder(640);
-            body.AppendLine(ColorTitle("专注时间"));
-            body.AppendLine("每轮专注：" + GetFocusSessionMinutes() + " 分钟");
-            body.AppendLine("可在下方输入 1-" + MaxFocusSessionMinutes + " 分钟，下一轮专注生效。");
-            body.AppendLine();
-            body.AppendLine();
-            body.AppendLine();
             body.AppendLine(ColorTitle("识别与智能"));
             body.AppendLine("本地行为识别：" + BoolText(localRecognitionEnabled));
             body.AppendLine("智能解释：" + BoolText(smartExplanationEnabled));
@@ -666,6 +661,23 @@ namespace CatLife.UI
             RectTransform bodyRect = placeholderBodyText.rectTransform;
             bodyRect.anchoredPosition = new Vector2(60f, -170f);
             bodyRect.sizeDelta = new Vector2(816f, 1690f);
+        }
+
+        private void ApplySettingsPageLayout()
+        {
+            if (placeholderBodyText != null)
+            {
+                RectTransform bodyRect = placeholderBodyText.rectTransform;
+                bodyRect.anchoredPosition = new Vector2(60f, -330f);
+                bodyRect.sizeDelta = new Vector2(816f, 1530f);
+            }
+
+            if (focusDurationSettingsRow != null)
+            {
+                RectTransform rowRect = focusDurationSettingsRow.GetComponent<RectTransform>();
+                rowRect.anchoredPosition = new Vector2(60f, -165f);
+                rowRect.sizeDelta = new Vector2(816f, 118f);
+            }
         }
 
         private static GameObject GetPlaceholderCardRoot(Component component)
@@ -1038,13 +1050,16 @@ namespace CatLife.UI
             rowRect.anchorMin = new Vector2(0f, 1f);
             rowRect.anchorMax = new Vector2(0f, 1f);
             rowRect.pivot = new Vector2(0f, 1f);
-            rowRect.anchoredPosition = new Vector2(60f, -320f);
-            rowRect.sizeDelta = new Vector2(816f, 86f);
+            rowRect.anchoredPosition = new Vector2(60f, -165f);
+            rowRect.sizeDelta = new Vector2(816f, 118f);
 
-            Text label = AddRuntimeText("FocusDurationLabel", focusDurationSettingsRow.transform, "每轮专注", font, 28, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), Vector2.zero, new Vector2(210f, 64f), new Color(0.34f, 0.18f, 0.06f, 1f));
+            Text label = AddRuntimeText("FocusDurationLabel", focusDurationSettingsRow.transform, "每轮专注", font, 28, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), Vector2.zero, new Vector2(210f, 44f), new Color(0.34f, 0.18f, 0.06f, 1f));
             AddRuntimeTextShadow(label, 0.12f, new Vector2(0f, -1f));
 
-            GameObject inputObject = AddRuntimePanel("FocusDurationMinutesInput", focusDurationSettingsRow.transform, roundedSprite, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(230f, 0f), new Vector2(170f, 64f), new Color(1f, 0.96f, 0.76f, 0.58f));
+            Text helper = AddRuntimeText("FocusDurationHelper", focusDurationSettingsRow.transform, "可输入 1-" + MaxFocusSessionMinutes + " 分钟，下一轮专注生效。", font, 22, FontStyle.Normal, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, -72f), new Vector2(620f, 34f), new Color(0.36f, 0.2f, 0.07f, 1f));
+            AddRuntimeTextShadow(helper, 0.08f, new Vector2(0f, -1f));
+
+            GameObject inputObject = AddRuntimePanel("FocusDurationMinutesInput", focusDurationSettingsRow.transform, roundedSprite, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(220f, -3f), new Vector2(170f, 58f), new Color(1f, 0.96f, 0.76f, 0.58f));
             Image inputImage = inputObject.GetComponent<Image>();
             inputImage.raycastTarget = true;
             focusDurationInput = inputObject.AddComponent<InputField>();
@@ -1072,11 +1087,12 @@ namespace CatLife.UI
             focusDurationInput.placeholder = placeholderText;
             focusDurationInput.onEndEdit.AddListener(ApplyFocusDurationInput);
 
-            Text suffix = AddRuntimeText("FocusDurationSuffix", focusDurationSettingsRow.transform, "分钟", font, 28, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(420f, 0f), new Vector2(90f, 64f), new Color(0.34f, 0.18f, 0.06f, 1f));
+            Text suffix = AddRuntimeText("FocusDurationSuffix", focusDurationSettingsRow.transform, "分钟", font, 28, FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(410f, 0f), new Vector2(90f, 58f), new Color(0.34f, 0.18f, 0.06f, 1f));
             AddRuntimeTextShadow(suffix, 0.12f, new Vector2(0f, -1f));
 
-            focusDurationStatusText = AddRuntimeText("FocusDurationStatus", focusDurationSettingsRow.transform, "", font, 22, FontStyle.Normal, TextAnchor.MiddleLeft, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(520f, 0f), new Vector2(292f, 64f), new Color(0.47f, 0.26f, 0.08f, 1f));
+            focusDurationStatusText = AddRuntimeText("FocusDurationStatus", focusDurationSettingsRow.transform, "", font, 22, FontStyle.Normal, TextAnchor.MiddleLeft, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(510f, 0f), new Vector2(292f, 58f), new Color(0.47f, 0.26f, 0.08f, 1f));
             SyncFocusDurationInputText();
+            ApplySettingsPageLayout();
             focusDurationSettingsRow.SetActive(activePage == HomePage.Settings && placeholderOverlay != null && placeholderOverlay.activeSelf);
         }
 
