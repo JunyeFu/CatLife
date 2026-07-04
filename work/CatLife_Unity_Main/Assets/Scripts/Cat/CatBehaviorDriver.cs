@@ -1,5 +1,6 @@
 using CatLife.LLM;
 using CatLife.Recognition;
+using CatLife.SceneInteraction;
 using UnityEngine;
 
 namespace CatLife.Cat
@@ -19,6 +20,11 @@ namespace CatLife.Cat
         [SerializeField] private CatBehaviorMemory behaviorMemory;
         [SerializeField] private CatBehaviorBrainScorer behaviorScorer;
         [SerializeField] private Transform focusLookAtTarget;
+
+        [Header("Scene Interaction")]
+        [SerializeField] private SceneInteractionMapper sceneInteractionMapper;
+        [SerializeField] private SceneInteractionRegistry sceneInteractionRegistry;
+        [SerializeField] private SceneInteractionMemory sceneInteractionMemory = SceneInteractionMemory.CreateDefault();
 
         [Header("Focus Presence")]
         [SerializeField] private bool faceCameraWhenFocusedIdle = true;
@@ -59,6 +65,9 @@ namespace CatLife.Cat
         private bool walkingEnabled = true;
         private float navigationSpeedMultiplier = 1f;
         private readonly string[] recentEvents = new string[4];
+        private SceneInteractionPayload latestSceneInteractionPayload;
+        private SceneInteractionPoint latestSceneInteractionPoint;
+        private bool sceneInteractionMapperSubscribed;
 
         public CatBehaviorState CurrentState
         {
@@ -83,6 +92,16 @@ namespace CatLife.Cat
         public bool IsActionHeld
         {
             get { return Time.time < actionHoldUntil; }
+        }
+
+        public SceneInteractionPayload LatestSceneInteractionPayload
+        {
+            get { return latestSceneInteractionPayload; }
+        }
+
+        public SceneInteractionPoint LatestSceneInteractionPoint
+        {
+            get { return latestSceneInteractionPoint; }
         }
 
         private void Reset()
@@ -155,6 +174,8 @@ namespace CatLife.Cat
 
             ResolveFocusLookAtTarget();
             ResolveFeatureEngine();
+            ResolveSceneInteractionReferences();
+            SubscribeSceneInteractionMapper();
             recognitionProvider = recognitionProviderComponent as IRecognitionProvider;
             llmClient = llmClientComponent as ICatLLMClient;
             promptBuilder = new CatPromptBuilder();
@@ -170,6 +191,11 @@ namespace CatLife.Cat
             {
                 navigationAgent.WarpToNearestNavMesh();
             }
+        }
+
+        private void OnDestroy()
+        {
+            UnsubscribeSceneInteractionMapper();
         }
 
         private void Update()
@@ -390,6 +416,79 @@ namespace CatLife.Cat
             return true;
         }
 
+        public bool NotifySceneInteraction(SceneInteractionPayload payload)
+        {
+            if (!payload.IsValid)
+            {
+                return false;
+            }
+
+            ResolveSceneInteractionReferences();
+            SceneInteractionPoint point;
+            if (sceneInteractionRegistry == null || !sceneInteractionRegistry.TryGet(payload.pointId, out point))
+            {
+                return false;
+            }
+
+            return NotifySceneInteraction(payload, point);
+        }
+
+        public bool NotifySceneInteraction(SceneInteractionPayload payload, SceneInteractionPoint point)
+        {
+            if (!payload.IsValid || point == null)
+            {
+                return false;
+            }
+
+            PushRecentEvent("scene_interaction");
+            if (behaviorMemory != null)
+            {
+                behaviorMemory.RecordUserInteraction();
+            }
+
+            if (featureEngine != null)
+            {
+                featureEngine.RecordUiEvent("scene_interaction");
+            }
+
+            latestSceneInteractionPayload = payload;
+            latestSceneInteractionPoint = point;
+            float now = Time.time;
+            bool focused = snapshot.IsFocused;
+            sceneInteractionMemory.RecordClick(payload.pointId, now);
+
+            if (!point.CanTrigger(focused, now))
+            {
+                RouteAction(CatActionRequest.Create(
+                    focused ? CatBehaviorState.EarTwitchAlert : CatBehaviorState.HeadShakeNo,
+                    CatActionSource.User,
+                    "scene_interaction_unavailable",
+                    focused ? 45 : 60,
+                    focused ? 8f : 5f,
+                    1f,
+                    CatActionInterruptPolicy.DropIfBusy,
+                    false));
+                return false;
+            }
+
+            if (!TryStartSceneInteractionMove(payload, point, focused))
+            {
+                RouteAction(CatActionRequest.Create(
+                    CatBehaviorState.LookBack,
+                    CatActionSource.User,
+                    "scene_interaction_rejected",
+                    65,
+                    8f,
+                    1f,
+                    CatActionInterruptPolicy.DropIfBusy,
+                    false));
+                return false;
+            }
+
+            point.MarkTriggered(now);
+            return true;
+        }
+
         public void NotifyUiAction(CatBehaviorState state, string reason)
         {
             if (state == CatBehaviorState.None)
@@ -463,6 +562,46 @@ namespace CatLife.Cat
             {
                 featureEngine = FindAnyObjectByType<RealtimeFeatureEngine>();
             }
+        }
+
+        private void ResolveSceneInteractionReferences()
+        {
+            if (sceneInteractionRegistry == null)
+            {
+                sceneInteractionRegistry = FindAnyObjectByType<SceneInteractionRegistry>();
+            }
+
+            if (sceneInteractionMapper == null)
+            {
+                sceneInteractionMapper = FindAnyObjectByType<SceneInteractionMapper>();
+            }
+        }
+
+        private void SubscribeSceneInteractionMapper()
+        {
+            if (sceneInteractionMapperSubscribed || sceneInteractionMapper == null)
+            {
+                return;
+            }
+
+            sceneInteractionMapper.InteractionMapped += HandleSceneInteractionMapped;
+            sceneInteractionMapperSubscribed = true;
+        }
+
+        private void UnsubscribeSceneInteractionMapper()
+        {
+            if (!sceneInteractionMapperSubscribed || sceneInteractionMapper == null)
+            {
+                return;
+            }
+
+            sceneInteractionMapper.InteractionMapped -= HandleSceneInteractionMapped;
+            sceneInteractionMapperSubscribed = false;
+        }
+
+        private void HandleSceneInteractionMapped(SceneInteractionPayload payload, SceneInteractionPoint point)
+        {
+            NotifySceneInteraction(payload, point);
         }
 
         private void ResolveFocusLookAtTarget()
@@ -787,6 +926,72 @@ namespace CatLife.Cat
             }
 
             return true;
+        }
+
+        private bool TryStartSceneInteractionMove(
+            SceneInteractionPayload payload,
+            SceneInteractionPoint point,
+            bool focused)
+        {
+            if (!walkingEnabled || navigationAgent == null || destinationPlanner == null)
+            {
+                return false;
+            }
+
+            Transform anchor = point.NavigationAnchor;
+            Vector3 requestedPoint = anchor != null ? anchor.position : payload.hitWorldPosition;
+            navigationAgent.SetSpeedMultiplier(navigationSpeedMultiplier);
+            navigationAgent.Configure(focused);
+
+            Vector3 target;
+            if (!destinationPlanner.TryPlanRequestedPoint(snapshot, requestedPoint, transform.position, out target))
+            {
+                return false;
+            }
+
+            if (!navigationAgent.TryMoveTo(target))
+            {
+                return false;
+            }
+
+            currentState = focused ? CatBehaviorState.FocusedRoam : CatBehaviorState.Roam;
+            actionHoldUntil = 0f;
+            if (animationController != null)
+            {
+                animationController.ForceLocomotion(true);
+            }
+
+            QueueSceneArrivalAction(point, focused);
+            return true;
+        }
+
+        private void QueueSceneArrivalAction(SceneInteractionPoint point, bool focused)
+        {
+            if (actionRouter == null || point == null)
+            {
+                return;
+            }
+
+            CatBehaviorState arrivalState = point.PreferredCatState;
+            if (arrivalState == CatBehaviorState.None ||
+                arrivalState == CatBehaviorState.Roam ||
+                arrivalState == CatBehaviorState.FocusedRoam)
+            {
+                arrivalState = focused ? CatBehaviorState.AlertLook : CatBehaviorState.CuriousSniff;
+            }
+
+            sceneInteractionMemory.RecordArrival(point.Id, point.PreferredAnimationTag, Time.time);
+            CatActionRequest arrivalRequest = CatActionRequest.Create(
+                arrivalState,
+                CatActionSource.User,
+                "scene_interaction_arrival",
+                Mathf.Clamp(point.Priority, 40, 90),
+                point.CooldownSeconds,
+                3f,
+                CatActionInterruptPolicy.QueueIfMoving,
+                false);
+            CatActionRequest playableRequest;
+            actionRouter.TryRoute(arrivalRequest, true, false, out playableRequest);
         }
 
         private void TryPlayQueuedAction()
