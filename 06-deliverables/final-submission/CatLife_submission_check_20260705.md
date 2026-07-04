@@ -1,6 +1,6 @@
 ﻿# CatLife Submission Check
 
-Generated: 2026-07-05 07:45:04
+Generated: 2026-07-05 07:55:55
 Directory: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission
 
 ## 1. Check Results
@@ -8,7 +8,7 @@ Directory: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submissi
 | Item | Expected | Status | Evidence | Next action |
 |---|---|---|---|---|
 | PPT | PPT exists and includes real product screenshots | PASS | CatLife_作品介绍PPT_v1.pptx | Keep the local PPT and complete manual screenshot/content review |
-| Video | MP4, target <=3min, hard max <=5min, shows final product/name/UI/features | MISSING | missing | Add CatLife_demo_video_v1.mp4 |
+| Video | MP4 plus video manifest; target <=3min, hard max <=5min, final product/name/UI/features | MISSING | missing | Add final demo MP4, then run test-final-video.ps1 |
 | Poster | Portrait 70cm x 150cm poster, jpg/jpeg/png, includes title/slogan/visual | PASS | CatLife_作品海报_v1.png | Keep the local poster and complete manual upload-preview review |
 | APK | Runnable Android APK, installable and launchable on device | PASS | CatLife_MVP_Android_v0.1.0.apk | Keep the local APK, then add adb/cloud-device install evidence |
 | Code package | Large-model code package zip, API call marked, no secrets | PASS | CatLife_LLM_code_package_v1.zip | Keep the local code package and manifest; rerun package-llm-code.ps1 after LLM changes |

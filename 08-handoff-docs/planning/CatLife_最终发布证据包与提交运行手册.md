@@ -130,6 +130,15 @@ adb pull /sdcard/catlife-demo.mp4 "06-deliverables/final-submission/evidence/04-
 Get-FileHash -Algorithm SHA256 "06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk"
 ```
 
+视频自动检查：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/test-final-video.ps1 `
+  -VideoPath "06-deliverables/final-submission/CatLife_作品演示视频_v1.mp4"
+```
+
+该脚本会生成 `06-deliverables/final-submission/CatLife_video_manifest.md`。有 `ffprobe` 时自动检查时长、分辨率、编码信息；无 `ffprobe` 时必须人工补充或安装后复验，不能只凭 MP4 文件存在标记视频通过。
+
 如果 vivo 云真机网页端不能提供 ADB endpoint，但能下载安装日志、logcat、截图或录屏，则使用人工导入脚本统一落到标准证据目录：
 
 ```powershell
@@ -165,6 +174,7 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 
 - `check-final-submission.ps1` 自动检查通过；
 - 人工打开 PPT、视频、海报、APK、代码包全部无明显错误；
+- 视频必须有 `CatLife_video_manifest.md`，并确认时长、分辨率、首屏、隐私和功能演示符合要求；
 - `evidence/` 中有构建、安装、设备、运行日志和录屏证据；
 - 视频第一屏 5 秒内能看到 CatLife 与猫咪/小镇；
 - PPT 和视频的界面截图来自同一版 APK 或同一版 Unity 运行画面；

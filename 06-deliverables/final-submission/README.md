@@ -56,6 +56,15 @@ The checker writes:
 
 - `06-deliverables/final-submission/CatLife_submission_check_20260705.md`
 
+After adding the final demo video, generate the video manifest before rerunning the final checker:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/test-final-video.ps1 `
+  -VideoPath "06-deliverables/final-submission/CatLife_作品演示视频_v1.mp4"
+```
+
+When `ffprobe` is installed, this checks duration and resolution automatically. Without `ffprobe`, the manifest records that metadata could not be fully verified and the video remains incomplete until manual or ffprobe-based review is done.
+
 To initialize the local evidence folder before device testing:
 
 ```powershell
