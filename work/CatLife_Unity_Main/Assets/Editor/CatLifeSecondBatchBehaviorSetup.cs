@@ -2,6 +2,8 @@ using CatLife.Cat;
 using CatLife.LLM;
 using CatLife.Recognition;
 using CatLife.UI;
+using System.Collections.Generic;
+using System.IO;
 using Unity.AI.Navigation;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -17,7 +19,14 @@ namespace CatLife.EditorTools
         private const string NavigationName = "Navigation";
         private const string SystemsName = "CatBehaviorSystems";
         private const string AnchorRootName = "CatDestinationAnchors";
+        private const string ForbiddenRootName = "CatForbiddenZones";
         private const string CatName = "CatCompanionModel";
+        private const float ForbiddenProjectionScale = 1.05f;
+        private const float ForbiddenZoneHeight = 0.9f;
+        private const float MinObstacleHeight = 0.28f;
+        private const float MinObstacleProjectionSize = 0.18f;
+        private const float ComplexManualAreaThreshold = 30f;
+        private const float MaxAutomaticObstacleProjectionArea = 500f;
 
         [MenuItem(MenuPath)]
         public static void Setup()
@@ -33,12 +42,15 @@ namespace CatLife.EditorTools
             Transform navigationRoot = GetOrCreateChild(runtime, NavigationName);
             Transform systemsRoot = GetOrCreateChild(runtime, SystemsName);
             Transform anchorRoot = GetOrCreateChild(navigationRoot, AnchorRootName);
+            Transform forbiddenRoot = GetOrCreateChild(navigationRoot, ForbiddenRootName);
 
             float groundY = cat.transform.position.y;
             CreateWalkArea(navigationRoot, "CatWalkableArea_MainPlaza", new Vector3(0f, groundY - 0.06f, -6.8f), new Vector3(7.4f, 0.12f, 4.5f));
             CreateWalkArea(navigationRoot, "CatWalkableArea_LeftGardenPath", new Vector3(-3.9f, groundY - 0.06f, -6.3f), new Vector3(2.8f, 0.12f, 3.6f));
             CreateWalkArea(navigationRoot, "CatWalkableArea_RightGardenPath", new Vector3(3.9f, groundY - 0.06f, -6.3f), new Vector3(2.8f, 0.12f, 3.6f));
             CreateWalkArea(navigationRoot, "CatWalkableArea_FrontStoneRing", new Vector3(0f, groundY - 0.06f, -9.25f), new Vector3(6.6f, 0.12f, 2.2f));
+            CreateCenterSecondStoneRingWalkAreas(navigationRoot, groundY);
+            CatForbiddenZone[] forbiddenZones = BuildForbiddenZones(forbiddenRoot, navigationRoot, groundY);
 
             NavMeshSurface surface = navigationRoot.GetComponent<NavMeshSurface>();
             if (surface == null)
@@ -92,7 +104,7 @@ namespace CatLife.EditorTools
 
             AssignObject(navigationAgent, "agent", agent);
             AssignObject(safetyGuard, "agent", agent);
-            AssignPlanner(destinationPlanner, anchors);
+            AssignPlanner(destinationPlanner, anchors, forbiddenZones);
             AssignObject(animationController, "animator", animator);
             AssignDriver(behaviorDriver, recognitionProvider, llmClient, navigationAgent, animationController, destinationPlanner, actionRouter, featureEngine);
 
@@ -111,6 +123,7 @@ namespace CatLife.EditorTools
 
             EditorUtility.SetDirty(cat);
             EditorUtility.SetDirty(navigationRoot.gameObject);
+            EditorUtility.SetDirty(forbiddenRoot.gameObject);
             EditorUtility.SetDirty(systemsRoot.gameObject);
             EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
             EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
@@ -172,6 +185,36 @@ namespace CatLife.EditorTools
             EditorUtility.SetDirty(area);
         }
 
+        private static void CreateCenterSecondStoneRingWalkAreas(Transform parent, float groundY)
+        {
+            Vector3 center = new Vector3(-0.14f, groundY - 0.06f, 0.18f);
+            float outerSize = 11.96f;
+            float innerSize = 4.82f;
+            float ringWidth = (outerSize - innerSize) * 0.5f;
+            float offset = innerSize * 0.5f + ringWidth * 0.5f;
+
+            CreateWalkArea(
+                parent,
+                "CatWalkableArea_CenterSecondRing_North",
+                new Vector3(center.x, center.y, center.z + offset),
+                new Vector3(outerSize, 0.12f, ringWidth));
+            CreateWalkArea(
+                parent,
+                "CatWalkableArea_CenterSecondRing_South",
+                new Vector3(center.x, center.y, center.z - offset),
+                new Vector3(outerSize, 0.12f, ringWidth));
+            CreateWalkArea(
+                parent,
+                "CatWalkableArea_CenterSecondRing_West",
+                new Vector3(center.x - offset, center.y, center.z),
+                new Vector3(ringWidth, 0.12f, innerSize));
+            CreateWalkArea(
+                parent,
+                "CatWalkableArea_CenterSecondRing_East",
+                new Vector3(center.x + offset, center.y, center.z),
+                new Vector3(ringWidth, 0.12f, innerSize));
+        }
+
         private static Transform GetOrCreateAnchor(Transform parent, string name, Vector3 position)
         {
             Transform anchor = parent.Find(name);
@@ -185,6 +228,320 @@ namespace CatLife.EditorTools
 
             anchor.position = position;
             return anchor;
+        }
+
+        private static CatForbiddenZone[] BuildForbiddenZones(Transform parent, Transform navigationRoot, float groundY)
+        {
+            ClearChildren(parent);
+
+            List<CatForbiddenZone> zones = new List<CatForbiddenZone>();
+            Renderer[] renderers = Object.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude);
+            HashSet<string> usedNames = new HashSet<string>();
+
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                Renderer renderer = renderers[i];
+                if (!CanCreateForbiddenZone(renderer, navigationRoot))
+                {
+                    continue;
+                }
+
+                Bounds sourceBounds;
+                CatForbiddenZone.ZoneSourceKind sourceKind;
+                if (TryGetColliderBounds(renderer.transform, out sourceBounds))
+                {
+                    sourceKind = CatForbiddenZone.ZoneSourceKind.Collider;
+                }
+                else
+                {
+                    sourceBounds = renderer.bounds;
+                    sourceKind = IsComplexManualOverride(renderer, sourceBounds)
+                        ? CatForbiddenZone.ZoneSourceKind.ManualOverride
+                        : CatForbiddenZone.ZoneSourceKind.RendererBounds;
+                }
+
+                if (!IsUsableForbiddenBounds(sourceBounds))
+                {
+                    continue;
+                }
+
+                Vector3 zoneSize = new Vector3(
+                    Mathf.Max(MinObstacleProjectionSize, sourceBounds.size.x * ForbiddenProjectionScale),
+                    ForbiddenZoneHeight,
+                    Mathf.Max(MinObstacleProjectionSize, sourceBounds.size.z * ForbiddenProjectionScale));
+                Vector3 zoneCenter = new Vector3(sourceBounds.center.x, groundY, sourceBounds.center.z);
+
+                string zoneName = MakeUniqueZoneName(renderer.name, sourceKind, usedNames);
+                CatForbiddenZone zone = CreateForbiddenZone(
+                    parent,
+                    zoneName,
+                    GetHierarchyPath(renderer.transform),
+                    sourceKind,
+                    zoneCenter,
+                    zoneSize);
+                zones.Add(zone);
+            }
+
+            AddCenterPawPlatformForbiddenZone(parent, groundY, usedNames, zones);
+            return zones.ToArray();
+        }
+
+        private static void AddCenterPawPlatformForbiddenZone(
+            Transform parent,
+            float groundY,
+            HashSet<string> usedNames,
+            List<CatForbiddenZone> zones)
+        {
+            Renderer sourceRenderer = FindRendererByName("Mesh_0.010");
+            Bounds bounds;
+            string sourceName;
+            if (sourceRenderer != null)
+            {
+                bounds = sourceRenderer.bounds;
+                sourceName = GetHierarchyPath(sourceRenderer.transform);
+            }
+            else
+            {
+                bounds = new Bounds(new Vector3(-0.12f, groundY, 0.19f), new Vector3(4.82f, 0.24f, 4.86f));
+                sourceName = "ManualFallback/CenterPawPlatform";
+            }
+
+            Vector3 zoneSize = new Vector3(
+                Mathf.Max(MinObstacleProjectionSize, bounds.size.x * ForbiddenProjectionScale),
+                ForbiddenZoneHeight,
+                Mathf.Max(MinObstacleProjectionSize, bounds.size.z * ForbiddenProjectionScale));
+            Vector3 zoneCenter = new Vector3(bounds.center.x, groundY, bounds.center.z);
+            string zoneName = MakeUniqueZoneName(
+                "CenterPawPlatform",
+                CatForbiddenZone.ZoneSourceKind.ManualOverride,
+                usedNames);
+
+            zones.Add(CreateForbiddenZone(
+                parent,
+                zoneName,
+                sourceName,
+                CatForbiddenZone.ZoneSourceKind.ManualOverride,
+                zoneCenter,
+                zoneSize));
+        }
+
+        private static Renderer FindRendererByName(string name)
+        {
+            Renderer[] renderers = Object.FindObjectsByType<Renderer>(FindObjectsInactive.Exclude);
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i] != null && renderers[i].name == name)
+                {
+                    return renderers[i];
+                }
+            }
+
+            return null;
+        }
+
+        private static CatForbiddenZone CreateForbiddenZone(
+            Transform parent,
+            string zoneName,
+            string sourceName,
+            CatForbiddenZone.ZoneSourceKind sourceKind,
+            Vector3 zoneCenter,
+            Vector3 zoneSize)
+        {
+            GameObject zoneObject = new GameObject(zoneName);
+            Undo.RegisterCreatedObjectUndo(zoneObject, "Create cat forbidden navigation zone");
+            zoneObject.transform.SetParent(parent, false);
+
+            CatForbiddenZone zone = zoneObject.AddComponent<CatForbiddenZone>();
+            zone.Configure(sourceName, sourceKind, ForbiddenProjectionScale, zoneCenter, zoneSize);
+            BoxCollider collider = zoneObject.GetComponent<BoxCollider>();
+            collider.isTrigger = false;
+
+            NavMeshModifier modifier = zoneObject.AddComponent<NavMeshModifier>();
+            modifier.overrideArea = true;
+            modifier.area = GetNotWalkableArea();
+            modifier.ignoreFromBuild = false;
+
+            EditorUtility.SetDirty(zoneObject);
+            return zone;
+        }
+
+        private static void ClearChildren(Transform parent)
+        {
+            for (int i = parent.childCount - 1; i >= 0; i--)
+            {
+                Object.DestroyImmediate(parent.GetChild(i).gameObject);
+            }
+        }
+
+        private static bool CanCreateForbiddenZone(Renderer renderer, Transform navigationRoot)
+        {
+            if (renderer == null || renderer.GetComponentInParent<Canvas>() != null)
+            {
+                return false;
+            }
+
+            Transform transform = renderer.transform;
+            if (IsChildOf(transform, navigationRoot) || transform.GetComponentInParent<CatForbiddenZone>() != null)
+            {
+                return false;
+            }
+
+            if (transform.GetComponentInParent<CatBehaviorDriver>() != null || transform.GetComponentInParent<Camera>() != null)
+            {
+                return false;
+            }
+
+            string path = GetHierarchyPath(transform).ToLowerInvariant();
+            if (path.Contains("sky") || path.Contains("backdrop") || path.Contains("catcompanionmodel") ||
+                path.Contains("catwalkablearea") || path.Contains("grasspuffs") || path.Contains("tanstones") ||
+                path.Contains("colorflowers") || path.Contains("island") || path.Contains("ground"))
+            {
+                return false;
+            }
+
+            Bounds bounds = renderer.bounds;
+            return IsUsableForbiddenBounds(bounds);
+        }
+
+        private static bool IsUsableForbiddenBounds(Bounds bounds)
+        {
+            if (bounds.size.x < MinObstacleProjectionSize || bounds.size.z < MinObstacleProjectionSize)
+            {
+                return false;
+            }
+
+            if (bounds.size.y < MinObstacleHeight)
+            {
+                return false;
+            }
+
+            float projectedArea = bounds.size.x * bounds.size.z;
+            if (projectedArea > MaxAutomaticObstacleProjectionArea)
+            {
+                return false;
+            }
+
+            if (projectedArea > 250f && bounds.size.y < 1.5f)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool TryGetColliderBounds(Transform source, out Bounds bounds)
+        {
+            bounds = default(Bounds);
+            Collider[] colliders = source.GetComponentsInChildren<Collider>(false);
+            bool found = false;
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                Collider collider = colliders[i];
+                if (collider == null || collider.isTrigger || collider.GetComponentInParent<CatForbiddenZone>() != null)
+                {
+                    continue;
+                }
+
+                if (!IsUsableForbiddenBounds(collider.bounds))
+                {
+                    continue;
+                }
+
+                if (!found)
+                {
+                    bounds = collider.bounds;
+                    found = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(collider.bounds);
+                }
+            }
+
+            return found;
+        }
+
+        private static bool IsComplexManualOverride(Renderer renderer, Bounds bounds)
+        {
+            float projectedArea = bounds.size.x * bounds.size.z;
+            if (projectedArea >= ComplexManualAreaThreshold || bounds.size.y >= 5f)
+            {
+                return true;
+            }
+
+            string name = renderer.name.ToLowerInvariant();
+            return name.Contains("house") || name.Contains("building") || name.Contains("shop") ||
+                name.Contains("cafe") || name.Contains("cat") || name.Contains("tree");
+        }
+
+        private static int GetNotWalkableArea()
+        {
+            int area = NavMesh.GetAreaFromName("Not Walkable");
+            return area >= 0 ? area : 1;
+        }
+
+        private static bool IsChildOf(Transform child, Transform parent)
+        {
+            Transform current = child;
+            while (current != null)
+            {
+                if (current == parent)
+                {
+                    return true;
+                }
+
+                current = current.parent;
+            }
+
+            return false;
+        }
+
+        private static string MakeUniqueZoneName(
+            string sourceName,
+            CatForbiddenZone.ZoneSourceKind sourceKind,
+            HashSet<string> usedNames)
+        {
+            string safeName = string.IsNullOrEmpty(sourceName) ? "Unnamed" : sourceName;
+            char[] invalidChars = Path.GetInvalidFileNameChars();
+            for (int i = 0; i < invalidChars.Length; i++)
+            {
+                safeName = safeName.Replace(invalidChars[i], '_');
+            }
+
+            string prefix = sourceKind == CatForbiddenZone.ZoneSourceKind.ManualOverride
+                ? "CatForbiddenManual_"
+                : sourceKind == CatForbiddenZone.ZoneSourceKind.Collider
+                    ? "CatForbiddenCollider_"
+                    : "CatForbiddenRenderer_";
+            string candidate = prefix + safeName;
+            string unique = candidate;
+            int suffix = 1;
+            while (usedNames.Contains(unique))
+            {
+                unique = candidate + "_" + suffix;
+                suffix += 1;
+            }
+
+            usedNames.Add(unique);
+            return unique;
+        }
+
+        private static string GetHierarchyPath(Transform transform)
+        {
+            if (transform == null)
+            {
+                return string.Empty;
+            }
+
+            string path = transform.name;
+            Transform current = transform.parent;
+            while (current != null)
+            {
+                path = current.name + "/" + path;
+                current = current.parent;
+            }
+
+            return path;
         }
 
         private static T GetOrAdd<T>(GameObject target) where T : Component
@@ -222,7 +579,7 @@ namespace CatLife.EditorTools
             EditorUtility.SetDirty(driver);
         }
 
-        private static void AssignPlanner(CatDestinationPlanner planner, Transform[] anchors)
+        private static void AssignPlanner(CatDestinationPlanner planner, Transform[] anchors, CatForbiddenZone[] forbiddenZones)
         {
             SerializedObject serialized = new SerializedObject(planner);
             serialized.FindProperty("userAnchor").objectReferenceValue = Camera.main != null ? Camera.main.transform : null;
@@ -234,6 +591,7 @@ namespace CatLife.EditorTools
             serialized.FindProperty("blockerMask").intValue = 0;
             serialized.FindProperty("blockerCheckRadius").floatValue = 0.26f;
             serialized.FindProperty("navMeshProbeDistance").floatValue = 1.8f;
+            serialized.FindProperty("forbiddenPathSampleStep").floatValue = 0.2f;
 
             SerializedProperty anchorProperty = serialized.FindProperty("anchors");
             anchorProperty.arraySize = anchors.Length;
@@ -243,6 +601,13 @@ namespace CatLife.EditorTools
                 element.FindPropertyRelative("point").objectReferenceValue = anchors[i];
                 element.FindPropertyRelative("nonFocusWeight").floatValue = 1f;
                 element.FindPropertyRelative("focusWeight").floatValue = i <= 1 ? 1f : 0.25f;
+            }
+
+            SerializedProperty forbiddenProperty = serialized.FindProperty("forbiddenZones");
+            forbiddenProperty.arraySize = forbiddenZones != null ? forbiddenZones.Length : 0;
+            for (int i = 0; i < forbiddenProperty.arraySize; i++)
+            {
+                forbiddenProperty.GetArrayElementAtIndex(i).objectReferenceValue = forbiddenZones[i];
             }
 
             serialized.ApplyModifiedPropertiesWithoutUndo();

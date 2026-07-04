@@ -30,6 +30,8 @@ namespace CatLife.Cat
         [SerializeField] private LayerMask blockerMask;
         [SerializeField] private float blockerCheckRadius = 0.3f;
         [SerializeField] private float navMeshProbeDistance = 1.5f;
+        [SerializeField] private CatForbiddenZone[] forbiddenZones;
+        [SerializeField] private float forbiddenPathSampleStep = 0.25f;
 
         private readonly Collider[] overlapBuffer = new Collider[12];
 
@@ -161,13 +163,83 @@ namespace CatLife.Cat
                 }
             }
 
+            if (IsForbidden(point, blockerCheckRadius))
+            {
+                return false;
+            }
+
             NavMeshPath path = new NavMeshPath();
             if (!NavMesh.CalculatePath(origin, point, NavMesh.AllAreas, path))
             {
                 return false;
             }
 
-            return path.status == NavMeshPathStatus.PathComplete;
+            return path.status == NavMeshPathStatus.PathComplete && IsPathClear(path, blockerCheckRadius);
+        }
+
+        private bool IsPathClear(NavMeshPath path, float radius)
+        {
+            if (path == null || path.corners == null || path.corners.Length == 0)
+            {
+                return false;
+            }
+
+            Vector3[] corners = path.corners;
+            for (int i = 0; i < corners.Length; i++)
+            {
+                if (IsForbidden(corners[i], radius))
+                {
+                    return false;
+                }
+            }
+
+            float step = Mathf.Max(0.05f, forbiddenPathSampleStep);
+            for (int i = 0; i < corners.Length - 1; i++)
+            {
+                Vector3 from = corners[i];
+                Vector3 to = corners[i + 1];
+                float distance = Vector3.Distance(from, to);
+                if (distance <= step)
+                {
+                    continue;
+                }
+
+                int sampleCount = Mathf.CeilToInt(distance / step);
+                for (int sample = 1; sample < sampleCount; sample++)
+                {
+                    Vector3 point = Vector3.Lerp(from, to, sample / (float)sampleCount);
+                    if (IsForbidden(point, radius))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private bool IsForbidden(Vector3 point, float radius)
+        {
+            if (forbiddenZones == null || forbiddenZones.Length == 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < forbiddenZones.Length; i++)
+            {
+                CatForbiddenZone zone = forbiddenZones[i];
+                if (zone == null || !zone.isActiveAndEnabled)
+                {
+                    continue;
+                }
+
+                if (zone.ContainsProjectedPoint(point, radius))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

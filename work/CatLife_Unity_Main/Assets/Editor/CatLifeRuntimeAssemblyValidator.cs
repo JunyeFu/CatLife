@@ -20,6 +20,7 @@ namespace CatLife.EditorTools
         private const string NavigationName = "Navigation";
         private const string SystemsName = "CatBehaviorSystems";
         private const string AnchorRootName = "CatDestinationAnchors";
+        private const string ForbiddenRootName = "CatForbiddenZones";
         private const string ControllerPath = "Assets/Art/Cat/Animator/CatLife_TownWalker.controller";
         private const string ProjectStructurePath = "Assets/PROJECT_STRUCTURE.md";
 
@@ -28,7 +29,11 @@ namespace CatLife.EditorTools
             "CatWalkableArea_MainPlaza",
             "CatWalkableArea_LeftGardenPath",
             "CatWalkableArea_RightGardenPath",
-            "CatWalkableArea_FrontStoneRing"
+            "CatWalkableArea_FrontStoneRing",
+            "CatWalkableArea_CenterSecondRing_North",
+            "CatWalkableArea_CenterSecondRing_South",
+            "CatWalkableArea_CenterSecondRing_West",
+            "CatWalkableArea_CenterSecondRing_East"
         };
 
         private static readonly string[] RequiredRootDirectories =
@@ -291,6 +296,11 @@ namespace CatLife.EditorTools
             {
                 return;
             }
+
+            if (destinationPlanner != null)
+            {
+                RequireSerializedArray(destinationPlanner, "forbiddenZones", 1, issues);
+            }
         }
 
         private static void ValidateNavigation(Transform navigation, List<string> issues)
@@ -347,6 +357,72 @@ namespace CatLife.EditorTools
             else if (anchorRoot.childCount < 6)
             {
                 issues.Add("Expected at least 6 cat destination anchors, found " + anchorRoot.childCount + ".");
+            }
+
+            ValidateForbiddenZones(navigation, issues);
+        }
+
+        private static void ValidateForbiddenZones(Transform navigation, List<string> issues)
+        {
+            Transform forbiddenRoot = navigation.Find(ForbiddenRootName);
+            if (forbiddenRoot == null)
+            {
+                issues.Add("Missing CatForbiddenZones root.");
+                return;
+            }
+
+            CatForbiddenZone[] zones = forbiddenRoot.GetComponentsInChildren<CatForbiddenZone>(true);
+            if (zones.Length == 0)
+            {
+                issues.Add("CatForbiddenZones root has no CatForbiddenZone children.");
+                return;
+            }
+
+            bool hasRendererBoundsZone = false;
+            bool hasManualOverrideZone = false;
+            bool hasCenterPlatformZone = false;
+            for (int i = 0; i < zones.Length; i++)
+            {
+                CatForbiddenZone zone = zones[i];
+                BoxCollider collider = zone.GetComponent<BoxCollider>();
+                if (collider == null || collider.isTrigger)
+                {
+                    issues.Add("Forbidden zone needs non-trigger BoxCollider: " + zone.name);
+                }
+
+                NavMeshModifier modifier = zone.GetComponent<NavMeshModifier>();
+                if (modifier == null || !modifier.overrideArea || modifier.ignoreFromBuild)
+                {
+                    issues.Add("Forbidden zone needs active NavMeshModifier area override: " + zone.name);
+                }
+                else if (modifier.area != NavMesh.GetAreaFromName("Not Walkable") && NavMesh.GetAreaFromName("Not Walkable") >= 0)
+                {
+                    issues.Add("Forbidden zone should use Not Walkable area: " + zone.name);
+                }
+
+                if (zone.ProjectionScale < 1.049f)
+                {
+                    issues.Add("Forbidden zone projection scale should be at least 1.05: " + zone.name);
+                }
+
+                hasRendererBoundsZone |= zone.SourceKind == CatForbiddenZone.ZoneSourceKind.RendererBounds;
+                hasManualOverrideZone |= zone.SourceKind == CatForbiddenZone.ZoneSourceKind.ManualOverride;
+                hasCenterPlatformZone |= zone.name.Contains("CenterPawPlatform");
+            }
+
+            if (!hasRendererBoundsZone)
+            {
+                issues.Add("Expected at least one renderer-bounds forbidden zone fallback.");
+            }
+
+            if (!hasManualOverrideZone)
+            {
+                issues.Add("Expected at least one manual-override forbidden zone for complex scenery.");
+            }
+
+            if (!hasCenterPlatformZone)
+            {
+                issues.Add("Missing center paw platform manual forbidden zone.");
             }
         }
 
@@ -474,6 +550,27 @@ namespace CatLife.EditorTools
             if (property.propertyType == SerializedPropertyType.ObjectReference && property.objectReferenceValue == null)
             {
                 issues.Add(target.name + " has unassigned reference: " + propertyName);
+            }
+        }
+
+        private static void RequireSerializedArray(Object target, string propertyName, int minSize, List<string> issues)
+        {
+            if (target == null)
+            {
+                return;
+            }
+
+            SerializedObject serialized = new SerializedObject(target);
+            SerializedProperty property = serialized.FindProperty(propertyName);
+            if (property == null)
+            {
+                issues.Add(target.name + " missing serialized property: " + propertyName);
+                return;
+            }
+
+            if (!property.isArray || property.arraySize < minSize)
+            {
+                issues.Add(target.name + " has too few entries in " + propertyName + ".");
             }
         }
 
