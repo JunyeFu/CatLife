@@ -168,6 +168,6 @@ P0 和 P1 划分：
 | 模型名 | `Doubao-Seed-2.0-mini`，可按 vivo 平台权限调整 |
 | 私密 AppKEY | 仅在本机 `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json` |
 | GitHub 状态 | `.gitignore` 已忽略 `Assets/Resources/CatLifePrivate/` |
-| APK 行为 | 本机导出的真实版/最终提交 APK 会读取私密配置并优先调用 vivo 云端 API |
+| APK 行为 | 本机导出的真实版/最终提交 APK 必须包含私密配置，安装到 vivo 云真机后优先调用 vivo 云端 API |
 | 失败行为 | 网络失败、解析失败、输出违规时自动回退本地 mock/template |
-| 代码审查口径 | 代码包展示调用位置、隐私网关、示例配置和降级，不包含真实 AppKEY |
+| 代码审查口径 | 代码包展示调用位置、隐私网关、示例配置和降级，不包含真实 AppKEY；日志、截图、录屏字幕和公开文档也不得包含明文 AppKEY |

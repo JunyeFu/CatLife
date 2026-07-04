@@ -51,22 +51,24 @@ CatLife_提交自检表_20260705.md
 | 检查 | 通过条件 |
 |---|---|
 | 文件存在 | APK 在 `final-submission` |
+| 私有 key 打包 | 真实版/最终提交 APK 构建前确认本机 ignored `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json` 存在且会进入 APK |
 | 安装 | `adb install -r` 返回 Success |
 | 启动 | 5 秒内可见首屏或主场景 |
 | 主场景 | 猫 + 小镇可见 |
 | 状态链 | 普通 -> 过渡 -> 专注 -> 奖励 |
+| LLM 路径 | logcat 能判断 vivo 云端真实调用、BlueLM 端侧调用、失败码或本地 fallback 状态之一 |
 | 日志 | 无 crash、ANR、关键 NullReference |
 | 录屏 | 至少 1 段真机流程视频 |
 
 ## 5. 代码包自检
 
-提交前运行文本搜索：
+提交前运行文本搜索。公开代码包、提交材料、日志、字幕和说明文档不得包含明文 AppKEY；真实版/最终提交 APK 可以包含本机 ignored 私有 Resources 中的云真机可用 key，但该 key 不进入 GitHub 或代码包。
 
 ```powershell
 Select-String -Path "06-deliverables/final-submission/**/*" -Pattern "sk-|api_key|API_KEY|secret|password|token" -CaseSensitive:$false
 ```
 
-如果命中，必须人工确认不是密钥或从包里移除。
+如果命中，必须人工确认不是密钥或从包里移除。`private_config_presence_redacted.txt` 只能记录私有配置“存在/可用/脱敏 AppID”，不能记录完整 AppKEY。
 
 代码包必须包含：
 

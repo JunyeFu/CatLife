@@ -14,7 +14,7 @@
 - 10 个猫咪动作和 Walk 动画资源已接入 Animator/行为驱动。
 - 本地 Recognition mock、RealtimeFeatureEngine、Focus 状态、记录/设置/猫咪页面。
 - LLM 结构化 mock、PrivacyGateway、输出安全门、本地 fallback、`llm_feedback_schema.json`。
-- vivo 云端 API 演示配置已加入当前 Unity 工程：AppID/API/模型名在可提交示例中，AppKEY 在本机忽略的 `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json` 中，导出本机 APK 时可进入 APK，GitHub 不包含明文密钥。
+- vivo 云端 API 演示配置已加入当前 Unity 工程：AppID/API/模型名在可提交示例中，AppKEY 在本机忽略的 `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json` 中；真实版/最终提交 APK 必须包含云真机可用 key，GitHub、代码包、日志、截图、录屏字幕和公开文档不包含明文密钥。
 - 场景交互点、气泡、记录页结构化反馈字段。
 - `CatLifeRuntimeAssemblyValidator` 当前可 PASS，Unity Console 当前无 Error。
 
@@ -24,6 +24,7 @@
 |---|---|---|
 | 不建立森林场景 | 当前版本只落地“小镇主场景”。PPT 中森林图只作为历史视觉参考或展示素材。 | 森林场景切换、森林 NavMesh、森林资产导入、森林互动点不再列为当前功能缺陷。 |
 | 开屏页面素材已给出 | 开屏主视觉素材为 `C:/Users/fujunye/Downloads/ChatGPT Image 2026年7月5日 00_50_15.png`。 | 开屏页不再视为设计缺失；缺口改为“素材已有，待 Unity Splash 启动流程和 20:9 适配集成”。 |
+| 真实版 APK 包含云真机可用 key | 为云真机直接录制演示，真实版/最终提交 APK 允许且要求包含本机 ignored 私有 Resources 中的 AppKEY。 | 不再把“APK 内无 key”作为目标；改为要求公开仓库/代码包/日志/截图/录屏字幕不泄露明文 key，并保留真实调用或 fallback 证据。 |
 
 ## 3. 功能缺陷表
 
@@ -31,7 +32,7 @@
 |---|---|---|---|
 | AI 行为识别：点击、滑动、停顿、页面切换映射专注状态谱 | Unity 内已有 `Recognition`、`RealtimeFeatureEngine` 和 mock 特征。 | 主要仍是 App 内或模拟数据；没有真实 Android 事件桥和真实页面切换采集闭环。 | P0 |
 | 授权后台数据：切屏频率、离开时长、返回间隔、跨应用节奏 | 文档已有隐私友好方案。 | 工程未落地 Android UsageStats/后台授权流程；不能采集具体 App 内容，只能做粗粒度离开/返回统计。 | P0 |
-| 大模型心理引导：生成提醒语、任务回归建议、猫咪动作策略 | 已有结构化 mock LLM、schema、安全门、降级、代码包模板；已加入 vivo 云端 API Demo 配置和优先真实调用/失败回退逻辑。 | 仍缺 APK 或云真机中的真实调用日志、请求样例和响应样例；蓝心端侧 SDK 仍未接入。 | P0 |
+| 大模型心理引导：生成提醒语、任务回归建议、猫咪动作策略 | 已有结构化 mock LLM、schema、安全门、降级、代码包模板；已加入 vivo 云端 API Demo 配置和优先真实调用/失败回退逻辑，真实版 APK 要求包含云真机可用 key。 | 仍缺 APK 或云真机中的真实调用日志、请求样例和响应样例；蓝心端侧 SDK 仍未接入；还需证明日志和公开材料不泄露明文 key。 | P0 |
 | “大模型驱动猫咪行为” | 当前实现是 LLM 提供高层权重/文案建议，Unity 本地规则控制猫。 | PPT 表述偏强；应改为“LLM 辅助生成建议和反馈”，或补真实 API demo。 | P0 |
 | 主动开始专注 + 自动识别进入专注 | 主动开始已实现；自动进入有规则/状态基础。 | 自动识别仍偏 mock/规则演示，缺真实行为输入和长时使用证据。 | P0 |
 | Android APK 可运行 | 未发现已生成的 `.apk` 或 `.aab` 产物。 | 当前最大交付缺口：缺 APK、adb 安装日志、真机录屏、logcat 和性能证据。 | P0 |

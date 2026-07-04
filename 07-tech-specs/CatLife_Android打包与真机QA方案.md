@@ -41,6 +41,7 @@
 | Scenes In Build | `startscene`, `mainscene`, `FocusScene` |
 | Package Name | `com.catlife.mvp` |
 | Version | `0.1.0` |
+| vivo 云端私有配置 | 真实版/最终提交 APK 必须包含本机 ignored `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json`，用于云真机直接尝试真实 API；公开仓库和代码包不得包含明文 AppKEY |
 
 ## 4. 推荐构建命令
 
@@ -56,7 +57,11 @@ D:\UnityEngine\6000.4.9f1\Editor\Unity.exe `
   -logFile "C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\android-build.log"
 ```
 
-注意：上面路径中的 `C:\path\to\CatLifeUnityProject` 必须替换成真实 Unity 工程根目录。
+注意：
+
+- 上面路径中的 `C:\path\to\CatLifeUnityProject` 必须替换成真实 Unity 工程根目录。
+- 构建真实版/最终提交 APK 前，确认 `work/CatLife_Unity_Main/Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json` 存在且被 `.gitignore` 忽略。该文件会进入本机导出的 APK，但不得进入 GitHub、代码包、公开文档或日志。
+- 构建日志只能记录“私有配置存在 / AppID 脱敏 / endpoint / 模型名”，不得打印完整 AppKEY 或 Authorization header。
 
 ## 5. 真机安装与日志命令
 
@@ -70,10 +75,12 @@ adb logcat -d > "C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-su
 
 vivo 云真机路径：
 
-1. 在网页端上传 APK 并安装。
+1. 在网页端上传真实版/最终提交 APK 并安装；该 APK 应已包含本机 ignored 私有 Resources 中的云真机可用 key。
 2. 如需 ADB，使用云真机页面提供的 `adb connect <ip:port>`。
-3. 用云真机自带性能监控、截图、录屏保存证据。
-4. 记录云真机型号、系统版本、测试时间和是否有排队/释放情况。
+3. 用 `adb logcat` 或云真机日志确认 `vivo_cloud`、`bluelm_on_device`、`local_template`、失败码或 fallback 状态之一。
+4. 用云真机自带性能监控、截图、录屏保存证据。
+5. 记录云真机型号、系统版本、测试时间和是否有排队/释放情况。
+6. 保存日志前做密钥扫描；日志只允许出现脱敏 AppID 和请求状态，不允许出现明文 AppKEY、Authorization header、Bearer token。
 
 录屏：
 
@@ -102,6 +109,7 @@ adb exec-out screencap -p > "C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverab
 | A08 | 退出 | 上滑或返回 | 可退出但不是误触退出 | 录屏 |
 | A09 | 横竖屏 | 保持目标方向 | 不旋转破坏构图 | 录屏 |
 | A10 | 稳定性 | 连续运行 3 分钟 | 无 crash、ANR、明显掉帧 | logcat |
+| A11 | vivo 云端 key 打包边界 | 构建前检查私有 Resources，安装后触发一次 LLM 请求 | APK 能尝试真实 vivo 云端调用或输出明确 fallback；日志不含明文 AppKEY | `private_config_presence_redacted.txt` + `logcat_vivo_cloud_llm.txt` |
 
 ## 7. 性能记录模板
 
@@ -134,8 +142,10 @@ adb exec-out screencap -p > "C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverab
 只有同时满足以下条件，才能标记 APK 通过：
 
 - APK 文件存在于 `06-deliverables/final-submission/`。
+- 真实版/最终提交 APK 构建前已确认本机私有 vivo 云端配置存在、被忽略且会进入 APK。
 - 至少一台 Android 真机可安装启动。
 - 主场景可见小镇和动画猫。
 - 至少一次完成普通、过渡、专注、奖励流程。
-- 有录屏、截图、logcat 和构建日志。
+- 有录屏、截图、logcat、构建日志、APK SHA256 和私有配置脱敏存在性记录。
+- logcat、录屏字幕、截图、代码包、公开文档和 Git diff 扫描不包含明文 AppKEY 或 Authorization header。
 - 文档明确写出 Unity 版本、设备型号、APK 文件名和已知限制。
