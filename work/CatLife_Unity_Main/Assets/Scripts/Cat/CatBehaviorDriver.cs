@@ -1,6 +1,7 @@
 using CatLife.LLM;
 using CatLife.Recognition;
 using CatLife.SceneInteraction;
+using CatLife.UI;
 using UnityEngine;
 
 namespace CatLife.Cat
@@ -21,6 +22,7 @@ namespace CatLife.Cat
         [SerializeField] private CatBehaviorMemory behaviorMemory;
         [SerializeField] private CatBehaviorBrainScorer behaviorScorer;
         [SerializeField] private Transform focusLookAtTarget;
+        [SerializeField] private CatBubblePresenter bubblePresenter;
 
         [Header("Scene Interaction")]
         [SerializeField] private SceneInteractionMapper sceneInteractionMapper;
@@ -34,6 +36,8 @@ namespace CatLife.Cat
         [Header("Timing")]
         [SerializeField] private float decisionInterval = 0.5f;
         [SerializeField] private float llmRefreshInterval = 15f;
+        [SerializeField] private float llmLocalActionCooldownSeconds = 8f;
+        [SerializeField] private float llmBubbleCooldownSeconds = 12f;
 
         [Header("Action Holds")]
         [SerializeField] private float shortActionSeconds = 0.9f;
@@ -66,6 +70,13 @@ namespace CatLife.Cat
         private bool walkingEnabled = true;
         private float navigationSpeedMultiplier = 1f;
         private string lastLlmSafetyReason = "not_requested";
+        private string lastLlmLocalActionReason = "not_requested";
+        private string lastLlmBubbleReason = "not_requested";
+        private string lastLlmBubbleLine = "";
+        private CatBehaviorDecision pendingLlmDecision;
+        private bool hasPendingLlmDecision;
+        private float lastLlmActionAt = -999f;
+        private float lastLlmBubbleAt = -999f;
         private readonly string[] recentEvents = new string[4];
         private SceneInteractionPayload latestSceneInteractionPayload;
         private SceneInteractionPoint latestSceneInteractionPoint;
@@ -111,6 +122,21 @@ namespace CatLife.Cat
             get { return lastLlmSafetyReason; }
         }
 
+        public string LastLlmLocalActionReason
+        {
+            get { return lastLlmLocalActionReason; }
+        }
+
+        public string LastLlmBubbleReason
+        {
+            get { return lastLlmBubbleReason; }
+        }
+
+        public string LastLlmBubbleLine
+        {
+            get { return lastLlmBubbleLine; }
+        }
+
         private void Reset()
         {
             navigationAgent = GetComponent<CatNavigationAgent>();
@@ -120,6 +146,7 @@ namespace CatLife.Cat
             needModel = GetComponent<CatNeedModel>();
             behaviorMemory = GetComponent<CatBehaviorMemory>();
             behaviorScorer = GetComponent<CatBehaviorBrainScorer>();
+            bubblePresenter = FindAnyObjectByType<CatBubblePresenter>();
         }
 
         private void Awake()
@@ -182,6 +209,7 @@ namespace CatLife.Cat
             ResolveFocusLookAtTarget();
             ResolveFeatureEngine();
             ResolvePrivacyGateway();
+            ResolveBubblePresenter();
             ResolveSceneInteractionReferences();
             SubscribeSceneInteractionMapper();
             recognitionProvider = recognitionProviderComponent as IRecognitionProvider;
@@ -586,6 +614,16 @@ namespace CatLife.Cat
             privacyGateway = FindAnyObjectByType<PrivacyGateway>();
         }
 
+        private void ResolveBubblePresenter()
+        {
+            if (bubblePresenter != null)
+            {
+                return;
+            }
+
+            bubblePresenter = FindAnyObjectByType<CatBubblePresenter>();
+        }
+
         private void ResolveSceneInteractionReferences()
         {
             if (sceneInteractionRegistry == null)
@@ -724,6 +762,7 @@ namespace CatLife.Cat
             {
                 lastLlmSafetyReason = "privacy_gateway_missing";
                 llmSuggestion = LLMBehaviorSuggestion.Default();
+                ClearPendingLlmDecision();
                 return;
             }
 
@@ -732,6 +771,7 @@ namespace CatLife.Cat
             {
                 lastLlmSafetyReason = safetyReason;
                 llmSuggestion = LLMBehaviorSuggestion.Default();
+                ClearPendingLlmDecision();
                 return;
             }
 
@@ -740,6 +780,7 @@ namespace CatLife.Cat
             {
                 lastLlmSafetyReason = safetyReason;
                 llmSuggestion = LLMBehaviorSuggestion.Default();
+                ClearPendingLlmDecision();
                 return;
             }
 
@@ -755,16 +796,19 @@ namespace CatLife.Cat
                     {
                         llmSuggestion = LLMBehaviorSuggestion.Default();
                         lastLlmSafetyReason = outputReason;
+                        ClearPendingLlmDecision();
                         return;
                     }
 
                     llmSuggestion = safeSuggestion;
                     lastLlmSafetyReason = outputReason;
+                    ApplySafeLlmSuggestion(safeSuggestion);
                 },
                 error =>
                 {
                     llmSuggestion = LLMBehaviorSuggestion.Default();
                     lastLlmSafetyReason = string.IsNullOrEmpty(error) ? "llm_error" : error;
+                    ClearPendingLlmDecision();
                 });
         }
 
@@ -804,6 +848,11 @@ namespace CatLife.Cat
                 return;
             }
 
+            if (TryApplyPendingLlmDecision())
+            {
+                return;
+            }
+
             CatBehaviorDecision scoredDecision;
             if (behaviorScorer != null && behaviorScorer.TryDecide(
                     snapshot,
@@ -835,6 +884,84 @@ namespace CatLife.Cat
             if ((roll -= lookBack) <= 0f) return CatBehaviorState.LookBack;
             if ((roll -= tail) <= 0f) return CatBehaviorState.TailWagHappy;
             return CatBehaviorState.StretchYawn;
+        }
+
+        private void ApplySafeLlmSuggestion(LLMBehaviorSuggestion safeSuggestion)
+        {
+            CatNeedState needs = needModel != null ? needModel.Current : CatNeedState.CreateDefault();
+            CatBehaviorDecision localDecision = default(CatBehaviorDecision);
+            string actionReason = "llm_action_cooldown";
+            bool canAttemptAction = Time.time - lastLlmActionAt >= Mathf.Max(1f, llmLocalActionCooldownSeconds);
+            bool hasLocalDecision = canAttemptAction &&
+                CatLlmBehaviorInterpreter.TryBuildLocalDecision(
+                    safeSuggestion,
+                    snapshot,
+                    needs,
+                    out localDecision,
+                    out actionReason);
+            if (hasLocalDecision)
+            {
+                pendingLlmDecision = localDecision;
+                hasPendingLlmDecision = true;
+                lastLlmActionAt = Time.time;
+                lastLlmLocalActionReason = actionReason;
+            }
+            else
+            {
+                if (canAttemptAction)
+                {
+                    ClearPendingLlmDecision();
+                }
+
+                lastLlmLocalActionReason = actionReason;
+            }
+
+            string bubbleLine;
+            string bubbleReason = "llm_bubble_cooldown";
+            if (Time.unscaledTime - lastLlmBubbleAt >= Mathf.Max(1f, llmBubbleCooldownSeconds) &&
+                CatLlmBehaviorInterpreter.ShouldShowBubble(
+                    safeSuggestion,
+                    snapshot,
+                    needs,
+                    out bubbleLine,
+                    out bubbleReason))
+            {
+                ResolveBubblePresenter();
+                if (bubblePresenter != null)
+                {
+                    bubblePresenter.Show(bubbleLine, ResolveLlmSourceLabel());
+                    lastLlmBubbleAt = Time.unscaledTime;
+                    lastLlmBubbleLine = bubbleLine;
+                    lastLlmBubbleReason = bubbleReason;
+                }
+                else
+                {
+                    lastLlmBubbleReason = "llm_bubble_presenter_missing";
+                }
+            }
+            else
+            {
+                lastLlmBubbleReason = bubbleReason;
+            }
+        }
+
+        private bool TryApplyPendingLlmDecision()
+        {
+            if (!hasPendingLlmDecision || !pendingLlmDecision.IsValid)
+            {
+                return false;
+            }
+
+            CatBehaviorDecision decision = pendingLlmDecision;
+            hasPendingLlmDecision = false;
+            ApplyDecision(decision);
+            return true;
+        }
+
+        private void ClearPendingLlmDecision()
+        {
+            hasPendingLlmDecision = false;
+            pendingLlmDecision = default(CatBehaviorDecision);
         }
 
         private CatBehaviorState PickFocusState()
@@ -1164,6 +1291,17 @@ namespace CatLife.Cat
         private LLMBehaviorSuggestion GetSuggestion()
         {
             return llmSuggestion ?? LLMBehaviorSuggestion.Default();
+        }
+
+        private string ResolveLlmSourceLabel()
+        {
+            BlueLmOnDeviceClient blueLmClient = llmClientComponent as BlueLmOnDeviceClient;
+            if (blueLmClient != null && !string.IsNullOrEmpty(blueLmClient.LastSource))
+            {
+                return blueLmClient.LastSource;
+            }
+
+            return "llm_behavior";
         }
     }
 }

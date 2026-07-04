@@ -156,7 +156,10 @@ namespace CatLife.UI
         {
             return source == "mock_llm" ||
                 source == "mock_llm_structured" ||
-                source == "llm_structured";
+                source == "llm_structured" ||
+                source == "llm_behavior" ||
+                source == "bluelm_on_device" ||
+                source == "vivo_cloud";
         }
     }
 }

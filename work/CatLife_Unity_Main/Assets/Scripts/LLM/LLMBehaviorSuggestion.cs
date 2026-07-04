@@ -182,9 +182,14 @@ namespace CatLife.LLM
                 case "none":
                     return "none";
                 case "quiet_idle":
+                case "quiet_companion":
+                    return "quiet_idle";
                 case "soft_roam":
+                case "gentle_return":
+                    return "soft_roam";
                 case "social_response":
-                    return action.ToLowerInvariant();
+                case "reward_after_focus":
+                    return "social_response";
                 default:
                     return "none";
             }

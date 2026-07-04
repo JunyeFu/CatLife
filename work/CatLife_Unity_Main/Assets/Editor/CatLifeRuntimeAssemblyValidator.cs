@@ -165,7 +165,7 @@ namespace CatLife.EditorTools
 
             if (issues.Count == 0)
             {
-                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, Android behavior event bridge, BlueLM Unity adapter, Android BlueLM bridge skeleton, BlueLM JSON guards, BlueLM generate bridge, config schemas, UI binding, and 11 animator states are present.";
+                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, Android behavior event bridge, BlueLM Unity adapter, Android BlueLM bridge skeleton, BlueLM JSON guards, BlueLM generate bridge, BlueLM local behavior bias/action bridge, config schemas, UI binding, and 11 animator states are present.";
             }
 
             return "FAIL CatLife runtime assembly validation:\n- " + string.Join("\n- ", issues.ToArray());
@@ -264,6 +264,99 @@ namespace CatLife.EditorTools
             {
                 issues.Add("LLMBehaviorSuggestion accepted unsafe BlueLM output flags.");
             }
+
+            LLMBehaviorSuggestion aliasSuggestion = new LLMBehaviorSuggestion
+            {
+                version = LLMBehaviorSuggestion.ExpectedVersion,
+                recommendedLocalAction = "quiet_companion",
+                showBubble = true,
+                suggestedLine = "Breathe with the cat.",
+                rawTextRequested = false,
+                coordinateCommandIncluded = false,
+                animatorCommandIncluded = false,
+                navMeshCommandIncluded = false,
+                transformCommandIncluded = false,
+                privacyInferenceIncluded = false
+            };
+            LLMBehaviorSuggestion safeAliasSuggestion;
+            if (!LLMBehaviorSuggestion.TryBuildSafe(aliasSuggestion, out safeAliasSuggestion, out reason))
+            {
+                issues.Add("LLMBehaviorSuggestion rejected legacy BlueLM action alias: " + reason);
+            }
+            else if (safeAliasSuggestion.recommendedLocalAction != "quiet_idle")
+            {
+                issues.Add("LLMBehaviorSuggestion did not normalize quiet_companion alias to quiet_idle.");
+            }
+
+            RecognitionSnapshot nonFocusSnapshot = RecognitionSnapshot.CreateDefault();
+            CatNeedState needs = CatNeedState.CreateDefault();
+            CatBehaviorDecision decision;
+            if (!CatLlmBehaviorInterpreter.TryBuildLocalDecision(
+                    new LLMBehaviorSuggestion { recommendedLocalAction = "soft_roam" },
+                    nonFocusSnapshot,
+                    needs,
+                    out decision,
+                    out reason) ||
+                decision.state != CatBehaviorState.Roam)
+            {
+                issues.Add("CatLlmBehaviorInterpreter did not map soft_roam to non-focus Roam.");
+            }
+
+            RecognitionSnapshot focusedSnapshot = nonFocusSnapshot;
+            focusedSnapshot.focusState = FocusState.Focused;
+            if (!CatLlmBehaviorInterpreter.TryBuildLocalDecision(
+                    new LLMBehaviorSuggestion { recommendedLocalAction = "quiet_idle" },
+                    focusedSnapshot,
+                    needs,
+                    out decision,
+                    out reason) ||
+                decision.state != CatBehaviorState.IdleBreath)
+            {
+                issues.Add("CatLlmBehaviorInterpreter did not map quiet_idle to focused IdleBreath.");
+            }
+
+            string bubbleLine;
+            if (CatLlmBehaviorInterpreter.ShouldShowBubble(
+                    new LLMBehaviorSuggestion { showBubble = true, suggestedLine = "Stay close." },
+                    focusedSnapshot,
+                    needs,
+                    out bubbleLine,
+                    out reason))
+            {
+                issues.Add("CatLlmBehaviorInterpreter allowed focused bubble without low-risk companionship need.");
+            }
+
+            ValidateProjectFileContains(
+                "Assets/Scripts/Cat/CatLlmBehaviorInterpreter.cs",
+                issues,
+                "TryBuildLocalDecision",
+                "ShouldShowBubble",
+                "NormalizeAction",
+                "quiet_companion",
+                "gentle_return",
+                "reward_after_focus");
+
+            ValidateProjectFileContains(
+                "Assets/Scripts/Cat/CatBehaviorDriver.cs",
+                issues,
+                "ApplySafeLlmSuggestion",
+                "TryApplyPendingLlmDecision",
+                "ResolveLlmSourceLabel",
+                "LastLlmLocalActionReason",
+                "CatLlmBehaviorInterpreter.TryBuildLocalDecision",
+                "CatLlmBehaviorInterpreter.ShouldShowBubble");
+
+            ValidateProjectFileContains(
+                "Assets/Scripts/UI/CatBubblePresenter.cs",
+                issues,
+                "bluelm_on_device",
+                "llm_behavior");
+
+            ValidateProjectFileContains(
+                "Assets/Scripts/Cat/CatBehaviorTelemetry.cs",
+                issues,
+                "llm_action",
+                "llm_bubble");
         }
 
         private static void ValidateAndroidBlueLmPlugin(List<string> issues)
