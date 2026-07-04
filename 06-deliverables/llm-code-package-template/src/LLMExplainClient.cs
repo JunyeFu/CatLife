@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -63,13 +64,12 @@ namespace CatLife.Llm
                             }
 
                             string body = await response.Content.ReadAsStringAsync();
-                            string text = ExtractText(body);
-                            if (string.IsNullOrWhiteSpace(text))
+                            if (!TryExtractStructuredFeedback(body, out FocusFeedback feedback))
                             {
                                 return await fallback.GenerateAsync(summary, cancellationToken);
                             }
 
-                            return FocusFeedback.Llm(TrimFeedback(text));
+                            return feedback;
                         }
                     }
                 }
@@ -88,8 +88,8 @@ namespace CatLife.Llm
             return "{"
                 + "\"model\":\"demo-model\","
                 + "\"messages\":["
-                + "{\"role\":\"system\",\"content\":\"你是 CatLife 的陪伴式专注反馈助手。\"},"
-                + "{\"role\":\"user\",\"content\":\"请根据去标识化摘要生成60字以内反馈。"
+                + "{\"role\":\"system\",\"content\":\"你是 CatLife 的陪伴式专注反馈助手。只输出严格 JSON。\"},"
+                + "{\"role\":\"user\",\"content\":\"请根据去标识化摘要生成 catlife.focus_feedback.v1 JSON。"
                 + "duration=" + summary.DurationSec
                 + ",focus=" + summary.FocusScoreAvg
                 + ",arousal=" + summary.ArousalScoreAvg
@@ -102,16 +102,25 @@ namespace CatLife.Llm
                 + "}";
         }
 
-        private static string ExtractText(string responseBody)
+        private static bool TryExtractStructuredFeedback(string responseBody, out FocusFeedback feedback)
         {
-            // Competition template: replace with provider-specific JSON parsing in final integration.
-            return responseBody;
-        }
+            feedback = FocusFeedback.Local("这段记录已保存，猫咪会继续安静陪你。");
+            if (string.IsNullOrWhiteSpace(responseBody))
+            {
+                return false;
+            }
 
-        private static string TrimFeedback(string text)
-        {
-            text = text.Trim();
-            return text.Length <= 60 ? text : text.Substring(0, 60);
+            try
+            {
+                FocusFeedbackLlmOutput output = JsonSerializer.Deserialize<FocusFeedbackLlmOutput>(
+                    responseBody,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                return FocusFeedbackLlmOutput.TryBuildFeedback(output, out feedback, out _);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private static string Escape(string value)

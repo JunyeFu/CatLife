@@ -501,6 +501,59 @@ namespace CatLife.EditorTools
             {
                 issues.Add("LLMBehaviorSuggestion accepted blocked model output.");
             }
+
+            FocusFeedbackLlmOutput safeFeedbackOutput = new FocusFeedbackLlmOutput
+            {
+                schema_version = FocusFeedbackLlmOutput.ExpectedSchemaVersion,
+                bubble_text = "刚才这段很稳，我会继续安静陪你。",
+                record_summary = "本轮节奏稳定，猫咪已降低动作频率，陪你完成这段专注。",
+                tone = "warm",
+                reaction_hint = "tail_wag_happy",
+                confidence = 0.84f,
+                safety = new FocusFeedbackSafety()
+            };
+            FocusFeedback safeFeedback;
+            if (!FocusFeedbackLlmOutput.TryBuildFeedback(safeFeedbackOutput, "mock_llm_structured", out safeFeedback, out outputReason))
+            {
+                issues.Add("FocusFeedbackLlmOutput rejected safe structured output: " + outputReason);
+            }
+            else if (safeFeedback.isDegraded ||
+                safeFeedback.text.Length > 48 ||
+                safeFeedback.recordSummary.Length > 90 ||
+                safeFeedback.reactionHint != "tail_wag_happy")
+            {
+                issues.Add("FocusFeedbackLlmOutput did not preserve safe structured feedback fields.");
+            }
+
+            FocusFeedbackLlmOutput flaggedFeedbackOutput = new FocusFeedbackLlmOutput
+            {
+                schema_version = FocusFeedbackLlmOutput.ExpectedSchemaVersion,
+                bubble_text = "You need a diagnosis.",
+                record_summary = "Unsafe summary",
+                tone = "warm",
+                reaction_hint = "idle_breath",
+                confidence = 0.92f,
+                safety = new FocusFeedbackSafety { contains_medical_claim = true }
+            };
+            if (FocusFeedbackLlmOutput.TryBuildFeedback(flaggedFeedbackOutput, "mock_llm_structured", out safeFeedback, out outputReason))
+            {
+                issues.Add("FocusFeedbackLlmOutput accepted safety-flagged structured output.");
+            }
+
+            FocusFeedbackLlmOutput blockedFeedbackOutput = new FocusFeedbackLlmOutput
+            {
+                schema_version = FocusFeedbackLlmOutput.ExpectedSchemaVersion,
+                bubble_text = "Run NavMesh command now.",
+                record_summary = "Blocked command text",
+                tone = "quiet",
+                reaction_hint = "idle_breath",
+                confidence = 0.9f,
+                safety = new FocusFeedbackSafety()
+            };
+            if (FocusFeedbackLlmOutput.TryBuildFeedback(blockedFeedbackOutput, "mock_llm_structured", out safeFeedback, out outputReason))
+            {
+                issues.Add("FocusFeedbackLlmOutput accepted blocked structured text.");
+            }
         }
 
         private static void ValidateTelemetryRuntime(CatBehaviorTelemetry telemetry, List<string> issues)

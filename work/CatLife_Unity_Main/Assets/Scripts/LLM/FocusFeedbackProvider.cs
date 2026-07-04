@@ -69,24 +69,53 @@ namespace CatLife.LLM
 
         private IEnumerator CoMockModelFeedback(BehaviorFeatureSummary summary, Action<FocusFeedback> onComplete)
         {
-            float waitSeconds = Mathf.Min(Mathf.Max(0f, simulatedLatencySeconds), Mathf.Max(0.05f, timeoutSeconds));
+            float safeTimeoutSeconds = Mathf.Max(0.05f, timeoutSeconds);
+            if (simulatedLatencySeconds > safeTimeoutSeconds)
+            {
+                yield return new WaitForSecondsRealtime(safeTimeoutSeconds);
+                Complete(LocalTemplateFallback.Generate(summary, "llm_timeout"), onComplete);
+                yield break;
+            }
+
+            float waitSeconds = Mathf.Max(0f, simulatedLatencySeconds);
             yield return new WaitForSecondsRealtime(waitSeconds);
 
-            string text;
+            FocusFeedbackLlmOutput output = new FocusFeedbackLlmOutput();
+            output.schema_version = FocusFeedbackLlmOutput.ExpectedSchemaVersion;
+            output.confidence = Mathf.Clamp01(0.68f + summary.focusScoreAvg01 * 0.24f);
+            output.safety = new FocusFeedbackSafety();
+
             if (summary.interruptCount >= 3)
             {
-                text = "这轮有几次短暂停顿，但你没有放弃。猫咪建议下一轮先选更轻的目标。";
+                output.bubble_text = "停顿多一点也没关系，回来就好。";
+                output.record_summary = "本轮有几次短暂停顿，但你没有放弃，下一轮可以先选更轻的目标。";
+                output.tone = "quiet";
+                output.reaction_hint = "head_tilt_listen";
             }
             else if (summary.focusScoreAvg01 >= 0.75f)
             {
-                text = "刚才这段很稳，猫咪已经安静陪你走完了一轮专注。";
+                output.bubble_text = "刚才这段很稳，我会继续安静陪你。";
+                output.record_summary = "本轮节奏稳定，猫咪已降低动作频率，陪你完成这段专注。";
+                output.tone = "warm";
+                output.reaction_hint = "tail_wag_happy";
             }
             else
             {
-                text = "这段节奏已经开始稳定了，猫咪会继续陪你慢慢进入状态。";
+                output.bubble_text = "节奏已经慢下来了，我们继续来。";
+                output.record_summary = "这段专注开始稳定，后续适合保持轻互动和低打扰陪伴。";
+                output.tone = "encouraging";
+                output.reaction_hint = "idle_breath";
             }
 
-            Complete(FocusFeedback.Create(ClampText(text, 60), "mock_llm", false, "privacy_passed"), onComplete);
+            FocusFeedback feedback;
+            string reason;
+            if (!FocusFeedbackLlmOutput.TryBuildFeedback(output, "mock_llm_structured", out feedback, out reason))
+            {
+                Complete(LocalTemplateFallback.Generate(summary, reason), onComplete);
+                yield break;
+            }
+
+            Complete(feedback, onComplete);
         }
 
         private void Complete(FocusFeedback feedback, Action<FocusFeedback> onComplete)
@@ -97,16 +126,6 @@ namespace CatLife.LLM
             {
                 onComplete(feedback ?? FocusFeedback.Create("", "local_template", true, "empty_feedback"));
             }
-        }
-
-        private static string ClampText(string text, int maxChars)
-        {
-            if (string.IsNullOrEmpty(text))
-            {
-                return "";
-            }
-
-            return text.Length <= maxChars ? text : text.Substring(0, maxChars);
         }
     }
 }

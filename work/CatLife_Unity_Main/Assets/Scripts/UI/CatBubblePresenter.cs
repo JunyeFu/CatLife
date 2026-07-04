@@ -123,7 +123,7 @@ namespace CatLife.UI
         {
             string safeSource = string.IsNullOrEmpty(source) ? "local_template" : source;
             int style = StableStyleIndex(text, safeSource, 5);
-            bool smart = safeSource == "mock_llm";
+            bool smart = IsSmartSource(safeSource);
 
             switch (style)
             {
@@ -150,6 +150,13 @@ namespace CatLife.UI
             }
 
             return Mathf.Abs(hash) % Mathf.Max(1, count);
+        }
+
+        private static bool IsSmartSource(string source)
+        {
+            return source == "mock_llm" ||
+                source == "mock_llm_structured" ||
+                source == "llm_structured";
         }
     }
 }

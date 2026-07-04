@@ -78,7 +78,12 @@ namespace CatLife.UI
         private HomePage activePage;
         private FocusFlowState focusState = FocusFlowState.Normal;
         private string latestFocusFeedbackText = "完成第一段专注后生成猫咪反馈";
+        private string latestFocusFeedbackSummary = "";
         private string latestFocusFeedbackSource = "local_template";
+        private string latestFocusFeedbackTone = "warm";
+        private string latestFocusFeedbackReaction = "idle_breath";
+        private float latestFocusFeedbackConfidence = 1f;
+        private string latestFocusFeedbackSafetyReason = "local";
         private bool latestFocusFeedbackDegraded = true;
 
         private enum HomePage
@@ -581,6 +586,13 @@ namespace CatLife.UI
             body.AppendLine();
             body.AppendLine(ColorTitle("猫咪反馈"));
             body.AppendLine(latestFocusFeedbackText);
+            if (!string.IsNullOrEmpty(latestFocusFeedbackSummary))
+            {
+                body.AppendLine("摘要：" + latestFocusFeedbackSummary);
+            }
+
+            body.AppendLine("动作提示：" + latestFocusFeedbackReaction);
+            body.AppendLine("语气：" + latestFocusFeedbackTone + " / 置信度：" + latestFocusFeedbackConfidence.ToString("0.00"));
             body.AppendLine("来源：" + GetFeedbackSourceLabel(latestFocusFeedbackSource));
             return body.ToString();
         }
@@ -593,6 +605,7 @@ namespace CatLife.UI
             body.AppendLine("智能解释：" + BoolText(smartExplanationEnabled));
             body.AppendLine("大模型建议：" + (smartExplanationEnabled ? "根据用户主动开启后的会话摘要生成建议" : "关闭，仅保留本地统计"));
             body.AppendLine("反馈降级状态：" + (latestFocusFeedbackDegraded ? "本地安全模板" : "智能反馈"));
+            body.AppendLine("反馈安全状态：" + latestFocusFeedbackSafetyReason);
             body.AppendLine();
             body.AppendLine(ColorTitle("隐私边界"));
             body.AppendLine("不录屏");
@@ -872,7 +885,12 @@ namespace CatLife.UI
             }
 
             latestFocusFeedbackText = feedback.text;
+            latestFocusFeedbackSummary = feedback.recordSummary;
             latestFocusFeedbackSource = feedback.source;
+            latestFocusFeedbackTone = feedback.tone;
+            latestFocusFeedbackReaction = feedback.reactionHint;
+            latestFocusFeedbackConfidence = Mathf.Clamp01(feedback.confidence);
+            latestFocusFeedbackSafetyReason = feedback.safetyReason;
             latestFocusFeedbackDegraded = feedback.isDegraded;
 
             EnsureCatBubblePresenter();
@@ -1323,7 +1341,11 @@ namespace CatLife.UI
 
         private static string GetFeedbackSourceLabel(string source)
         {
-            return source == "mock_llm" ? "智能反馈" : "本地反馈";
+            return source == "mock_llm" ||
+                source == "mock_llm_structured" ||
+                source == "llm_structured"
+                ? "智能反馈"
+                : "本地反馈";
         }
 
         private static string ColorTitle(string title)
