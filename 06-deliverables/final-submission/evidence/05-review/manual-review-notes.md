@@ -6,5 +6,5 @@
 | Video plays and meets time/resolution limits | TODO | TODO | TODO |
 | Poster opens and is portrait 70cm x 150cm | TODO | TODO | TODO |
 | APK installs and launches | TODO | TODO | TODO |
-| Code package has no secrets | TODO | TODO | TODO |
+| Code package has no secrets | Codex | PASS | `package-llm-code.ps1 -ForFinalSubmission` generated `CatLife_LLM_code_package_v1.zip`; `check-final-submission.ps1` reports `Secret scan: PASS, hits=0`. |
 | Platform upload success screenshot saved | TODO | TODO | TODO |

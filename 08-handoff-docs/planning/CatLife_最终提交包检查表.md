@@ -18,7 +18,7 @@ CatLife_作品介绍PPT_v1.pptx
 CatLife_作品演示视频_v1.mp4
 CatLife_作品海报_v1.png
 CatLife_MVP_Android_v0.1.0.apk
-CatLife_大模型调用代码包_v1.zip
+CatLife_LLM_code_package_v1.zip
 CatLife_提交自检表_20260705.md
 ```
 
@@ -30,7 +30,7 @@ CatLife_提交自检表_20260705.md
 | 视频 | `CatLife_作品演示视频_v1.mp4` | MP4；尽量 <=3 分钟，最长 <=5 分钟；横版 1920x1080 或竖版 1080x1920；展示最终形态、名称、交互 UI 与功能 | 待填 |
 | 海报 | `CatLife_作品海报_v1.png` | 竖版 70cm x 150cm；jpg/jpeg/png；作品名、slogan、宣传图齐备；文件大小按官方 PDF“整体大小不低于 2M”和平台最终限制复核 | 待填 |
 | APK | `CatLife_MVP_Android_v0.1.0.apk` | 可安装、可启动、可完成主流程 | 待填 |
-| 代码包 | `CatLife_大模型调用代码包_v1.zip` | 无密钥、README 清楚、示例可读；重点标注大模型 API 调用部分 | 待填 |
+| 代码包 | `CatLife_LLM_code_package_v1.zip` | 无密钥、README 清楚、示例可读；重点标注大模型 API 调用部分 | 待填 |
 
 ## 3. PPT 内容门禁
 

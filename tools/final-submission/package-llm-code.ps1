@@ -22,7 +22,7 @@ if ([string]::IsNullOrWhiteSpace($OutputDir)) {
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 
 $packageName = if ($ForFinalSubmission) {
-    "CatLife_大模型调用代码包_v1.zip"
+    "CatLife_LLM_code_package_v1.zip"
 } else {
     "CatLife_LLM_code_package_DRAFT.zip"
 }
@@ -76,7 +76,7 @@ $lines.Add("# CatLife LLM Code Package Manifest")
 $lines.Add("")
 $lines.Add("Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')")
 $lines.Add("Mode: " + $mode)
-$lines.Add("Package: " + $zipPath)
+$lines.Add("Package: " + (Resolve-Path -LiteralPath $zipPath -Relative))
 $lines.Add("SHA256: " + $hash.Hash)
 $lines.Add("")
 $lines.Add("## Source Files")

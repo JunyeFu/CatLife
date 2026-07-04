@@ -39,7 +39,7 @@ final-submission/
   CatLife_作品演示视频_v1.mp4
   CatLife_作品海报_v1.png
   CatLife_MVP_Android_v0.1.0.apk
-  CatLife_大模型调用代码包_v1.zip
+  CatLife_LLM_code_package_v1.zip
   CatLife_submission_check_20260705.md
   evidence/
     00-build/
@@ -164,4 +164,4 @@ Get-FileHash -Algorithm SHA256 "06-deliverables/final-submission/CatLife_MVP_And
 - SHA256：`97CA85AC82AF3A875B0D61E782B4E5C9506ABB86EE58E3B645CE6A61321A96B1`
 - 私有 key 边界：真实版 APK 允许包含本机 ignored 私有 Resources 中的云真机可用 key；GitHub、代码包、日志、截图、录屏字幕和公开文档不得包含明文 AppKEY。
 
-当前仍缺视频、海报、代码包、vivo 云真机安装证据、启动/LLM logcat 和录屏证据。下一步必须优先填充本手册定义的 `evidence/` 目录，不能仅凭 APK 文件存在标记为最终可提交。
+当前仍缺视频、海报、vivo 云真机安装证据、启动/LLM logcat 和录屏证据。代码包已生成到 `06-deliverables/final-submission/CatLife_LLM_code_package_v1.zip`，并记录 SHA256。下一步必须优先填充本手册定义的 `evidence/` 目录，不能仅凭 APK 和代码包文件存在标记为最终可提交。

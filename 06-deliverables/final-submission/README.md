@@ -8,10 +8,15 @@ Expected files:
 - `CatLife_作品演示视频_v1.mp4`
 - `CatLife_作品海报_v1.png`
 - `CatLife_MVP_Android_v0.1.0.apk`
-- `CatLife_大模型调用代码包_v1.zip`
+- `CatLife_LLM_code_package_v1.zip`
 - `CatLife_提交自检表_20260705.md`
 
-Current status: placeholders only. Final APK, video, poster, PPT, and code package are not yet confirmed in this folder.
+Current status as of 2026-07-05:
+
+- APK exists locally: `CatLife_MVP_Android_v0.1.0.apk`.
+- LLM code package exists locally: `CatLife_LLM_code_package_v1.zip`.
+- PPT, video, poster, cloud-device install/logcat evidence, and recording evidence are still missing.
+- APK and ZIP are local final deliverables and are ignored by Git; the manifest and redacted evidence files are tracked.
 
 Official competition constraints currently tracked:
 
@@ -72,3 +77,11 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/package-llm-code
 ```
 
 By default this writes to `work/llm-code-package-output/`, not to the final submission folder.
+
+To prepare the final local code package:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/package-llm-code.ps1 -ForFinalSubmission
+```
+
+This writes `CatLife_LLM_code_package_v1.zip` and `CatLife_LLM_code_package_manifest.md` in this folder.
