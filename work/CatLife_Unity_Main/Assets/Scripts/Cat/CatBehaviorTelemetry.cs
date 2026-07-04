@@ -1,6 +1,7 @@
 using System.Text;
 using CatLife.LLM;
 using CatLife.Recognition;
+using CatLife.SceneInteraction;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -149,6 +150,8 @@ namespace CatLife.Cat
             builder.Append("; pages30s=").Append(features.pageSwitches30s);
             builder.AppendLine();
 
+            AppendSceneInteractionLine();
+
             builder.Append("needs=");
             if (needModel != null)
             {
@@ -172,6 +175,40 @@ namespace CatLife.Cat
             builder.Append("anim=").Append(GetAnimatorStateName());
             builder.Append("; safety=").Append(safetyGuard != null ? safetyGuard.BuildStatusLine() : "missing_safety_guard");
             return builder.ToString();
+        }
+
+        private void AppendSceneInteractionLine()
+        {
+            SceneInteractionPayload payload = behaviorDriver != null
+                ? behaviorDriver.LatestSceneInteractionPayload
+                : default(SceneInteractionPayload);
+            SceneInteractionPoint point = behaviorDriver != null
+                ? behaviorDriver.LatestSceneInteractionPoint
+                : null;
+
+            builder.Append("scene_interaction=");
+            if (!payload.IsValid || point == null)
+            {
+                builder.Append("none");
+                builder.AppendLine();
+                return;
+            }
+
+            builder.Append(payload.pointId);
+            builder.Append("; label=").Append(payload.displayName);
+            builder.Append("; tags=").Append(JoinTags(payload.tags));
+            builder.Append("; animTag=").Append(point.PreferredAnimationTag);
+            builder.AppendLine();
+        }
+
+        private static string JoinTags(string[] tags)
+        {
+            if (tags == null || tags.Length == 0)
+            {
+                return "none";
+            }
+
+            return string.Join(",", tags);
         }
 
         private void RefreshReport()

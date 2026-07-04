@@ -65,6 +65,12 @@ namespace CatLife.LLM
                 suggestion.socialResponseWeightBias = -0.08f;
                 suggestion.showBubble = false;
             }
+            else if (context != null &&
+                context.hasSceneInteraction &&
+                context.secondsSinceSceneInteraction <= 12f)
+            {
+                ApplySceneInteractionBias(context, suggestion);
+            }
             else if (context != null && context.userIntent == "WantsInteraction")
             {
                 suggestion.suggestedLine = "I am here with you.";
@@ -89,6 +95,64 @@ namespace CatLife.LLM
             {
                 onSuccess(LLMBehaviorSuggestion.ClampToWhitelist(suggestion));
             }
+        }
+
+        private static void ApplySceneInteractionBias(
+            CatPromptContext context,
+            LLMBehaviorSuggestion suggestion)
+        {
+            suggestion.showBubble = false;
+            suggestion.socialResponseWeightBias = 0.04f;
+
+            if (HasSceneTag(context, "quiet") || HasSceneTag(context, "home"))
+            {
+                suggestion.suggestedLine = "";
+                suggestion.moodBias = "calm";
+                suggestion.roamWeightBias = -0.08f;
+                suggestion.quietIdleWeightBias = 0.18f;
+                return;
+            }
+
+            if (HasSceneTag(context, "garden") || HasSceneTag(context, "sniff"))
+            {
+                suggestion.suggestedLine = "";
+                suggestion.moodBias = "curious";
+                suggestion.roamWeightBias = 0.14f;
+                suggestion.quietIdleWeightBias = -0.06f;
+                return;
+            }
+
+            if (HasSceneTag(context, "plaza") || HasSceneTag(context, "walk"))
+            {
+                suggestion.suggestedLine = "";
+                suggestion.moodBias = "curious";
+                suggestion.roamWeightBias = 0.1f;
+                suggestion.quietIdleWeightBias = -0.04f;
+                return;
+            }
+
+            suggestion.suggestedLine = "";
+            suggestion.moodBias = "calm";
+            suggestion.roamWeightBias = 0.02f;
+            suggestion.quietIdleWeightBias = 0.02f;
+        }
+
+        private static bool HasSceneTag(CatPromptContext context, string tag)
+        {
+            if (context == null || context.sceneInteractionTags == null || string.IsNullOrEmpty(tag))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < context.sceneInteractionTags.Length; i++)
+            {
+                if (string.Equals(context.sceneInteractionTags[i], tag, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

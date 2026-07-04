@@ -682,6 +682,9 @@ namespace CatLife.Cat
             }
 
             nextLlmTime = Time.time + Mathf.Max(5f, llmRefreshInterval);
+            float secondsSinceSceneInteraction = latestSceneInteractionPayload.IsValid
+                ? Mathf.Max(0f, Time.time - latestSceneInteractionPayload.occurredAt)
+                : 999f;
             CatPromptContext context = CatPromptContext.Create(
                 snapshot,
                 currentState,
@@ -689,7 +692,10 @@ namespace CatLife.Cat
                 llmSuggestion != null ? llmSuggestion.moodBias : "calm",
                 recentEvents,
                 featureEngine != null ? featureEngine.Latest : default(RealtimeFeatureSnapshot),
-                featureEngine != null);
+                featureEngine != null,
+                latestSceneInteractionPayload,
+                latestSceneInteractionPoint,
+                secondsSinceSceneInteraction);
 
             llmClient.RequestSuggestion(
                 context,
