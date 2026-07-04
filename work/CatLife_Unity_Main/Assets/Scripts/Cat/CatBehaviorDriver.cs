@@ -15,6 +15,9 @@ namespace CatLife.Cat
         [SerializeField] private CatDestinationPlanner destinationPlanner;
         [SerializeField] private CatActionRouter actionRouter;
         [SerializeField] private RealtimeFeatureEngine featureEngine;
+        [SerializeField] private CatNeedModel needModel;
+        [SerializeField] private CatBehaviorMemory behaviorMemory;
+        [SerializeField] private CatBehaviorBrainScorer behaviorScorer;
 
         [Header("Timing")]
         [SerializeField] private float decisionInterval = 0.5f;
@@ -58,6 +61,9 @@ namespace CatLife.Cat
             animationController = GetComponent<CatAnimationController>();
             destinationPlanner = GetComponent<CatDestinationPlanner>();
             actionRouter = GetComponent<CatActionRouter>();
+            needModel = GetComponent<CatNeedModel>();
+            behaviorMemory = GetComponent<CatBehaviorMemory>();
+            behaviorScorer = GetComponent<CatBehaviorBrainScorer>();
         }
 
         private void Awake()
@@ -85,6 +91,36 @@ namespace CatLife.Cat
             if (actionRouter == null)
             {
                 actionRouter = gameObject.AddComponent<CatActionRouter>();
+            }
+
+            if (needModel == null)
+            {
+                needModel = GetComponent<CatNeedModel>();
+            }
+
+            if (needModel == null)
+            {
+                needModel = gameObject.AddComponent<CatNeedModel>();
+            }
+
+            if (behaviorMemory == null)
+            {
+                behaviorMemory = GetComponent<CatBehaviorMemory>();
+            }
+
+            if (behaviorMemory == null)
+            {
+                behaviorMemory = gameObject.AddComponent<CatBehaviorMemory>();
+            }
+
+            if (behaviorScorer == null)
+            {
+                behaviorScorer = GetComponent<CatBehaviorBrainScorer>();
+            }
+
+            if (behaviorScorer == null)
+            {
+                behaviorScorer = gameObject.AddComponent<CatBehaviorBrainScorer>();
             }
 
             ResolveFeatureEngine();
@@ -118,6 +154,15 @@ namespace CatLife.Cat
                 snapshot = RecognitionSnapshot.CreateDefault();
             }
 
+            if (needModel != null)
+            {
+                needModel.Tick(
+                    snapshot,
+                    featureEngine != null ? featureEngine.Latest : default(RealtimeFeatureSnapshot),
+                    featureEngine != null,
+                    unscaledDeltaTime);
+            }
+
             TickLlm();
             TickAnimation();
             TryPlayQueuedAction();
@@ -134,6 +179,11 @@ namespace CatLife.Cat
         public void NotifyCatTapped()
         {
             PushRecentEvent("cat_tap");
+            if (behaviorMemory != null)
+            {
+                behaviorMemory.RecordUserInteraction();
+            }
+
             if (featureEngine != null)
             {
                 featureEngine.RecordCatInteraction("cat_tap");
@@ -192,6 +242,11 @@ namespace CatLife.Cat
         public void NotifyCatLongPressed()
         {
             PushRecentEvent("cat_long_press");
+            if (behaviorMemory != null)
+            {
+                behaviorMemory.RecordUserInteraction();
+            }
+
             if (featureEngine != null)
             {
                 featureEngine.RecordCatInteraction("cat_long_press");
@@ -222,6 +277,11 @@ namespace CatLife.Cat
             }
 
             PushRecentEvent(reason);
+            if (behaviorMemory != null)
+            {
+                behaviorMemory.RecordUserInteraction();
+            }
+
             if (featureEngine != null)
             {
                 featureEngine.RecordUiEvent(reason);
@@ -241,6 +301,11 @@ namespace CatLife.Cat
         public void NotifyFocusSessionStarted()
         {
             PushRecentEvent("focus_started");
+            if (behaviorMemory != null)
+            {
+                behaviorMemory.RecordUserInteraction();
+            }
+
             if (featureEngine != null)
             {
                 featureEngine.RecordFocusSessionStarted();
@@ -250,6 +315,11 @@ namespace CatLife.Cat
         public void NotifyFocusSessionEnded(bool completed)
         {
             PushRecentEvent(completed ? "focus_completed" : "focus_unlocked");
+            if (behaviorMemory != null)
+            {
+                behaviorMemory.RecordUserInteraction();
+            }
+
             if (featureEngine != null)
             {
                 featureEngine.RecordFocusSessionEnded(completed);
@@ -334,6 +404,19 @@ namespace CatLife.Cat
                 return;
             }
 
+            CatBehaviorDecision scoredDecision;
+            if (behaviorScorer != null && behaviorScorer.TryDecide(
+                    snapshot,
+                    needModel != null ? needModel.Current : CatNeedState.CreateDefault(),
+                    behaviorMemory,
+                    GetSuggestion(),
+                    out scoredDecision) &&
+                scoredDecision.IsValid)
+            {
+                ApplyDecision(scoredDecision);
+                return;
+            }
+
             CatBehaviorState nextState = snapshot.IsFocused ? PickFocusState() : PickNonFocusState();
             ApplyState(nextState);
         }
@@ -414,25 +497,73 @@ namespace CatLife.Cat
                 false));
         }
 
-        private void TryStartMove(CatBehaviorState state)
+        private void ApplyDecision(CatBehaviorDecision decision)
+        {
+            currentState = decision.state;
+            bool focused = snapshot.IsFocused || decision.state == CatBehaviorState.FocusedRoam;
+
+            if (navigationAgent != null)
+            {
+                navigationAgent.SetSpeedMultiplier(navigationSpeedMultiplier);
+                navigationAgent.Configure(focused);
+            }
+
+            if (animationController != null)
+            {
+                animationController.SetLocomotionPlaybackMultiplier(navigationSpeedMultiplier);
+            }
+
+            if (decision.IsLocomotion)
+            {
+                if (!walkingEnabled)
+                {
+                    PlayIdleFallback();
+                    return;
+                }
+
+                if (TryStartMove(decision.state) && behaviorMemory != null)
+                {
+                    behaviorMemory.RecordDecision(decision, Time.time);
+                }
+
+                return;
+            }
+
+            if (navigationAgent != null)
+            {
+                navigationAgent.StopSoft();
+            }
+
+            RouteAction(CatActionRequest.Create(
+                decision.state,
+                focused ? CatActionSource.Recognition : CatActionSource.Ambient,
+                decision.reason,
+                decision.priority,
+                decision.cooldownSeconds,
+                1f,
+                decision.interruptPolicy,
+                decision.canInterruptByMove));
+        }
+
+        private bool TryStartMove(CatBehaviorState state)
         {
             if (navigationAgent == null || destinationPlanner == null)
             {
                 PlayIdleFallback();
-                return;
+                return false;
             }
 
             Vector3 target;
             if (!destinationPlanner.TryPlanNext(snapshot, state, transform.position, out target))
             {
                 PlayIdleFallback();
-                return;
+                return false;
             }
 
             if (!navigationAgent.TryMoveTo(target))
             {
                 PlayIdleFallback();
-                return;
+                return false;
             }
 
             actionHoldUntil = 0f;
@@ -440,6 +571,8 @@ namespace CatLife.Cat
             {
                 animationController.ForceLocomotion(true);
             }
+
+            return true;
         }
 
         private void TryPlayQueuedAction()
@@ -488,6 +621,12 @@ namespace CatLife.Cat
 
             float holdSeconds = GetHoldSeconds(request.state, snapshot.IsFocused);
             actionHoldUntil = Time.time + holdSeconds;
+            if (behaviorMemory != null)
+            {
+                behaviorMemory.RecordState(request.state, Time.time, holdSeconds);
+                behaviorMemory.SetCooldown(request.state, Time.time + request.cooldownSeconds);
+            }
+
             if (animationController != null)
             {
                 animationController.PlayAction(request.state, holdSeconds, request.canInterruptByMove);
@@ -498,6 +637,12 @@ namespace CatLife.Cat
         {
             currentState = CatBehaviorState.IdleBreath;
             actionHoldUntil = Time.time + shortActionSeconds;
+            if (behaviorMemory != null)
+            {
+                behaviorMemory.RecordState(CatBehaviorState.IdleBreath, Time.time, shortActionSeconds);
+                behaviorMemory.SetCooldown(CatBehaviorState.IdleBreath, Time.time + 1f);
+            }
+
             if (animationController != null)
             {
                 animationController.PlayAction(CatBehaviorState.IdleBreath, shortActionSeconds, true);

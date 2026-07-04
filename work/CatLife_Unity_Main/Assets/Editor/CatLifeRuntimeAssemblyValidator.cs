@@ -247,6 +247,9 @@ namespace CatLife.EditorTools
             CatDestinationPlanner destinationPlanner = RequireComponent<CatDestinationPlanner>(cat, issues);
             CatAnimationController animationController = RequireComponent<CatAnimationController>(cat, issues);
             CatActionRouter actionRouter = RequireComponent<CatActionRouter>(cat, issues);
+            RequireComponent<CatNeedModel>(cat, issues);
+            RequireComponent<CatBehaviorMemory>(cat, issues);
+            RequireComponent<CatBehaviorBrainScorer>(cat, issues);
             CatBehaviorDriver behaviorDriver = RequireComponent<CatBehaviorDriver>(cat, issues);
 
             if (animator != null && animator.runtimeAnimatorController == null)
@@ -269,6 +272,9 @@ namespace CatLife.EditorTools
                 RequireSerializedObject(behaviorDriver, "destinationPlanner", issues);
                 RequireSerializedObject(behaviorDriver, "actionRouter", issues);
                 RequireSerializedObject(behaviorDriver, "featureEngine", issues);
+                RequireSerializedObject(behaviorDriver, "needModel", issues);
+                RequireSerializedObject(behaviorDriver, "behaviorMemory", issues);
+                RequireSerializedObject(behaviorDriver, "behaviorScorer", issues);
             }
 
             if (navigationAgent != null)

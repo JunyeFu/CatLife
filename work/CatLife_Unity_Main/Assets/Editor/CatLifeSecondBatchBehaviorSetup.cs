@@ -99,6 +99,9 @@ namespace CatLife.EditorTools
             CatDestinationPlanner destinationPlanner = GetOrAdd<CatDestinationPlanner>(cat);
             CatAnimationController animationController = GetOrAdd<CatAnimationController>(cat);
             CatActionRouter actionRouter = GetOrAdd<CatActionRouter>(cat);
+            CatNeedModel needModel = GetOrAdd<CatNeedModel>(cat);
+            CatBehaviorMemory behaviorMemory = GetOrAdd<CatBehaviorMemory>(cat);
+            CatBehaviorBrainScorer behaviorScorer = GetOrAdd<CatBehaviorBrainScorer>(cat);
             CatBehaviorDriver behaviorDriver = GetOrAdd<CatBehaviorDriver>(cat);
             Animator animator = cat.GetComponent<Animator>();
 
@@ -106,7 +109,18 @@ namespace CatLife.EditorTools
             AssignObject(safetyGuard, "agent", agent);
             AssignPlanner(destinationPlanner, anchors, forbiddenZones);
             AssignObject(animationController, "animator", animator);
-            AssignDriver(behaviorDriver, recognitionProvider, llmClient, navigationAgent, animationController, destinationPlanner, actionRouter, featureEngine);
+            AssignDriver(
+                behaviorDriver,
+                recognitionProvider,
+                llmClient,
+                navigationAgent,
+                animationController,
+                destinationPlanner,
+                actionRouter,
+                featureEngine,
+                needModel,
+                behaviorMemory,
+                behaviorScorer);
 
             CatTownWalker legacyWalker = cat.GetComponent<CatTownWalker>();
             if (legacyWalker != null)
@@ -565,7 +579,10 @@ namespace CatLife.EditorTools
             CatAnimationController animationController,
             CatDestinationPlanner destinationPlanner,
             CatActionRouter actionRouter,
-            RealtimeFeatureEngine featureEngine)
+            RealtimeFeatureEngine featureEngine,
+            CatNeedModel needModel,
+            CatBehaviorMemory behaviorMemory,
+            CatBehaviorBrainScorer behaviorScorer)
         {
             SerializedObject serialized = new SerializedObject(driver);
             serialized.FindProperty("recognitionProviderComponent").objectReferenceValue = recognitionProvider;
@@ -575,6 +592,9 @@ namespace CatLife.EditorTools
             serialized.FindProperty("destinationPlanner").objectReferenceValue = destinationPlanner;
             serialized.FindProperty("actionRouter").objectReferenceValue = actionRouter;
             serialized.FindProperty("featureEngine").objectReferenceValue = featureEngine;
+            serialized.FindProperty("needModel").objectReferenceValue = needModel;
+            serialized.FindProperty("behaviorMemory").objectReferenceValue = behaviorMemory;
+            serialized.FindProperty("behaviorScorer").objectReferenceValue = behaviorScorer;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(driver);
         }
