@@ -16,13 +16,13 @@ PlayerSettings:
   productName: CatLife
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
-  m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
+  m_SplashScreenBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
   m_ShowUnitySplashScreen: 1
-  m_ShowUnitySplashLogo: 1
+  m_ShowUnitySplashLogo: 0
   m_SplashScreenOverlayOpacity: 1
-  m_SplashScreenAnimation: 1
+  m_SplashScreenAnimation: 0
   m_SplashScreenLogoStyle: 1
-  m_SplashScreenDrawMode: 0
+  m_SplashScreenDrawMode: 1
   m_SplashScreenBackgroundAnimationZoom: 1
   m_SplashScreenLogoAnimationZoom: 1
   m_SplashScreenBackgroundLandscapeAspect: 1
@@ -268,7 +268,7 @@ PlayerSettings:
   useCustomProguardFile: 0
   AndroidTargetArchitectures: 2
   AndroidAllowedArchitectures: -13
-  AndroidSplashScreenScale: 0
+  AndroidSplashScreenScale: 2
   androidSplashScreen: {fileID: 0}
   AndroidKeystoreName: 
   AndroidKeyaliasName: 
@@ -795,9 +795,9 @@ PlayerSettings:
   ps4IncludedModules: []
   ps4attribVROutputEnabled: 0
   monoEnv: 
-  splashScreenBackgroundSourceLandscape: {fileID: 0}
-  splashScreenBackgroundSourcePortrait: {fileID: 0}
-  blurSplashScreenBackground: 1
+  splashScreenBackgroundSourceLandscape: {fileID: 21300000, guid: 4ad4f57ba72d02b479ac4ee1a8b9a9cb, type: 3}
+  splashScreenBackgroundSourcePortrait: {fileID: 21300000, guid: 4ad4f57ba72d02b479ac4ee1a8b9a9cb, type: 3}
+  blurSplashScreenBackground: 0
   spritePackerPolicy: 
   webGLMemorySize: 32
   webGLExceptionSupport: 1

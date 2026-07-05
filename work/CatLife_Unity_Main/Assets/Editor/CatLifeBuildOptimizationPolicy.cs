@@ -15,6 +15,7 @@ namespace CatLife.Editor
         private const string CompanyName = "CatLifeTeam";
         private const string VersionName = "0.1.0";
         private const int VersionCode = 1;
+        private const string SplashTexturePath = "Assets/Resources/CatLifeSplash/CatLifeSplashLogo.png";
 
         [MenuItem("CatLife/Optimization/Stage 6/Audit Android Release Settings")]
         public static void AuditAndroidReleaseSettingsFromMenu()
@@ -97,7 +98,32 @@ namespace CatLife.Editor
             PlayerSettings.stripEngineCode = true;
             PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Android, ManagedStrippingLevel.Medium);
             PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.Android, ManagedStrippingLevel.Medium);
+            ApplyCatLifeSplashScreenSettings();
             AssetDatabase.SaveAssets();
+        }
+
+        public static void ApplyCatLifeSplashScreenSettings()
+        {
+            Sprite splashSprite = AssetDatabase.LoadAssetAtPath<Sprite>(SplashTexturePath);
+            if (splashSprite == null)
+            {
+                Debug.LogWarning("[CatLifeOptimization] Splash sprite missing: " + SplashTexturePath);
+                return;
+            }
+
+            PlayerSettings.SplashScreen.show = true;
+            PlayerSettings.SplashScreen.showUnityLogo = false;
+            PlayerSettings.SplashScreen.backgroundColor = Color.white;
+            PlayerSettings.SplashScreen.background = splashSprite;
+            PlayerSettings.SplashScreen.backgroundPortrait = splashSprite;
+            PlayerSettings.SplashScreen.blurBackgroundImage = false;
+            PlayerSettings.SplashScreen.overlayOpacity = 1f;
+            PlayerSettings.SplashScreen.animationMode = PlayerSettings.SplashScreen.AnimationMode.Static;
+            PlayerSettings.SplashScreen.animationBackgroundZoom = 1f;
+            PlayerSettings.SplashScreen.animationLogoZoom = 1f;
+            PlayerSettings.SplashScreen.drawMode = PlayerSettings.SplashScreen.DrawMode.AllSequential;
+            PlayerSettings.SplashScreen.logos = Array.Empty<PlayerSettings.SplashScreenLogo>();
+            PlayerSettings.Android.splashScreenScale = AndroidSplashScreenScale.ScaleToFill;
         }
 
         public static void AuditAndroidReleaseSettings(string reportDirectory)
@@ -132,6 +158,12 @@ namespace CatLife.Editor
             AppendRow(sb, "Minify debug", PlayerSettings.Android.minifyDebug ? "true" : "false");
             AppendRow(sb, "Strip engine code", PlayerSettings.stripEngineCode ? "true" : "false");
             AppendRow(sb, "Managed stripping Android", PlayerSettings.GetManagedStrippingLevel(NamedBuildTarget.Android).ToString());
+            AppendRow(sb, "Splash screen texture", SplashTexturePath);
+            AppendRow(sb, "Splash screen background", PlayerSettings.SplashScreen.background != null ? AssetDatabase.GetAssetPath(PlayerSettings.SplashScreen.background) : "missing");
+            AppendRow(sb, "Splash screen portrait background", PlayerSettings.SplashScreen.backgroundPortrait != null ? AssetDatabase.GetAssetPath(PlayerSettings.SplashScreen.backgroundPortrait) : "missing");
+            AppendRow(sb, "Splash screen background color", PlayerSettings.SplashScreen.backgroundColor.ToString());
+            AppendRow(sb, "Splash screen Unity logo", PlayerSettings.SplashScreen.showUnityLogo ? "true" : "false");
+            AppendRow(sb, "Android splash scale", PlayerSettings.Android.splashScreenScale.ToString());
             return sb.ToString();
         }
 

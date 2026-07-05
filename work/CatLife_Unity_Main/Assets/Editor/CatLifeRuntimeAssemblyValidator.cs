@@ -648,6 +648,41 @@ namespace CatLife.EditorTools
                 }
             }
 
+            Sprite splashSprite = AssetDatabase.LoadAssetAtPath<Sprite>(SplashTexturePath);
+            if (splashSprite == null)
+            {
+                issues.Add("Splash texture must be imported as a Sprite for Unity splash and runtime UI use: " + SplashTexturePath);
+            }
+            else
+            {
+                string configuredBackground = PlayerSettings.SplashScreen.background != null ? AssetDatabase.GetAssetPath(PlayerSettings.SplashScreen.background) : string.Empty;
+                string configuredPortrait = PlayerSettings.SplashScreen.backgroundPortrait != null ? AssetDatabase.GetAssetPath(PlayerSettings.SplashScreen.backgroundPortrait) : string.Empty;
+                if (configuredBackground != SplashTexturePath)
+                {
+                    issues.Add("Unity splash background should use CatLife splash image. Current: " + (string.IsNullOrEmpty(configuredBackground) ? "missing" : configuredBackground));
+                }
+
+                if (configuredPortrait != SplashTexturePath)
+                {
+                    issues.Add("Unity portrait splash background should use CatLife splash image. Current: " + (string.IsNullOrEmpty(configuredPortrait) ? "missing" : configuredPortrait));
+                }
+            }
+
+            if (!PlayerSettings.SplashScreen.show)
+            {
+                issues.Add("Unity splash screen should be enabled so cold start shows the CatLife opening page.");
+            }
+
+            if (PlayerSettings.SplashScreen.showUnityLogo)
+            {
+                issues.Add("Unity logo should be disabled for the CatLife cold-start opening page.");
+            }
+
+            if (PlayerSettings.SplashScreen.backgroundColor != Color.white)
+            {
+                issues.Add("Unity splash background color should be white.");
+            }
+
             ValidateProjectFileContains(
                 "Assets/Scripts/UI/CatLifeHomeUiController.cs",
                 issues,
