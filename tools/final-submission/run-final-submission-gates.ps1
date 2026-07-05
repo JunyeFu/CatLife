@@ -91,6 +91,7 @@ $requirementsAuditPath = Join-Path $finalDir "CatLife_final_requirements_audit_2
 $secretScanPath = Join-Path $finalDir "CatLife_public_secret_scan_20260705.md"
 $videoManifestPath = Join-Path $finalDir "CatLife_video_manifest.md"
 $waitStatusPath = Join-Path $finalDir "evidence\android\05-summary\stage9_wait_for_device_status.md"
+$finalEvidenceImportSummaryPath = Join-Path $finalDir "CatLife_final_evidence_import_summary_20260705.md"
 
 if ((Test-Path -LiteralPath $videoManifestPath) -and ((Get-Content -LiteralPath $videoManifestPath -Raw) -match 'MISSING:\s+final demo video')) {
     for ($i = 0; $i -lt $steps.Count; $i++) {
@@ -159,6 +160,7 @@ $lines.Add("- Final requirements audit: $requirementsAuditPath")
 $lines.Add("- Public secret scan: $secretScanPath")
 $lines.Add("- Video manifest: $videoManifestPath")
 $lines.Add("- Stage9 wait status: $waitStatusPath")
+$lines.Add("- Final evidence import summary: $finalEvidenceImportSummaryPath")
 
 Set-Content -LiteralPath $outputPath -Value $lines -Encoding UTF8
 Write-Host "Wrote $outputPath"

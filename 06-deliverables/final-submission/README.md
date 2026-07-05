@@ -152,6 +152,16 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
   -TownScreenshot "town-main.png"
 ```
 
+To import cloud-device evidence and the final demo video in one step, use:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/import-final-submission-evidence.ps1 `
+  -SourceDir "<folder containing downloaded cloud-device files>" `
+  -FinalVideo "<path to final demo mp4>"
+```
+
+This copies the video to `CatLife_作品演示视频_v1.mp4`, imports cloud-device evidence through the redacting importer, reruns video QA, and reruns the master gate. It writes `CatLife_final_evidence_import_summary_20260705.md`.
+
 The Stage9 collector writes only redacted credential status. The real APK must contain the local ignored `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json` when it is exported for vivo cloud-device recording, so the cloud phone can try the real vivo API without extra setup. Generated logs, summaries, code package files, GitHub files, screenshots, PPT, poster, and video subtitles must not contain the plaintext AppKEY.
 
 To prepare a draft large-model code package for review:

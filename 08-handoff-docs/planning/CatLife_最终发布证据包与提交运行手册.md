@@ -184,6 +184,16 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/wait-and-collect
 
 该脚本会轮询 `adb devices`，检测到设备后调用 `collect-stage9-android-evidence.ps1`。如果超时仍无设备，只写 `evidence/android/05-summary/stage9_wait_for_device_status.md`，不生成虚假的安装、logcat 或录屏通过证据。
 
+如果已经拿到云真机下载文件和最终演示视频，用最终证据导入脚本一次性导入并重跑闸门：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/import-final-submission-evidence.ps1 `
+  -SourceDir "<云真机下载文件目录>" `
+  -FinalVideo "<最终演示视频 mp4>"
+```
+
+该脚本会把视频复制为 `CatLife_作品演示视频_v1.mp4`，调用 `import-cloud-device-evidence.ps1` 做文本脱敏和证据导入，运行 `test-final-video.ps1`，再运行 `run-final-submission-gates.ps1`。输出 `CatLife_final_evidence_import_summary_20260705.md`。如果证据不完整，它必须保持 incomplete。
+
 ## 7. 提交前顺序
 
 1. 初始化 `evidence/` 目录。
