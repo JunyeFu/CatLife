@@ -155,6 +155,16 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 To import cloud-device evidence and the final demo video in one step, use:
 
 ```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/test-final-evidence-inputs.ps1 `
+  -SourceDir "<folder containing downloaded cloud-device files>" `
+  -FinalVideo "<path to final demo mp4>"
+```
+
+This writes `CatLife_final_evidence_input_check_20260705.md` and reports missing or weak input files before anything is copied.
+
+Then import:
+
+```powershell
 powershell -ExecutionPolicy Bypass -File tools/final-submission/import-final-submission-evidence.ps1 `
   -SourceDir "<folder containing downloaded cloud-device files>" `
   -FinalVideo "<path to final demo mp4>"

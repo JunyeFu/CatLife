@@ -187,12 +187,16 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/wait-and-collect
 如果已经拿到云真机下载文件和最终演示视频，用最终证据导入脚本一次性导入并重跑闸门：
 
 ```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/test-final-evidence-inputs.ps1 `
+  -SourceDir "<云真机下载文件目录>" `
+  -FinalVideo "<最终演示视频 mp4>"
+
 powershell -ExecutionPolicy Bypass -File tools/final-submission/import-final-submission-evidence.ps1 `
   -SourceDir "<云真机下载文件目录>" `
   -FinalVideo "<最终演示视频 mp4>"
 ```
 
-该脚本会把视频复制为 `CatLife_作品演示视频_v1.mp4`，调用 `import-cloud-device-evidence.ps1` 做文本脱敏和证据导入，运行 `test-final-video.ps1`，再运行 `run-final-submission-gates.ps1`。输出 `CatLife_final_evidence_import_summary_20260705.md`。如果证据不完整，它必须保持 incomplete。
+预检脚本输出 `CatLife_final_evidence_input_check_20260705.md`，只检查输入文件是否存在和关键日志信号，不复制文件。导入脚本会把视频复制为 `CatLife_作品演示视频_v1.mp4`，调用 `import-cloud-device-evidence.ps1` 做文本脱敏和证据导入，运行 `test-final-video.ps1`，再运行 `run-final-submission-gates.ps1`。输出 `CatLife_final_evidence_import_summary_20260705.md`。如果证据不完整，它必须保持 incomplete。
 
 ## 7. 提交前顺序
 
