@@ -39,6 +39,7 @@ namespace CatLife.LLM
             ResolveClients();
             if (runtimeMode == LlmRuntimeMode.LocalTemplateOnly)
             {
+                Debug.Log("[CatLife] llm_factory llm_source=local_template fallback=runtime_mode_local_template");
                 CompleteLocalFallback(context, "runtime_mode_local_template", onSuccess);
                 return;
             }
@@ -46,6 +47,7 @@ namespace CatLife.LLM
             ICatLLMClient selected = ResolveSelectedClient();
             if (selected != null && selected.Enabled)
             {
+                Debug.Log("[CatLife] llm_factory route=" + selected.GetType().Name + " runtime_mode=" + runtimeMode);
                 selected.RequestSuggestion(context, builder, onSuccess, onError);
                 return;
             }
@@ -53,12 +55,14 @@ namespace CatLife.LLM
             ICatLLMClient fallback = ResolveFallbackClient();
             if (fallback != null && fallback.Enabled)
             {
+                Debug.Log("[CatLife] llm_factory route=" + fallback.GetType().Name + " fallback=selected_unavailable");
                 fallback.RequestSuggestion(context, builder, onSuccess, onError);
                 return;
             }
 
             if (localFallbackWhenNoClient)
             {
+                Debug.Log("[CatLife] llm_factory llm_source=local_template fallback=llm_factory_no_available_client");
                 CompleteLocalFallback(context, "llm_factory_no_available_client", onSuccess);
                 return;
             }

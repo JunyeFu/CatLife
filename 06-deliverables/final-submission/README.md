@@ -182,6 +182,14 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/test-apk-credent
 
 This writes `CatLife_apk_private_credential_boundary_20260705.md`. The report checks the ignored private config, placeholder rejection, Unity Resources loading path, APK artifact hash match, decompressed APK entry byte presence for the private AppKEY/AppID, and redacted credential boundary without printing the plaintext AppKEY.
 
+After any Unity source or ProjectSettings change, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/test-apk-build-freshness.ps1
+```
+
+This writes `CatLife_apk_build_freshness_20260705.md`. If it reports newer Unity source files than the APK, close the Unity Editor instance that has the project open, rebuild `CatLife_MVP_Android_v0.1.0.apk`, then rerun the final gates before cloud-device recording.
+
 To prepare a draft large-model code package for review:
 
 ```powershell

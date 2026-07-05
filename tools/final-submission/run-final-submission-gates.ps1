@@ -81,6 +81,8 @@ $steps = New-Object System.Collections.Generic.List[object]
 $steps.Add((Invoke-GateStep -Name "Cloud handoff" -ScriptRelativePath "tools\final-submission\prepare-cloud-device-handoff.ps1" -Arguments @())) | Out-Null
 $steps.Add((Invoke-GateStep -Name "Cloud upload workspace" -ScriptRelativePath "tools\final-submission\prepare-cloud-device-upload-workspace.ps1" -Arguments @())) | Out-Null
 $steps.Add((Invoke-GateStep -Name "APK credential boundary" -ScriptRelativePath "tools\final-submission\test-apk-credential-boundary.ps1" -Arguments @())) | Out-Null
+$steps.Add((Invoke-GateStep -Name "APK build freshness" -ScriptRelativePath "tools\final-submission\test-apk-build-freshness.ps1" -Arguments @())) | Out-Null
+$steps.Add((Invoke-GateStep -Name "Runtime log markers" -ScriptRelativePath "tools\final-submission\test-runtime-log-markers.ps1" -Arguments @())) | Out-Null
 $steps.Add((Invoke-GateStep -Name "Final evidence input check" -ScriptRelativePath "tools\final-submission\test-final-evidence-inputs.ps1" -Arguments @("-AllowIncomplete"))) | Out-Null
 $steps.Add((Invoke-GateStep -Name "Video manifest" -ScriptRelativePath "tools\final-submission\test-final-video.ps1" -Arguments @("-AllowMissing"))) | Out-Null
 $steps.Add((Invoke-GateStep -Name "PPT claim audit" -ScriptRelativePath "tools\final-submission\audit-ppt-claims.ps1" -Arguments @("-AllowHits"))) | Out-Null
@@ -96,6 +98,8 @@ $waitStatusPath = Join-Path $finalDir "evidence\android\05-summary\stage9_wait_f
 $finalEvidenceImportSummaryPath = Join-Path $finalDir "CatLife_final_evidence_import_summary_20260705.md"
 $finalEvidenceInputCheckPath = Join-Path $finalDir "CatLife_final_evidence_input_check_20260705.md"
 $apkCredentialBoundaryPath = Join-Path $finalDir "CatLife_apk_private_credential_boundary_20260705.md"
+$apkBuildFreshnessPath = Join-Path $finalDir "CatLife_apk_build_freshness_20260705.md"
+$runtimeLogMarkerCheckPath = Join-Path $finalDir "CatLife_runtime_log_marker_check_20260705.md"
 
 if ((Test-Path -LiteralPath $finalEvidenceInputCheckPath) -and ((Get-Content -LiteralPath $finalEvidenceInputCheckPath -Raw) -match 'Ready to import:\s+False')) {
     for ($i = 0; $i -lt $steps.Count; $i++) {
@@ -167,6 +171,7 @@ if ($ready) {
 } else {
     $lines.Add("- Final video is required when video manifest or submission check reports missing video.")
     $lines.Add("- Cloud/local Android install evidence is required.")
+    $lines.Add("- Rebuild the APK if APK build freshness reports newer Unity source files.")
     $lines.Add("- Startup logcat, LLM/fallback logcat, focus-flow logcat, and device/cloud recording evidence are required.")
     $lines.Add("- Do not mark the 10-stage goal complete while final audit has MISSING or PARTIAL rows.")
 }
@@ -181,6 +186,8 @@ $lines.Add("- Stage9 wait status: $waitStatusPath")
 $lines.Add("- Final evidence import summary: $finalEvidenceImportSummaryPath")
 $lines.Add("- Final evidence input check: $finalEvidenceInputCheckPath")
 $lines.Add("- APK credential boundary: $apkCredentialBoundaryPath")
+$lines.Add("- APK build freshness: $apkBuildFreshnessPath")
+$lines.Add("- Runtime log markers: $runtimeLogMarkerCheckPath")
 
 Set-Content -LiteralPath $outputPath -Value $lines -Encoding UTF8
 Write-Host "Wrote $outputPath"

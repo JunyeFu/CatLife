@@ -62,6 +62,9 @@ namespace CatLife.LLM
             LastCloudRequestId = "";
             LastFailureReason = "";
             LastSource = LastCloudConfigUsable ? "vivo_cloud_pending" : "local_template";
+            Debug.Log("[CatLife] llm_request llm_source=" + LastSource +
+                " app_id=" + LastCloudAppIdRedacted +
+                " cloud_config_usable=" + LastCloudConfigUsable);
             if (preferVivoCloudWhenConfigured && config.HasUsableCloudCredentials)
             {
                 bool cloudCompleted = false;
@@ -87,6 +90,8 @@ namespace CatLife.LLM
                     IsBusy = false;
                     LastSource = "vivo_cloud";
                     LastFailureReason = "";
+                    Debug.Log("[CatLife] llm_result llm_source=vivo_cloud status_code=" + LastCloudStatusCode +
+                        " request_id=" + LastCloudRequestId);
                     if (onSuccess != null)
                     {
                         onSuccess(LLMBehaviorSuggestion.ClampToWhitelist(cloudSuggestion));
@@ -99,12 +104,13 @@ namespace CatLife.LLM
                 {
                     LastSource = "local_template";
                     LastFailureReason = cloudError;
-                    Debug.LogWarning("[CatLife] vivo cloud LLM fallback: " + cloudError);
+                    Debug.LogWarning("[CatLife] llm_result llm_source=local_template fallback=vivo_cloud_error llm_error=" + cloudError);
                 }
             }
             else if (preferVivoCloudWhenConfigured)
             {
                 LastFailureReason = config.enableDirectCloudApi ? "vivo_cloud_credentials_missing_or_placeholder" : "vivo_cloud_disabled";
+                Debug.Log("[CatLife] llm_result llm_source=local_template fallback=" + LastFailureReason);
             }
 
             yield return new WaitForSecondsRealtime(Mathf.Max(0f, simulatedLatencySeconds));
@@ -158,6 +164,9 @@ namespace CatLife.LLM
             {
                 LastSource = "local_template";
             }
+            Debug.Log("[CatLife] llm_result llm_source=" + LastSource +
+                " fallback_reason=" + (string.IsNullOrEmpty(LastFailureReason) ? "none" : LastFailureReason) +
+                " focus=" + (context != null && (context.focusSessionActive || context.focusState == "Focused")));
 
             if (onSuccess != null)
             {

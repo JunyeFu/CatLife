@@ -152,6 +152,8 @@ $cloudDeviceHandoff = Find-FirstFile -Root $finalDir -Patterns @("CatLife_cloud_
 $cloudUploadWorkspaceManifest = Find-FirstFile -Root $finalDir -Patterns @("CatLife_cloud_device_upload_workspace_manifest_*.md")
 $finalEvidenceImportSummary = Find-FirstFile -Root $finalDir -Patterns @("CatLife_final_evidence_import_summary_*.md")
 $finalEvidenceInputCheck = Find-FirstFile -Root $finalDir -Patterns @("CatLife_final_evidence_input_check_*.md")
+$apkBuildFreshness = Find-FirstFile -Root $finalDir -Patterns @("CatLife_apk_build_freshness_*.md")
+$runtimeLogMarkerCheck = Find-FirstFile -Root $finalDir -Patterns @("CatLife_runtime_log_marker_check_*.md")
 $pptDefectTableFile = Find-FirstFile -Root $planningDir -Patterns @("*PPT*20260705.md")
 $reviewChecklistFile = Find-FirstFile -Root $planningDir -Patterns @("*review*check*.md", "*checklist*.md")
 $runbookFile = Find-FirstFile -Root $planningDir -Patterns @("*release*runbook*.md", "*runbook*.md")
@@ -192,13 +194,18 @@ $apkCredentialBoundaryOk = Test-TextFileHasSignal -Path $apkCredentialBoundaryRe
 $privateBoundaryOk = (Test-Path -LiteralPath $privateConfigPath) -and (Test-GitIgnored $privateConfigRelative) -and (Test-Path -LiteralPath $privateConfigEvidence) -and $apkCredentialBoundaryOk
 Add-AuditRow (New-AuditRow "Credential boundary" "Real APK must include local ignored vivo key, while public materials only keep redacted evidence." ($(if($privateBoundaryOk){"PASS"}else{"MISSING"})) ("private exists=" + (Test-Path -LiteralPath $privateConfigPath) + "; ignored=" + (Test-GitIgnored $privateConfigRelative) + "; redacted evidence=" + (Test-Path -LiteralPath $privateConfigEvidence) + "; apk boundary report=" + $apkCredentialBoundaryOk) "Keep private Resources ignored; never commit plaintext AppKEY.")
 
+$apkBuildFreshnessOk = $apkBuildFreshness -and (Test-TextFileHasSignal -Path $apkBuildFreshness.FullName -Pattern "APK fresh against Unity source:\s+True")
+Add-AuditRow (New-AuditRow "Official deliverable" "Runnable APK must be fresh against current Unity runtime source." ($(if($apkBuildFreshnessOk){"PASS"}else{"MISSING"})) ($(if($apkBuildFreshness){$apkBuildFreshness.FullName}else{"APK build freshness report missing"})) "Close Unity if open, rebuild the APK, then rerun final gates.")
+
 $installOk = Test-TextFileHasSignal -Path $installEvidence -Pattern "Success|INSTALL_SUCCEEDED|installed|安装成功"
 $startupOk = Test-TextFileHasSignal -Path $startupEvidence -Pattern "CatLife|Unity|Activity|com\.catlife\.mvp"
 $llmOk = Test-TextFileHasSignal -Path $llmEvidence -Pattern "vivo_cloud|bluelm_on_device|local_template|fallback|llm_source|llm_error|BlueLM|LLM"
 $focusOk = Test-TextFileHasSignal -Path $focusEvidence -Pattern "CatLife|focus|llm_source|Unity|fallback"
 $recordingOk = $null -ne $recordingEvidence
+$runtimeMarkersOk = $runtimeLogMarkerCheck -and (Test-TextFileHasSignal -Path $runtimeLogMarkerCheck.FullName -Pattern "Ready for Stage9 logcat capture:\s+True")
 
 Add-AuditRow (New-AuditRow "Runtime evidence" "APK install evidence proves cloud/local device installation." ($(if($installOk){"PASS"}else{"MISSING"})) ($(if(Test-Path -LiteralPath $installEvidence){$installEvidence}else{"install evidence missing"})) "Install on vivo cloud device or import cloud-device install log.")
+Add-AuditRow (New-AuditRow "Runtime evidence" "Runtime code contains stable startup, focus, and LLM logcat markers." ($(if($runtimeMarkersOk){"PASS"}else{"MISSING"})) ($(if($runtimeLogMarkerCheck){$runtimeLogMarkerCheck.FullName}else{"runtime log marker check missing"})) "Keep runtime log markers before collecting cloud-device logcat evidence.")
 Add-AuditRow (New-AuditRow "Runtime evidence" "Startup logcat proves the app launches on device." ($(if($startupOk){"PASS"}else{"MISSING"})) ($(if(Test-Path -LiteralPath $startupEvidence){$startupEvidence}else{"startup logcat missing"})) "Capture startup logcat with collect-stage9-android-evidence.ps1 or import-cloud-device-evidence.ps1.")
 Add-AuditRow (New-AuditRow "Runtime evidence" "LLM evidence proves vivo cloud, BlueLM, or fallback source." ($(if($llmOk){"PASS"}else{"MISSING"})) ($(if(Test-Path -LiteralPath $llmEvidence){$llmEvidence}else{"LLM logcat missing"})) "Capture LLM logcat showing vivo_cloud, bluelm_on_device, local_template, or failure/fallback state.")
 Add-AuditRow (New-AuditRow "Runtime evidence" "Focus flow evidence proves a sustained focus session path." ($(if($focusOk){"PASS"}else{"MISSING"})) ($(if(Test-Path -LiteralPath $focusEvidence){$focusEvidence}else{"focus logcat missing"})) "Capture 5 minute focus flow logcat or import cloud-device focus evidence.")
@@ -365,6 +372,8 @@ $lines.Add("- Cloud-device upload workspace manifest: " + $(if($cloudUploadWorks
 $lines.Add("- Final evidence import summary: " + $(if($finalEvidenceImportSummary){$finalEvidenceImportSummary.FullName}else{"missing"}))
 $lines.Add("- Final evidence input check: " + $(if($finalEvidenceInputCheck){$finalEvidenceInputCheck.FullName}else{"missing"}))
 $lines.Add("- APK credential boundary: $apkCredentialBoundaryReport")
+$lines.Add("- APK build freshness: " + $(if($apkBuildFreshness){$apkBuildFreshness.FullName}else{"missing"}))
+$lines.Add("- Runtime log markers: " + $(if($runtimeLogMarkerCheck){$runtimeLogMarkerCheck.FullName}else{"missing"}))
 $lines.Add("- PPT defect table: " + $(if([string]::IsNullOrWhiteSpace($pptDefectTable)){"not auto-resolved"}else{$pptDefectTable}))
 $lines.Add("- Review checklist: " + $(if([string]::IsNullOrWhiteSpace($reviewChecklist)){"not auto-resolved"}else{$reviewChecklist}))
 $lines.Add("- Release runbook: " + $(if([string]::IsNullOrWhiteSpace($runbook)){"not auto-resolved"}else{$runbook}))

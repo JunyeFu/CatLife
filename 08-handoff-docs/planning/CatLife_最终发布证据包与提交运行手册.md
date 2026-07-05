@@ -95,6 +95,14 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/test-apk-credent
 
 该脚本输出 `06-deliverables/final-submission/CatLife_apk_private_credential_boundary_20260705.md`，检查本机私有配置存在、`.gitignore` 保护、AppKEY 非占位、Unity 运行时 Resources 读取路径、构建脚本私有凭据证据链、APK hash 是否匹配，并扫描解压后的 APK 条目是否包含私有 AppKEY/AppID 字节；报告只写 `REDACTED` 和命中条目名，不输出明文 AppKEY。
 
+如果 Unity 源码或 ProjectSettings 有任何改动，上传前还要检查 APK 是否新于当前源码：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/test-apk-build-freshness.ps1
+```
+
+该脚本输出 `06-deliverables/final-submission/CatLife_apk_build_freshness_20260705.md`。若报告显示 Unity 源文件比 APK 更新，必须先关闭正在打开该项目的 Unity Editor，重新执行 `CatLife.Editor.CatLifeAndroidBuild.BuildApk` 构建 APK，再采集云真机证据；否则 logcat 可能来自旧包。
+
 如需给云真机上传前准备一个本机工作区，运行：
 
 ```powershell

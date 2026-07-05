@@ -124,6 +124,9 @@ namespace CatLife.UI
             BeginSplashScreen();
             BeginRuntimeFocusDelay();
             UpdateStatusText(true);
+            Debug.Log("[CatLife] startup package=com.catlife.mvp scene=" + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name +
+                " focus_session_seconds=" + focusSessionSeconds +
+                " today_focus_minutes=" + todayFocusMinutes);
         }
 
         private void OnEnable()
@@ -186,6 +189,8 @@ namespace CatLife.UI
         {
             AndroidBehaviorEventBridge.RecordUnityEvent("UiButton", "start_focus");
             AndroidBehaviorEventBridge.RecordUnityEvent("FocusStart", "focus_session");
+            Debug.Log("[CatLife] focus_start source=ui_or_auto focus_session_seconds=" + focusSessionSeconds +
+                " today_focus_minutes=" + todayFocusMinutes);
             NotifyCatUiAction(CatBehaviorState.HeadTiltListen, "ui_start_focus");
             NotifyCatFocusSessionStarted();
             activeSessionSeconds = Mathf.Max(1, focusSessionSeconds);
@@ -213,10 +218,13 @@ namespace CatLife.UI
 
             AndroidBehaviorEventBridge.RecordUnityEvent("Unlock", "focus_unlock");
             AndroidBehaviorEventBridge.RecordUnityEvent("FocusCancel", "focus_session");
+            int interruptedSeconds = Mathf.Max(1, Mathf.RoundToInt(activeSessionSeconds - focusRemainingSeconds));
+            Debug.Log("[CatLife] focus_unlocked elapsed_seconds=" + interruptedSeconds +
+                " interruptions=" + interruptionCount +
+                " llm_source=" + latestFocusFeedbackSource);
             focusRunning = false;
             NotifyCatFocusSessionEnded(false);
             autoFocusConsumed = true;
-            int interruptedSeconds = Mathf.Max(1, Mathf.RoundToInt(activeSessionSeconds - focusRemainingSeconds));
             focusRemainingSeconds = Mathf.Max(1, focusSessionSeconds);
             SaveRuntimeData();
             ApplyFocusState(FocusFlowState.Normal, false);
@@ -318,6 +326,10 @@ namespace CatLife.UI
             longestStableSeconds = Mathf.Max(longestStableSeconds, finishedSeconds);
             focusRemainingSeconds = Mathf.Max(1, focusSessionSeconds);
             SaveRuntimeData();
+            Debug.Log("[CatLife] focus_completed elapsed_seconds=" + finishedSeconds +
+                " today_focus_minutes=" + todayFocusMinutes +
+                " completed_sessions=" + completedSessions +
+                " llm_source=" + latestFocusFeedbackSource);
             ApplyFocusState(FocusFlowState.Reward, false);
             NotifyCatUiAction(CatBehaviorState.PawWave, "session_completed");
             UpdateStatusText(true);
@@ -1055,6 +1067,10 @@ namespace CatLife.UI
             latestFocusFeedbackConfidence = Mathf.Clamp01(feedback.confidence);
             latestFocusFeedbackSafetyReason = feedback.safetyReason;
             latestFocusFeedbackDegraded = feedback.isDegraded;
+            Debug.Log("[CatLife] focus_feedback llm_source=" + latestFocusFeedbackSource +
+                " degraded=" + latestFocusFeedbackDegraded +
+                " safety=" + latestFocusFeedbackSafetyReason +
+                " confidence=" + latestFocusFeedbackConfidence.ToString("0.00", CultureInfo.InvariantCulture));
 
             EnsureCatBubblePresenter();
             if (catBubblePresenter != null)
