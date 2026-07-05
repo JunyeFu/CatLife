@@ -82,9 +82,7 @@ namespace CatLife.Editor
 
             try
             {
-                EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
-                EditorUserBuildSettings.buildAppBundle = false;
-                EditorUserBuildSettings.androidBuildSubtarget = MobileTextureSubtarget.ASTC;
+                CatLifeBuildOptimizationPolicy.ApplyReleaseBuildSettings();
 
                 BuildPlayerOptions options = new BuildPlayerOptions
                 {

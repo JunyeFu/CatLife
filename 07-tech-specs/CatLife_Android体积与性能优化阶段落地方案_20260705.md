@@ -23,8 +23,8 @@
 | 3 | 高质量贴图平台规则 | 已完成 | 是，逐类 A/B | Android 压缩规则和截图对比 |
 | 4 | 重复材质与贴图合并 | 已完成 | 是，小批量 | 材质引用正确、draw call/包体下降 |
 | 5 | 模型与动画轻量化 | 已完成 | 是，小批量 | 猫咪不离地、不闪烁，11 动画可用 |
-| 6 | 构建/Shader/Strip 收尾 | 下一阶段 | 否，主要改构建设置 | Release 构建、无新增运行错误 |
-| 7 | 回归报告与保留决策 | 待开始 | 否 | 前后体积、性能、截图、功能证据 |
+| 6 | 构建/Shader/Strip 收尾 | 已完成 | 否，主要改构建设置 | Release 构建成功、无新增运行错误 |
+| 7 | 回归报告与保留决策 | 下一阶段 | 否 | 前后体积、性能、截图、功能证据 |
 
 ## 阶段 0：体积归因基线
 
@@ -643,6 +643,96 @@ work/CatLife_Unity_Main/Reports/VisualChecks/stage5-model-import-playmode.png
 - APK 正常启动。
 - 首页、设置、专注、解锁、猫咪行为链路正常。
 - Console/logcat 无新增阻塞错误。
+
+### 2026-07-05 Android Release 构建策略与首次量化
+
+本阶段不再继续改贴图源文件，不删除资产，不降低猫咪、UI、开屏页和主画面质量。阶段 6 只把前几阶段已经建立的 Android 导入策略真正落到 Release 构建链路，并用详细 Build Report 量化收益。
+
+已新增 Editor 工具：
+
+| 菜单 | 用途 |
+|---|---|
+| `CatLife/Optimization/Stage 6/Audit Android Release Settings` | 只导出当前 Android Release 构建设置。 |
+| `CatLife/Optimization/Stage 6/Apply Android Release Settings` | 应用 Android Release 构建设置并导出审计报告。 |
+
+工具文件：
+
+```text
+work/CatLife_Unity_Main/Assets/Editor/CatLifeBuildOptimizationPolicy.cs
+```
+
+已接入构建脚本：
+
+| 文件 | 变更 |
+|---|---|
+| `Assets/Editor/CatLifeAndroidBuild.cs` | Release APK 构建入口统一调用阶段 6 策略，输出构建设置证据。 |
+| `Assets/Editor/CatLifeBuildSizeReporter.cs` | Detailed Build Report 构建前统一调用阶段 6 策略。 |
+
+阶段 6 Release 设置：
+
+| 设置 | 当前值 |
+|---|---|
+| Active build target | Android |
+| Development build | false |
+| Build app bundle | false |
+| Android build system | Gradle |
+| Android texture subtarget | ASTC |
+| Application identifier | `com.catlife.mvp` |
+| Scripting backend | IL2CPP |
+| Target architectures | ARM64 |
+| Minify release | true |
+| Minify debug | false |
+| Strip engine code | true |
+| Managed stripping Android | Medium |
+
+设置审计报告：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-210110-stage6-android-release-apply/android_release_settings.md
+```
+
+Release Detailed Build Report：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-211125-stage6-release-detailed-build/
+```
+
+构建结果：
+
+| 项 | 阶段前基线 | 阶段 6 Release 构建 | 变化 |
+|---|---:|---:|---:|
+| APK 路径 | `06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk` | `Reports/BuildSize/20260705-211125-stage6-release-detailed-build/CatLife_Stage6_Release.apk` | 本地报告产物，不纳入 Git |
+| APK bytes | 2803906139 | 424876644 | -2379029495 bytes |
+| APK MiB | 2674.97 MiB | 405.19 MiB | -2269.78 MiB |
+| Build result | 旧包 | Succeeded | 通过 |
+| Build errors | 未统计 | 0 | 无构建错误 |
+| Build warnings | 未统计 | 435 | 需要阶段 7 复盘，但不阻塞本阶段 |
+
+APK 内部聚合前项：
+
+| APK group | 压缩体积 | 未压缩体积 | 说明 |
+|---|---:|---:|---|
+| `assets/bin/Data/sharedassets0.assets` | 377.76 MiB | 627.74 MiB | 仍是最大剩余项，下一阶段只做归因和保留决策。 |
+| `lib/arm64-v8a` | 21.09 MiB | 68.61 MiB | IL2CPP/Unity native runtime。 |
+| `assets/bin/Data/Managed` | 1.76 MiB | 5.71 MiB | 托管代码资源。 |
+| `assets/bin/Data/Resources` | 1.10 MiB | 4.27 MiB | Resources 数据。 |
+| `classes.dex` | 0.73 MiB | 0.73 MiB | Android Java/Kotlin 字节码。 |
+
+验证结果：
+
+| 验证项 | 结果 |
+|---|---|
+| Release APK 构建 | 成功，Gradle `assembleRelease` 完成。 |
+| 构建设置复读 | Unity MCP 读取结果与审计报告一致。 |
+| Runtime assembly validator | 通过，场景接线、NavMesh、猫行为驱动、识别/LLM 系统、UI 绑定和 11 个 Animator state 均存在。 |
+| Console | 0 error。 |
+| 场景保护 | 构建过程产生的 `MainScene.unity` 脏改已还原，本阶段不改场景布局、猫咪位置或摄像机位置。 |
+
+阶段 6 结论：
+
+- 体积下降的主要来源是 Android ASTC 平台贴图策略、Release 构建、IL2CPP ARM64、Release minify、Engine stripping 和 Managed stripping Medium 共同生效。
+- 当前已从约 2.8GB 降到约 405MB，达成“保证质量不强行压缩前提下显著降低体积”的阶段目标。
+- 最大剩余项仍是 `sharedassets0.assets`，下一阶段应做回归报告、截图/功能确认、warning 归类和进一步保留决策，不能直接继续降贴图或删资源。
 
 ## 阶段 7：回归报告与保留决策
 

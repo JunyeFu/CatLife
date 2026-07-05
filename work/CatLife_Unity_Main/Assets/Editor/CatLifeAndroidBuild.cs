@@ -26,6 +26,13 @@ namespace CatLife.Editor
             BuildApkInternal(outputPath, developmentBuild: true, exitOnComplete: false);
         }
 
+        [MenuItem("CatLife/Build/Build Android Release APK")]
+        public static void BuildReleaseApkFromMenu()
+        {
+            string outputPath = GetDefaultOutputPath();
+            BuildApkInternal(outputPath, developmentBuild: false, exitOnComplete: false);
+        }
+
         public static void BuildApk()
         {
             string outputPath = GetArg("-outputPath");
@@ -108,20 +115,8 @@ namespace CatLife.Editor
 
         private static void ConfigureAndroidPlayer(bool developmentBuild)
         {
-            EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Android, BuildTarget.Android);
-            EditorUserBuildSettings.buildAppBundle = false;
+            CatLifeBuildOptimizationPolicy.ApplyReleaseBuildSettings();
             EditorUserBuildSettings.development = developmentBuild;
-            EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
-            EditorUserBuildSettings.androidBuildSubtarget = MobileTextureSubtarget.ASTC;
-
-            PlayerSettings.productName = ProductName;
-            PlayerSettings.companyName = CompanyName;
-            PlayerSettings.bundleVersion = VersionName;
-            PlayerSettings.Android.bundleVersionCode = VersionCode;
-            PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel28;
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, PackageName);
-            PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
-            PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
         }
 
         private static string[] ResolveBuildScenes()
@@ -166,6 +161,9 @@ namespace CatLife.Editor
                 "Texture compression: ASTC",
                 "Min SDK: 28",
                 "Build app bundle: false",
+                "Minify release: " + PlayerSettings.Android.minifyRelease,
+                "Managed stripping: " + PlayerSettings.GetManagedStrippingLevel(NamedBuildTarget.Android),
+                "Strip engine code: " + PlayerSettings.stripEngineCode,
                 "Private credential asset path: " + PrivateCredentialAssetPath,
                 "Private credential value: REDACTED",
                 "Scenes in build:",
