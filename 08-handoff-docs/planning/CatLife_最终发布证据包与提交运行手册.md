@@ -173,6 +173,17 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 
 该脚本会对文本证据做 AppKEY、Authorization、Bearer、token 脱敏，复制到 `evidence/android/`、`evidence/03-screenshots/` 和 `evidence/04-recordings/`，并生成 `evidence/android/05-summary/manual_cloud_device_import.md`。导入完成后仍必须运行最终自检脚本。
 
+如果云真机 ADB endpoint 需要等待分配或页面连接较慢，使用等待采证脚本：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/wait-and-collect-stage9-android-evidence.ps1 `
+  -ApkPath "06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk" `
+  -CloudAdbEndpoint "<云真机IP:端口>" `
+  -TimeoutSeconds 900
+```
+
+该脚本会轮询 `adb devices`，检测到设备后调用 `collect-stage9-android-evidence.ps1`。如果超时仍无设备，只写 `evidence/android/05-summary/stage9_wait_for_device_status.md`，不生成虚假的安装、logcat 或录屏通过证据。
+
 ## 7. 提交前顺序
 
 1. 初始化 `evidence/` 目录。

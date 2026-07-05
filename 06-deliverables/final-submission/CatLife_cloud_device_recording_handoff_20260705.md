@@ -1,6 +1,6 @@
 ﻿# CatLife Cloud Device Recording Handoff
 
-Generated: 2026-07-05 09:28:37
+Generated: 2026-07-05 09:39:24
 Project root: C:\Users\fujunye\Desktop\Agent\05-AIGC
 
 ## Current APK
@@ -27,6 +27,12 @@ Run this after the vivo cloud page provides an ADB endpoint:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/final-submission/collect-stage9-android-evidence.ps1 -ApkPath "06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk" -CloudAdbEndpoint "<vivo cloud adb ip:port>"
+```
+
+If the cloud endpoint is assigned but the adb device is not immediately visible, use the wait wrapper:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/wait-and-collect-stage9-android-evidence.ps1 -ApkPath "06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk" -CloudAdbEndpoint "<vivo cloud adb ip:port>" -TimeoutSeconds 900
 ```
 
 Expected outputs:

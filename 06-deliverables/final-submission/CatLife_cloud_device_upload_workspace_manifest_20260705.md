@@ -1,6 +1,6 @@
 ﻿# CatLife Cloud Device Upload Workspace Manifest
 
-Generated: 2026-07-05 09:28:42
+Generated: 2026-07-05 09:39:29
 Workspace: C:\Users\fujunye\Desktop\Agent\05-AIGC\work\final-submission-cloud-upload
 
 ## APK
@@ -31,6 +31,14 @@ Workspace: C:\Users\fujunye\Desktop\Agent\05-AIGC\work\final-submission-cloud-up
 | CatLife_cloud_device_recording_handoff_20260705.md | True | Full handoff command sheet |
 | apk-sha256.txt | True | Build hash evidence copy |
 | private_config_presence_redacted.txt | True | Redacted private config evidence copy |
+
+## Wait Wrapper
+
+If a vivo cloud-device endpoint is assigned but adb does not list the device immediately, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/wait-and-collect-stage9-android-evidence.ps1 -ApkPath "06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk" -CloudAdbEndpoint "<vivo cloud adb ip:port>" -TimeoutSeconds 900
+```
 
 ## Stage 9 Closure
 

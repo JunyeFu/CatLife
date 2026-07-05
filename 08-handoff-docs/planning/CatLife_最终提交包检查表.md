@@ -59,6 +59,7 @@ CatLife_提交自检表_20260705.md
 | LLM 路径 | logcat 能判断 vivo 云端真实调用、BlueLM 端侧调用、失败码或本地 fallback 状态之一 |
 | 云真机交接 | `CatLife_cloud_device_recording_handoff_20260705.md` 已生成，APK hash 与待上传 APK 一致 |
 | 上传工作区 | `CatLife_cloud_device_upload_workspace_manifest_20260705.md` 已生成，上传 APK 源路径和预期下载文件名清晰 |
+| 等待采证 | 云真机 ADB endpoint 未立即就绪时可运行 `wait-and-collect-stage9-android-evidence.ps1` 等待并自动触发采证 |
 | 日志 | 无 crash、ANR、关键 NullReference |
 | 录屏 | 至少 1 段真机流程视频 |
 

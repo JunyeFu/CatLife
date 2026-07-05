@@ -119,6 +119,17 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/collect-stage9-a
   -CloudAdbEndpoint "<vivo cloud adb ip:port>"
 ```
 
+If the cloud-device endpoint is not immediately ready, use the wait wrapper. It polls until an ADB device appears, then invokes the same Stage9 collector:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/wait-and-collect-stage9-android-evidence.ps1 `
+  -ApkPath "06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk" `
+  -CloudAdbEndpoint "<vivo cloud adb ip:port>" `
+  -TimeoutSeconds 900
+```
+
+When no device is found, the wait wrapper writes `evidence/android/05-summary/stage9_wait_for_device_status.md` and exits without creating false pass evidence.
+
 If the vivo cloud-device page only provides downloadable logs, screenshots, or recordings instead of an ADB endpoint, import those files with:
 
 ```powershell
