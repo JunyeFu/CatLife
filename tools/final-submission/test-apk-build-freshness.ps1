@@ -20,6 +20,7 @@ if (-not [System.IO.Path]::IsPathRooted($ApkPath)) {
 $sourceRoots = @(
     (Join-Path $unityProject "Assets\Scripts"),
     (Join-Path $unityProject "Assets\Editor"),
+    (Join-Path $unityProject "Assets\Scenes"),
     (Join-Path $unityProject "ProjectSettings")
 )
 
