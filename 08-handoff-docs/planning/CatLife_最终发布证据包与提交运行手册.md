@@ -87,6 +87,14 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/prepare-cloud-de
 
 该脚本输出 `06-deliverables/final-submission/CatLife_cloud_device_recording_handoff_20260705.md`，记录当前 APK 文件、SHA256、本机 ADB 状态、云真机 ADB 采证命令、网页下载文件清单和导入命令。它只记录私有凭据的存在/边界，不输出明文 AppKEY。真实版/最终提交 APK 仍必须包含本机 ignored 私有 Resources 中的云真机可用 key，方便上传云真机后直接演示真实 API 或记录 fallback。
 
+如需给云真机上传前准备一个本机工作区，运行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/prepare-cloud-device-upload-workspace.ps1
+```
+
+该脚本写入 `work/final-submission-cloud-upload/`，包括上传说明、APK 源路径、预期下载文件清单和小型脱敏证据副本。它默认不复制 2.8GB APK，避免重复占用磁盘；应从 manifest 中记录的 final-submission APK 路径上传。可提交的 manifest 位于 `06-deliverables/final-submission/CatLife_cloud_device_upload_workspace_manifest_20260705.md`。
+
 ## 5. 构建后必须记录
 
 | 文件 | 内容 |
@@ -176,10 +184,11 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 7. 生成最终演示视频并检查时长、分辨率、隐私。
 8. 确认真实版/最终提交 APK 已包含本机私密 vivo 云端配置和云真机可用 key，且 GitHub、代码包、日志、截图、PPT、海报和视频字幕不包含真实 AppKEY。
 9. 生成云真机录制交接文档，确认采证清单和 APK hash 与待上传 APK 一致。
-10. 运行 PPT 文本口径审计，解决高风险命中；当前 PPT claim audit 与 patch report 已能自动关闭森林范围和大模型行为口径项。
-11. 运行公开材料密钥扫描，确认公开文本、报告、工具、规划文档、技术规格和代码包模板没有明文 AppKEY、Bearer token 或等价凭据。
-12. 打包大模型代码包并确认无密钥。
-13. 运行最终检查脚本，上传平台后保存成功截图。
+10. 生成云真机上传工作区，确认 APK 源路径、hash、脱敏证据和预期下载文件名。
+11. 运行 PPT 文本口径审计，解决高风险命中；当前 PPT claim audit 与 patch report 已能自动关闭森林范围和大模型行为口径项。
+12. 运行公开材料密钥扫描，确认公开文本、报告、工具、规划文档、技术规格和代码包模板没有明文 AppKEY、Bearer token 或等价凭据。
+13. 打包大模型代码包并确认无密钥。
+14. 运行最终检查脚本，上传平台后保存成功截图。
 
 ## 8. 验收定义
 
@@ -215,6 +224,7 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-final-requ
 - PPT 文本审计：`06-deliverables/final-submission/CatLife_PPT_claim_audit_20260705.md` 当前 PASS，高风险 0、中风险 0、人工复核 0；修复记录见 `CatLife_PPT_claim_patch_20260705.md`。
 - 公开材料密钥扫描：`06-deliverables/final-submission/CatLife_public_secret_scan_20260705.md` 当前 PASS，命中 0；报告不回显匹配行内容。
 - 云真机交接文档：`06-deliverables/final-submission/CatLife_cloud_device_recording_handoff_20260705.md` 已生成，记录 APK hash、ADB 发现结果、云真机 ADB/网页下载两条采证路径和导入命令；该文档不包含明文 AppKEY。
+- 云真机上传工作区 manifest：`06-deliverables/final-submission/CatLife_cloud_device_upload_workspace_manifest_20260705.md` 已生成，记录本机 ignored 上传工作区、APK 源路径、hash 和预期下载证据文件；默认不复制 APK，避免重复占用磁盘。
 - 最终要求审计：`06-deliverables/final-submission/CatLife_final_requirements_audit_20260705.md` 当前 PASS 10、PARTIAL 1、MISSING 5、MANUAL_REVIEW 0；剩余全是视频和云真机/设备运行证据。
 
 当前仍缺视频、vivo 云真机安装证据、启动/LLM logcat 和录屏证据。PPT 已复制到 `06-deliverables/final-submission/CatLife_作品介绍PPT_v1.pptx`，海报已生成到 `06-deliverables/final-submission/CatLife_作品海报_v1.png`，代码包已生成到 `06-deliverables/final-submission/CatLife_LLM_code_package_v1.zip`，并分别记录 SHA256。下一步必须优先填充本手册定义的 `evidence/` 目录，不能仅凭 APK、PPT、海报和代码包文件存在标记为最终可提交。

@@ -78,6 +78,14 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/prepare-cloud-de
 
 This writes `CatLife_cloud_device_recording_handoff_20260705.md`. The handoff records APK hash, local ADB state, required cloud-device downloads, import commands, and the private credential boundary. It must not print the plaintext AppKEY. The real/local APK is still expected to contain the ignored private vivo cloud-device key so the cloud phone can run the demo without extra configuration.
 
+To prepare the local cloud-device upload workspace without duplicating the multi-GB APK:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/prepare-cloud-device-upload-workspace.ps1
+```
+
+This writes local ignored helper files under `work/final-submission-cloud-upload/` and a tracked manifest `CatLife_cloud_device_upload_workspace_manifest_20260705.md`. Upload the APK from the canonical final-submission path shown in that manifest.
+
 Before final PPT upload, run the extractable-text claim audit:
 
 ```powershell

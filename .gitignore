@@ -54,6 +54,7 @@ _*.txt
 03-3d-models/blender-work/exports/
 03-3d-models/source-cat-models/original-meshy-quadruped/
 work/unity-import-validation-*/
+work/final-submission-cloud-upload/
 
 # Current clean Unity app workspace generated/editor-only files
 work/CatLife_Unity_Main/*.csproj
