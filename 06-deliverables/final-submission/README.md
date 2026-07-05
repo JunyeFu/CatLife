@@ -19,6 +19,7 @@ Current status as of 2026-07-05:
 - Poster exists locally: `CatLife_作品海报_v1.png`.
 - Video, cloud-device install/logcat evidence, and recording evidence are still missing.
 - APK and ZIP are local final deliverables and are ignored by Git; the manifest and redacted evidence files are tracked.
+- The real/local APK is expected to include the ignored private vivo cloud-device key from `work/CatLife_Unity_Main/Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json`; public files must only record redacted credential status.
 - PPT is also a local final deliverable and ignored by Git; `CatLife_PPT_manifest.md` is tracked.
 - Poster is also a local final deliverable and ignored by Git; `CatLife_poster_manifest.md` is tracked.
 
@@ -63,6 +64,14 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-final-requ
 ```
 
 This writes `06-deliverables/final-submission/CatLife_final_requirements_audit_20260705.md` and cross-checks official deliverables, PPT claim alignment, cloud-device evidence, LLM evidence, recordings, and credential boundaries.
+
+Before final PPT upload, run the extractable-text claim audit:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-ppt-claims.ps1 -AllowHits
+```
+
+This writes `CatLife_PPT_claim_audit_20260705.md` and `CatLife_PPT_extracted_text_20260705.md`. High-risk hits must be resolved before upload. Medium/manual hits require manual review; for the current PPT this means the large-model wording must stay as high-level suggestion/bias rather than direct movement control, and forest wording/images must be historical or concept-only because the current product rule is no forest scene.
 
 After adding the final demo video, generate the video manifest before rerunning the final checker:
 

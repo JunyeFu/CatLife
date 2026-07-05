@@ -58,6 +58,29 @@ function Test-GitIgnored {
     }
 }
 
+function Get-FirstRegexGroup {
+    param(
+        [string]$Path,
+        [string]$Pattern
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return $null
+    }
+
+    $content = Get-Content -LiteralPath $Path -Raw -ErrorAction SilentlyContinue
+    if ([string]::IsNullOrWhiteSpace($content)) {
+        return $null
+    }
+
+    $match = [regex]::Match($content, $Pattern)
+    if (-not $match.Success -or $match.Groups.Count -lt 2) {
+        return $null
+    }
+
+    return $match.Groups[1].Value
+}
+
 function New-AuditRow {
     param(
         [string]$Area,
@@ -93,6 +116,7 @@ $apk = Find-FirstFile -Root $finalDir -Patterns @("*.apk")
 $codePackage = Find-FirstFile -Root $finalDir -Patterns @("*code_package*.zip", "*.zip")
 $llmManifest = Find-FirstFile -Root $finalDir -Patterns @("*LLM_code_package_manifest*.md", "*code_package_manifest*.md")
 $submissionCheck = Find-FirstFile -Root $finalDir -Patterns @("CatLife_submission_check_*.md")
+$pptClaimAudit = Find-FirstFile -Root $finalDir -Patterns @("CatLife_PPT_claim_audit_*.md")
 $pptDefectTableFile = Find-FirstFile -Root $planningDir -Patterns @("*PPT*20260705.md")
 $reviewChecklistFile = Find-FirstFile -Root $planningDir -Patterns @("*review*check*.md", "*checklist*.md")
 $runbookFile = Find-FirstFile -Root $planningDir -Patterns @("*release*runbook*.md", "*runbook*.md")
@@ -143,6 +167,29 @@ Add-AuditRow (New-AuditRow "Runtime evidence" "LLM evidence proves vivo cloud, B
 Add-AuditRow (New-AuditRow "Runtime evidence" "Focus flow evidence proves a sustained focus session path." ($(if($focusOk){"PASS"}else{"MISSING"})) ($(if(Test-Path -LiteralPath $focusEvidence){$focusEvidence}else{"focus logcat missing"})) "Capture 5 minute focus flow logcat or import cloud-device focus evidence.")
 Add-AuditRow (New-AuditRow "Runtime evidence" "Recording evidence exists for APK or cloud-device flow." ($(if($recordingOk){"PASS"}else{"MISSING"})) ($(if($recordingOk){$recordingEvidence}else{"recording missing"})) "Record cloud-device or APK flow before editing final demo video.")
 
+$pptClaimAuditPath = if ($pptClaimAudit) { $pptClaimAudit.FullName } else { "" }
+$pptHighHitsText = Get-FirstRegexGroup -Path $pptClaimAuditPath -Pattern 'High-risk hits:\s*`?(\d+)'
+$pptMediumHitsText = Get-FirstRegexGroup -Path $pptClaimAuditPath -Pattern 'Medium-risk hits:\s*`?(\d+)'
+$pptManualHitsText = Get-FirstRegexGroup -Path $pptClaimAuditPath -Pattern 'Manual-review hits:\s*`?(\d+)'
+$pptHighHits = if ($null -ne $pptHighHitsText) { [int]$pptHighHitsText } else { -1 }
+$pptMediumHits = if ($null -ne $pptMediumHitsText) { [int]$pptMediumHitsText } else { -1 }
+$pptManualHits = if ($null -ne $pptManualHitsText) { [int]$pptManualHitsText } else { -1 }
+$pptClaimAuditStatus = if (-not $pptClaimAudit) {
+    "MISSING"
+} elseif ($pptHighHits -gt 0) {
+    "MISSING"
+} elseif ($pptMediumHits -gt 0 -or $pptManualHits -gt 0) {
+    "MANUAL_REVIEW"
+} else {
+    "PASS"
+}
+$pptClaimAuditEvidence = if ($pptClaimAudit) {
+    $pptClaimAudit.FullName + "; high=" + $pptHighHits + "; medium=" + $pptMediumHits + "; manual=" + $pptManualHits
+} else {
+    "PPT claim audit missing"
+}
+Add-AuditRow (New-AuditRow "PPT claim alignment" "PPT extractable text has been audited for current-scope overclaims." $pptClaimAuditStatus $pptClaimAuditEvidence "Run audit-ppt-claims.ps1 -AllowHits; resolve high hits before upload and manually review medium/manual hits.")
+
 Add-AuditRow (New-AuditRow "PPT claim alignment" "No forest scene is required by the current product rule." ($(if(Test-Path -LiteralPath $pptDefectTable){"MANUAL_REVIEW"}else{"MISSING"})) $pptDefectTable "Review the final PPT against the defect table; forest visuals must be historical/concept only, not current engineering scope.")
 
 Add-AuditRow (New-AuditRow "PPT claim alignment" "PPT wording must not claim completed BlueLM on-device SDK or true Android behavior recognition before evidence exists." "MANUAL_REVIEW" ($(if(Test-Path -LiteralPath $pptDefectTable){$pptDefectTable}else{"PPT defect table missing"})) "Review the final PPT manually against the defect table before upload.")
@@ -188,6 +235,7 @@ $lines.Add("")
 $lines.Add("## Source Documents")
 $lines.Add("")
 $lines.Add("- Final submission check: " + $(if($submissionCheck){$submissionCheck.FullName}else{"missing"}))
+$lines.Add("- PPT claim audit: " + $(if($pptClaimAudit){$pptClaimAudit.FullName}else{"missing"}))
 $lines.Add("- PPT defect table: " + $(if([string]::IsNullOrWhiteSpace($pptDefectTable)){"not auto-resolved"}else{$pptDefectTable}))
 $lines.Add("- Review checklist: " + $(if([string]::IsNullOrWhiteSpace($reviewChecklist)){"not auto-resolved"}else{$reviewChecklist}))
 $lines.Add("- Release runbook: " + $(if([string]::IsNullOrWhiteSpace($runbook)){"not auto-resolved"}else{$runbook}))

@@ -36,6 +36,8 @@
 ```text
 final-submission/
   CatLife_作品介绍PPT_v1.pptx
+  CatLife_PPT_claim_audit_20260705.md
+  CatLife_PPT_extracted_text_20260705.md
   CatLife_作品演示视频_v1.mp4
   CatLife_作品海报_v1.png
   CatLife_MVP_Android_v0.1.0.apk
@@ -165,8 +167,9 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 6. 从录屏中截取 PPT/海报需要的真实画面。
 7. 生成最终演示视频并检查时长、分辨率、隐私。
 8. 确认真实版/最终提交 APK 已包含本机私密 vivo 云端配置和云真机可用 key，且 GitHub、代码包、日志、截图、PPT、海报和视频字幕不包含真实 AppKEY。
-9. 打包大模型代码包并确认无密钥。
-10. 运行最终检查脚本，上传平台后保存成功截图。
+9. 运行 PPT 文本口径审计，解决高风险命中；中风险和人工项必须在最终上传前签字确认。
+10. 打包大模型代码包并确认无密钥。
+11. 运行最终检查脚本，上传平台后保存成功截图。
 
 ## 8. 验收定义
 
@@ -174,6 +177,7 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 
 - `check-final-submission.ps1` 自动检查通过；
 - `audit-final-requirements.ps1` 没有 `MISSING` 或 `PARTIAL` 行，且 `MANUAL_REVIEW` 行已有人工签字结论；
+- `audit-ppt-claims.ps1 -AllowHits` 已生成 PPT 文本审计，且没有高风险命中；当前中风险大模型表述必须改成“LLM 提供高层建议/行为偏置，本地规则控制移动和动画”，森林相关内容只能作为历史/概念展示，不能作为当前产品范围；
 - 人工打开 PPT、视频、海报、APK、代码包全部无明显错误；
 - 视频必须有 `CatLife_video_manifest.md`，并确认时长、分辨率、首屏、隐私和功能演示符合要求；
 - `evidence/` 中有构建、安装、设备、运行日志和录屏证据；
@@ -186,6 +190,7 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 最终审计命令：
 
 ```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-ppt-claims.ps1 -AllowHits
 powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-final-requirements.ps1
 ```
 
@@ -196,5 +201,6 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-final-requ
 - APK：`06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk`
 - SHA256：`97CA85AC82AF3A875B0D61E782B4E5C9506ABB86EE58E3B645CE6A61321A96B1`
 - 私有 key 边界：真实版 APK 必须包含本机 ignored 私有 Resources 中的云真机可用 key；GitHub、代码包、日志、截图、PPT、海报、录屏字幕和公开文档不得包含明文 AppKEY。
+- PPT 文本审计：`06-deliverables/final-submission/CatLife_PPT_claim_audit_20260705.md` 当前没有高风险命中；仍有 1 条大模型中风险口径和 2 条森林人工复核项。
 
 当前仍缺视频、vivo 云真机安装证据、启动/LLM logcat 和录屏证据。PPT 已复制到 `06-deliverables/final-submission/CatLife_作品介绍PPT_v1.pptx`，海报已生成到 `06-deliverables/final-submission/CatLife_作品海报_v1.png`，代码包已生成到 `06-deliverables/final-submission/CatLife_LLM_code_package_v1.zip`，并分别记录 SHA256。下一步必须优先填充本手册定义的 `evidence/` 目录，不能仅凭 APK、PPT、海报和代码包文件存在标记为最终可提交。
