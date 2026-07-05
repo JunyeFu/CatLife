@@ -60,10 +60,13 @@ The checker writes:
 Before marking the full 10-stage objective complete, run the final requirements audit:
 
 ```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/scan-final-secrets.ps1
 powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-final-requirements.ps1
 ```
 
 This writes `06-deliverables/final-submission/CatLife_final_requirements_audit_20260705.md` and cross-checks official deliverables, PPT claim alignment, cloud-device evidence, LLM evidence, recordings, and credential boundaries.
+
+The public secret scan writes `CatLife_public_secret_scan_20260705.md`. It scans public text deliverables, final-submission reports, final-submission tools, planning docs, tech specs, and the LLM code package template. It excludes binary deliverables and local ignored private Resources; hit reports intentionally do not echo matched line content.
 
 Before final PPT upload, run the extractable-text claim audit:
 

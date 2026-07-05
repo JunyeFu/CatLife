@@ -168,8 +168,9 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 7. 生成最终演示视频并检查时长、分辨率、隐私。
 8. 确认真实版/最终提交 APK 已包含本机私密 vivo 云端配置和云真机可用 key，且 GitHub、代码包、日志、截图、PPT、海报和视频字幕不包含真实 AppKEY。
 9. 运行 PPT 文本口径审计，解决高风险命中；中风险和人工项必须在最终上传前签字确认。
-10. 打包大模型代码包并确认无密钥。
-11. 运行最终检查脚本，上传平台后保存成功截图。
+10. 运行公开材料密钥扫描，确认公开文本、报告、工具、规划文档、技术规格和代码包模板没有明文 AppKEY、Bearer token 或等价凭据。
+11. 打包大模型代码包并确认无密钥。
+12. 运行最终检查脚本，上传平台后保存成功截图。
 
 ## 8. 验收定义
 
@@ -191,6 +192,7 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-ppt-claims.ps1 -AllowHits
+powershell -ExecutionPolicy Bypass -File tools/final-submission/scan-final-secrets.ps1
 powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-final-requirements.ps1
 ```
 
@@ -202,5 +204,6 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-final-requ
 - SHA256：`97CA85AC82AF3A875B0D61E782B4E5C9506ABB86EE58E3B645CE6A61321A96B1`
 - 私有 key 边界：真实版 APK 必须包含本机 ignored 私有 Resources 中的云真机可用 key；GitHub、代码包、日志、截图、PPT、海报、录屏字幕和公开文档不得包含明文 AppKEY。
 - PPT 文本审计：`06-deliverables/final-submission/CatLife_PPT_claim_audit_20260705.md` 当前 PASS，高风险 0、中风险 0、人工复核 0；修复记录见 `CatLife_PPT_claim_patch_20260705.md`。
+- 公开材料密钥扫描：`06-deliverables/final-submission/CatLife_public_secret_scan_20260705.md` 当前 PASS，命中 0；报告不回显匹配行内容。
 
 当前仍缺视频、vivo 云真机安装证据、启动/LLM logcat 和录屏证据。PPT 已复制到 `06-deliverables/final-submission/CatLife_作品介绍PPT_v1.pptx`，海报已生成到 `06-deliverables/final-submission/CatLife_作品海报_v1.png`，代码包已生成到 `06-deliverables/final-submission/CatLife_LLM_code_package_v1.zip`，并分别记录 SHA256。下一步必须优先填充本手册定义的 `evidence/` 目录，不能仅凭 APK、PPT、海报和代码包文件存在标记为最终可提交。

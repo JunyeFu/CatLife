@@ -1,14 +1,14 @@
 ﻿# CatLife Final Requirements Audit
 
-Generated: 2026-07-05 08:47:06
+Generated: 2026-07-05 08:56:52
 Project root: C:\Users\fujunye\Desktop\Agent\05-AIGC
 
 ## Summary
 
-- PASS: 7
+- PASS: 8
 - PARTIAL: 1
 - MISSING: 5
-- MANUAL_REVIEW: 3
+- MANUAL_REVIEW: 2
 
 Final submission is not complete. Missing or partial evidence remains.
 
@@ -31,12 +31,13 @@ Final submission is not complete. Missing or partial evidence remains.
 | PPT claim alignment | No forest scene is required by the current product rule. | MANUAL_REVIEW | C:\Users\fujunye\Desktop\Agent\05-AIGC\08-handoff-docs\planning\CatLife_PPT功能缺陷对照表_20260705.md | Review the final PPT against the defect table; forest visuals must be historical/concept only, not current engineering scope. |
 | PPT claim alignment | PPT wording must not claim completed BlueLM on-device SDK or true Android behavior recognition before evidence exists. | MANUAL_REVIEW | C:\Users\fujunye\Desktop\Agent\05-AIGC\08-handoff-docs\planning\CatLife_PPT功能缺陷对照表_20260705.md | Review the final PPT manually against the defect table before upload. |
 | PPT claim alignment | User validation data is either evidenced or not claimed as completed. | PASS | no completed user-validation claim found in extracted PPT text | Keep PPT wording as planned/future validation unless real anonymized feedback is added. |
-| Security | Tracked final docs and scripts have no obvious plaintext AppKEY or bearer token. | MANUAL_REVIEW | Run repo secret scan before every submission. | Use the documented rg scan and inspect any hit manually. |
+| Security | Tracked final docs and scripts have no obvious plaintext AppKEY or bearer token. | PASS | C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\CatLife_public_secret_scan_20260705.md; status=PASS; hits=0 | Rerun scan-final-secrets.ps1 after any final material changes. |
 
 ## Source Documents
 
 - Final submission check: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\CatLife_submission_check_20260705.md
 - PPT claim audit: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\CatLife_PPT_claim_audit_20260705.md
+- Public secret scan: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\CatLife_public_secret_scan_20260705.md
 - PPT defect table: C:\Users\fujunye\Desktop\Agent\05-AIGC\08-handoff-docs\planning\CatLife_PPT功能缺陷对照表_20260705.md
 - Review checklist: not auto-resolved
 - Release runbook: not auto-resolved

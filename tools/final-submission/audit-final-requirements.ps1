@@ -146,6 +146,7 @@ $codePackage = Find-FirstFile -Root $finalDir -Patterns @("*code_package*.zip", 
 $llmManifest = Find-FirstFile -Root $finalDir -Patterns @("*LLM_code_package_manifest*.md", "*code_package_manifest*.md")
 $submissionCheck = Find-FirstFile -Root $finalDir -Patterns @("CatLife_submission_check_*.md")
 $pptClaimAudit = Find-FirstFile -Root $finalDir -Patterns @("CatLife_PPT_claim_audit_*.md")
+$secretScanReport = Find-FirstFile -Root $finalDir -Patterns @("CatLife_public_secret_scan_*.md")
 $pptDefectTableFile = Find-FirstFile -Root $planningDir -Patterns @("*PPT*20260705.md")
 $reviewChecklistFile = Find-FirstFile -Root $planningDir -Patterns @("*review*check*.md", "*checklist*.md")
 $runbookFile = Find-FirstFile -Root $planningDir -Patterns @("*release*runbook*.md", "*runbook*.md")
@@ -248,7 +249,28 @@ $userValidationNextAction = if ($userValidationEvidence) {
 }
 Add-AuditRow (New-AuditRow "PPT claim alignment" "User validation data is either evidenced or not claimed as completed." $userValidationStatus $userValidationEvidenceText $userValidationNextAction)
 
-Add-AuditRow (New-AuditRow "Security" "Tracked final docs and scripts have no obvious plaintext AppKEY or bearer token." "MANUAL_REVIEW" "Run repo secret scan before every submission." "Use the documented rg scan and inspect any hit manually.")
+$secretScanPath = if ($secretScanReport) { $secretScanReport.FullName } else { "" }
+$secretScanStatusText = Get-FirstRegexGroup -Path $secretScanPath -Pattern 'Status:\s+([A-Z]+)'
+$secretScanHitsText = Get-FirstRegexGroup -Path $secretScanPath -Pattern 'Hits:\s+(\d+)'
+$secretScanHits = if ($null -ne $secretScanHitsText) { [int]$secretScanHitsText } else { -1 }
+$secretScanStatus = if (-not $secretScanReport) {
+    "MANUAL_REVIEW"
+} elseif ($secretScanStatusText -eq "PASS" -and $secretScanHits -eq 0) {
+    "PASS"
+} else {
+    "MISSING"
+}
+$secretScanEvidence = if ($secretScanReport) {
+    $secretScanReport.FullName + "; status=" + $secretScanStatusText + "; hits=" + $secretScanHits
+} else {
+    "public secret scan report missing"
+}
+$secretScanNextAction = if ($secretScanStatus -eq "PASS") {
+    "Rerun scan-final-secrets.ps1 after any final material changes."
+} else {
+    "Run scan-final-secrets.ps1 and remove or redact any public secret hits."
+}
+Add-AuditRow (New-AuditRow "Security" "Tracked final docs and scripts have no obvious plaintext AppKEY or bearer token." $secretScanStatus $secretScanEvidence $secretScanNextAction)
 
 $missingCount = @($rows | Where-Object { $_.Status -eq "MISSING" }).Count
 $partialCount = @($rows | Where-Object { $_.Status -eq "PARTIAL" }).Count
@@ -288,6 +310,7 @@ $lines.Add("## Source Documents")
 $lines.Add("")
 $lines.Add("- Final submission check: " + $(if($submissionCheck){$submissionCheck.FullName}else{"missing"}))
 $lines.Add("- PPT claim audit: " + $(if($pptClaimAudit){$pptClaimAudit.FullName}else{"missing"}))
+$lines.Add("- Public secret scan: " + $(if($secretScanReport){$secretScanReport.FullName}else{"missing"}))
 $lines.Add("- PPT defect table: " + $(if([string]::IsNullOrWhiteSpace($pptDefectTable)){"not auto-resolved"}else{$pptDefectTable}))
 $lines.Add("- Review checklist: " + $(if([string]::IsNullOrWhiteSpace($reviewChecklist)){"not auto-resolved"}else{$reviewChecklist}))
 $lines.Add("- Release runbook: " + $(if([string]::IsNullOrWhiteSpace($runbook)){"not auto-resolved"}else{$runbook}))
