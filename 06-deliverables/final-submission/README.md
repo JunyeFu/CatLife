@@ -70,6 +70,14 @@ The public secret scan writes `CatLife_public_secret_scan_20260705.md`. It scans
 
 Current final requirements audit status: `PASS 10 / PARTIAL 1 / MISSING 5 / MANUAL_REVIEW 0`. The remaining blockers are final demo video plus cloud-device/device install, startup, LLM/fallback, focus-flow, and recording evidence.
 
+To run the full ordered final gate sequence:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/run-final-submission-gates.ps1
+```
+
+This writes `CatLife_final_submission_master_gate_20260705.md`. It intentionally exits incomplete while video and cloud-device runtime evidence are missing. Use `-AllowIncomplete` only when regenerating reports during development.
+
 Before uploading the real APK to a vivo cloud device, generate the cloud-device recording handoff:
 
 ```powershell

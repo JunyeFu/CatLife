@@ -220,10 +220,13 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/wait-and-collect
 最终审计命令：
 
 ```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/run-final-submission-gates.ps1
 powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-ppt-claims.ps1 -AllowHits
 powershell -ExecutionPolicy Bypass -File tools/final-submission/scan-final-secrets.ps1
 powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-final-requirements.ps1
 ```
+
+`run-final-submission-gates.ps1` 是最终总闸门入口，会按顺序生成 handoff、上传工作区、视频 manifest、PPT 口径审计、公开密钥扫描、提交检查和最终要求审计，并输出 `CatLife_final_submission_master_gate_20260705.md`。只要视频、云真机安装/logcat/录屏证据缺失，它必须保持 incomplete，不能作为阶段 10 完成证明。
 
 ## 9. 当前缺口
 
