@@ -68,6 +68,8 @@ This writes `06-deliverables/final-submission/CatLife_final_requirements_audit_2
 
 The public secret scan writes `CatLife_public_secret_scan_20260705.md`. It scans public text deliverables, final-submission reports, final-submission tools, planning docs, tech specs, and the LLM code package template. It excludes binary deliverables and local ignored private Resources; hit reports intentionally do not echo matched line content.
 
+Current final requirements audit status: `PASS 10 / PARTIAL 1 / MISSING 5 / MANUAL_REVIEW 0`. The remaining blockers are final demo video plus cloud-device/device install, startup, LLM/fallback, focus-flow, and recording evidence.
+
 Before final PPT upload, run the extractable-text claim audit:
 
 ```powershell

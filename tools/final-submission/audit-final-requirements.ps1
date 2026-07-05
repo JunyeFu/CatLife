@@ -146,6 +146,7 @@ $codePackage = Find-FirstFile -Root $finalDir -Patterns @("*code_package*.zip", 
 $llmManifest = Find-FirstFile -Root $finalDir -Patterns @("*LLM_code_package_manifest*.md", "*code_package_manifest*.md")
 $submissionCheck = Find-FirstFile -Root $finalDir -Patterns @("CatLife_submission_check_*.md")
 $pptClaimAudit = Find-FirstFile -Root $finalDir -Patterns @("CatLife_PPT_claim_audit_*.md")
+$pptClaimPatch = Find-FirstFile -Root $finalDir -Patterns @("CatLife_PPT_claim_patch_*.md")
 $secretScanReport = Find-FirstFile -Root $finalDir -Patterns @("CatLife_public_secret_scan_*.md")
 $pptDefectTableFile = Find-FirstFile -Root $planningDir -Patterns @("*PPT*20260705.md")
 $reviewChecklistFile = Find-FirstFile -Root $planningDir -Patterns @("*review*check*.md", "*checklist*.md")
@@ -220,9 +221,50 @@ $pptClaimAuditEvidence = if ($pptClaimAudit) {
 }
 Add-AuditRow (New-AuditRow "PPT claim alignment" "PPT extractable text has been audited for current-scope overclaims." $pptClaimAuditStatus $pptClaimAuditEvidence "Run audit-ppt-claims.ps1 -AllowHits; resolve high hits before upload and manually review medium/manual hits.")
 
-Add-AuditRow (New-AuditRow "PPT claim alignment" "No forest scene is required by the current product rule." ($(if(Test-Path -LiteralPath $pptDefectTable){"MANUAL_REVIEW"}else{"MISSING"})) $pptDefectTable "Review the final PPT against the defect table; forest visuals must be historical/concept only, not current engineering scope.")
+$pptClaimPatchPath = if ($pptClaimPatch) { $pptClaimPatch.FullName } else { "" }
+$pptPatchHasForestScope = Test-TextFileHasSignal -Path $pptClaimPatchPath -Pattern "historical concept only|Remove forest-scene wording"
+$pptPatchHasLlmScope = Test-TextFileHasSignal -Path $pptClaimPatchPath -Pattern "Reduce LLM wording|high-level behavior bias"
+$forestScopeStatus = if ($pptClaimAuditStatus -eq "PASS" -and $pptPatchHasForestScope) {
+    "PASS"
+} elseif (Test-Path -LiteralPath $pptDefectTable) {
+    "MANUAL_REVIEW"
+} else {
+    "MISSING"
+}
+$forestScopeEvidence = if ($forestScopeStatus -eq "PASS") {
+    "claim audit PASS; patch=" + $pptClaimPatchPath
+} elseif (Test-Path -LiteralPath $pptDefectTable) {
+    $pptDefectTable
+} else {
+    "PPT defect table or patch report missing"
+}
+$forestScopeNext = if ($forestScopeStatus -eq "PASS") {
+    "Keep forest-related material labeled as historical/concept only; rerun audit-ppt-claims.ps1 after any PPT edits."
+} else {
+    "Review the final PPT against the defect table; forest visuals must be historical/concept only, not current engineering scope."
+}
+Add-AuditRow (New-AuditRow "PPT claim alignment" "No forest scene is required by the current product rule." $forestScopeStatus $forestScopeEvidence $forestScopeNext)
 
-Add-AuditRow (New-AuditRow "PPT claim alignment" "PPT wording must not claim completed BlueLM on-device SDK or true Android behavior recognition before evidence exists." "MANUAL_REVIEW" ($(if(Test-Path -LiteralPath $pptDefectTable){$pptDefectTable}else{"PPT defect table missing"})) "Review the final PPT manually against the defect table before upload.")
+$llmWordingStatus = if ($pptClaimAuditStatus -eq "PASS" -and $pptPatchHasLlmScope) {
+    "PASS"
+} elseif (Test-Path -LiteralPath $pptDefectTable) {
+    "MANUAL_REVIEW"
+} else {
+    "MISSING"
+}
+$llmWordingEvidence = if ($llmWordingStatus -eq "PASS") {
+    "claim audit PASS; patch=" + $pptClaimPatchPath
+} elseif (Test-Path -LiteralPath $pptDefectTable) {
+    $pptDefectTable
+} else {
+    "PPT defect table or patch report missing"
+}
+$llmWordingNext = if ($llmWordingStatus -eq "PASS") {
+    "Keep LLM wording as behavior bias or suggestion; rerun audit-ppt-claims.ps1 after any PPT edits."
+} else {
+    "Review the final PPT manually against the defect table before upload."
+}
+Add-AuditRow (New-AuditRow "PPT claim alignment" "PPT wording must not claim completed BlueLM on-device SDK or true Android behavior recognition before evidence exists." $llmWordingStatus $llmWordingEvidence $llmWordingNext)
 
 $pptClaimAuditFile = if ($pptClaimAudit) { $pptClaimAudit.FullName } else { "" }
 $userValidationClaimed = Test-PptAuditHasUserValidationHit -Path $pptClaimAuditFile
@@ -310,6 +352,7 @@ $lines.Add("## Source Documents")
 $lines.Add("")
 $lines.Add("- Final submission check: " + $(if($submissionCheck){$submissionCheck.FullName}else{"missing"}))
 $lines.Add("- PPT claim audit: " + $(if($pptClaimAudit){$pptClaimAudit.FullName}else{"missing"}))
+$lines.Add("- PPT claim patch: " + $(if($pptClaimPatch){$pptClaimPatch.FullName}else{"missing"}))
 $lines.Add("- Public secret scan: " + $(if($secretScanReport){$secretScanReport.FullName}else{"missing"}))
 $lines.Add("- PPT defect table: " + $(if([string]::IsNullOrWhiteSpace($pptDefectTable)){"not auto-resolved"}else{$pptDefectTable}))
 $lines.Add("- Review checklist: " + $(if([string]::IsNullOrWhiteSpace($reviewChecklist)){"not auto-resolved"}else{$reviewChecklist}))

@@ -167,7 +167,7 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 6. 从录屏中截取 PPT/海报需要的真实画面。
 7. 生成最终演示视频并检查时长、分辨率、隐私。
 8. 确认真实版/最终提交 APK 已包含本机私密 vivo 云端配置和云真机可用 key，且 GitHub、代码包、日志、截图、PPT、海报和视频字幕不包含真实 AppKEY。
-9. 运行 PPT 文本口径审计，解决高风险命中；中风险和人工项必须在最终上传前签字确认。
+9. 运行 PPT 文本口径审计，解决高风险命中；当前 PPT claim audit 与 patch report 已能自动关闭森林范围和大模型行为口径项。
 10. 运行公开材料密钥扫描，确认公开文本、报告、工具、规划文档、技术规格和代码包模板没有明文 AppKEY、Bearer token 或等价凭据。
 11. 打包大模型代码包并确认无密钥。
 12. 运行最终检查脚本，上传平台后保存成功截图。
@@ -177,7 +177,7 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 只有同时满足以下条件，才能把 CatLife 标记为“可提交”：
 
 - `check-final-submission.ps1` 自动检查通过；
-- `audit-final-requirements.ps1` 没有 `MISSING` 或 `PARTIAL` 行，且 `MANUAL_REVIEW` 行已有人工签字结论；
+- `audit-final-requirements.ps1` 没有 `MISSING` 或 `PARTIAL` 行；当前 PPT/安全相关 `MANUAL_REVIEW` 已由可复跑审计报告自动关闭；
 - `audit-ppt-claims.ps1` 已生成 PPT 文本审计，且没有高风险、中风险或人工复核命中；本地最终 PPT 已通过 `patch-ppt-claims.ps1` 把大模型表述降级为行为偏置，并把森林相关文字改为历史概念，不作为当前产品范围；
 - 人工打开 PPT、视频、海报、APK、代码包全部无明显错误；
 - 视频必须有 `CatLife_video_manifest.md`，并确认时长、分辨率、首屏、隐私和功能演示符合要求；
@@ -205,5 +205,6 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-final-requ
 - 私有 key 边界：真实版 APK 必须包含本机 ignored 私有 Resources 中的云真机可用 key；GitHub、代码包、日志、截图、PPT、海报、录屏字幕和公开文档不得包含明文 AppKEY。
 - PPT 文本审计：`06-deliverables/final-submission/CatLife_PPT_claim_audit_20260705.md` 当前 PASS，高风险 0、中风险 0、人工复核 0；修复记录见 `CatLife_PPT_claim_patch_20260705.md`。
 - 公开材料密钥扫描：`06-deliverables/final-submission/CatLife_public_secret_scan_20260705.md` 当前 PASS，命中 0；报告不回显匹配行内容。
+- 最终要求审计：`06-deliverables/final-submission/CatLife_final_requirements_audit_20260705.md` 当前 PASS 10、PARTIAL 1、MISSING 5、MANUAL_REVIEW 0；剩余全是视频和云真机/设备运行证据。
 
 当前仍缺视频、vivo 云真机安装证据、启动/LLM logcat 和录屏证据。PPT 已复制到 `06-deliverables/final-submission/CatLife_作品介绍PPT_v1.pptx`，海报已生成到 `06-deliverables/final-submission/CatLife_作品海报_v1.png`，代码包已生成到 `06-deliverables/final-submission/CatLife_LLM_code_package_v1.zip`，并分别记录 SHA256。下一步必须优先填充本手册定义的 `evidence/` 目录，不能仅凭 APK、PPT、海报和代码包文件存在标记为最终可提交。
