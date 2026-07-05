@@ -180,7 +180,7 @@ Before uploading the APK to the cloud device, run:
 powershell -ExecutionPolicy Bypass -File tools/final-submission/test-apk-credential-boundary.ps1
 ```
 
-This writes `CatLife_apk_private_credential_boundary_20260705.md`. The report checks the ignored private config, placeholder rejection, Unity Resources loading path, APK artifact hash match, and redacted credential boundary without printing the plaintext AppKEY.
+This writes `CatLife_apk_private_credential_boundary_20260705.md`. The report checks the ignored private config, placeholder rejection, Unity Resources loading path, APK artifact hash match, decompressed APK entry byte presence for the private AppKEY/AppID, and redacted credential boundary without printing the plaintext AppKEY.
 
 To prepare a draft large-model code package for review:
 

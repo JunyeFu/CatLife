@@ -93,7 +93,7 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/prepare-cloud-de
 powershell -ExecutionPolicy Bypass -File tools/final-submission/test-apk-credential-boundary.ps1
 ```
 
-该脚本输出 `06-deliverables/final-submission/CatLife_apk_private_credential_boundary_20260705.md`，检查本机私有配置存在、`.gitignore` 保护、AppKEY 非占位、Unity 运行时 Resources 读取路径、构建脚本私有凭据证据链和 APK hash 是否匹配；报告只写 `REDACTED`，不输出明文 AppKEY。
+该脚本输出 `06-deliverables/final-submission/CatLife_apk_private_credential_boundary_20260705.md`，检查本机私有配置存在、`.gitignore` 保护、AppKEY 非占位、Unity 运行时 Resources 读取路径、构建脚本私有凭据证据链、APK hash 是否匹配，并扫描解压后的 APK 条目是否包含私有 AppKEY/AppID 字节；报告只写 `REDACTED` 和命中条目名，不输出明文 AppKEY。
 
 如需给云真机上传前准备一个本机工作区，运行：
 

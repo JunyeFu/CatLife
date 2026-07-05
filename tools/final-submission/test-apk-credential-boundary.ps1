@@ -58,6 +58,101 @@ function Get-FileText {
     return Get-Content -LiteralPath $Path -Raw -ErrorAction SilentlyContinue
 }
 
+Add-Type -TypeDefinition @"
+using System;
+using System.IO;
+
+public static class CatLifeStreamScanner
+{
+    public static bool ContainsPattern(Stream stream, byte[] pattern)
+    {
+        if (stream == null || pattern == null || pattern.Length == 0)
+        {
+            return false;
+        }
+
+        int chunkSize = 4 * 1024 * 1024;
+        int overlap = Math.Max(pattern.Length - 1, 0);
+        byte[] buffer = new byte[chunkSize + overlap];
+        int carry = 0;
+
+        while (true)
+        {
+            int read = stream.Read(buffer, carry, chunkSize);
+            if (read <= 0)
+            {
+                return false;
+            }
+
+            int total = carry + read;
+            int limit = total - pattern.Length;
+            for (int i = 0; i <= limit; i++)
+            {
+                bool matched = true;
+                for (int j = 0; j < pattern.Length; j++)
+                {
+                    if (buffer[i + j] != pattern[j])
+                    {
+                        matched = false;
+                        break;
+                    }
+                }
+
+                if (matched)
+                {
+                    return true;
+                }
+            }
+
+            carry = Math.Min(overlap, total);
+            if (carry > 0)
+            {
+                Buffer.BlockCopy(buffer, total - carry, buffer, 0, carry);
+            }
+        }
+    }
+}
+"@
+
+function Find-ApkEntriesContainingPattern {
+    param(
+        [string]$Path,
+        [byte[]]$Pattern,
+        [int]$MaxEntries = 5
+    )
+
+    $results = New-Object System.Collections.Generic.List[string]
+    if (-not (Test-Path -LiteralPath $Path) -or $null -eq $Pattern -or $Pattern.Length -eq 0) {
+        return $results
+    }
+
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $archive = [System.IO.Compression.ZipFile]::OpenRead($Path)
+    try {
+        foreach ($entry in $archive.Entries) {
+            if ($results.Count -ge $MaxEntries) {
+                break
+            }
+            if ([string]::IsNullOrWhiteSpace($entry.Name)) {
+                continue
+            }
+
+            $stream = $entry.Open()
+            try {
+                if ([CatLifeStreamScanner]::ContainsPattern($stream, $Pattern)) {
+                    $results.Add($entry.FullName) | Out-Null
+                }
+            } finally {
+                $stream.Dispose()
+            }
+        }
+    } finally {
+        $archive.Dispose()
+    }
+
+    return $results
+}
+
 New-Item -ItemType Directory -Force -Path $finalDir | Out-Null
 
 $privateExists = Test-Path -LiteralPath $privateConfigPath
@@ -68,6 +163,7 @@ $appKeyPlaceholderLike = $true
 $endpointHttps = $false
 $modelPresent = $false
 $privateParseOk = $false
+$appKey = ""
 
 if ($privateExists) {
     try {
@@ -96,11 +192,20 @@ $apkExists = Test-Path -LiteralPath $ApkPath
 $apkHashEvidenceExists = Test-Path -LiteralPath $apkHashEvidencePath
 $apkHashMatchesEvidence = $false
 $apkHash = ""
+$apkAppKeyEntries = New-Object System.Collections.Generic.List[string]
+$apkAppIdEntries = New-Object System.Collections.Generic.List[string]
 if ($apkExists) {
     $apkHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $ApkPath).Hash
     if ($apkHashEvidenceExists) {
         $hashEvidenceText = Get-FileText $apkHashEvidencePath
         $apkHashMatchesEvidence = $hashEvidenceText -match [regex]::Escape($apkHash)
+    }
+
+    if ($appKeyPresent -and -not $appKeyPlaceholderLike) {
+        $apkAppKeyEntries = Find-ApkEntriesContainingPattern -Path $ApkPath -Pattern ([System.Text.Encoding]::UTF8.GetBytes($appKey))
+    }
+    if (-not [string]::IsNullOrWhiteSpace($appId)) {
+        $apkAppIdEntries = Find-ApkEntriesContainingPattern -Path $ApkPath -Pattern ([System.Text.Encoding]::UTF8.GetBytes($appId))
     }
 }
 
@@ -116,6 +221,8 @@ $rows.Add((New-CheckRow "Unity runtime rejects public placeholder keys" $runtime
 $rows.Add((New-CheckRow "Unity Android build records private Resources boundary" $buildChecksPrivateResource $buildScriptPath "Build evidence may not prove Resources loadability precondition.")) | Out-Null
 $rows.Add((New-CheckRow "APK artifact exists" $apkExists $ApkPath "No real/local APK is available for cloud-device recording.")) | Out-Null
 $rows.Add((New-CheckRow "APK hash evidence matches current APK" ($apkExists -and $apkHashEvidenceExists -and $apkHashMatchesEvidence) $apkHashEvidencePath "Evidence may describe a different APK than the one uploaded.")) | Out-Null
+$rows.Add((New-CheckRow "APK decompressed entries contain private AppKEY bytes" ($apkAppKeyEntries.Count -gt 0) ("entry_count=" + $apkAppKeyEntries.Count + "; entries=" + ($apkAppKeyEntries -join ", ")) "Real APK may not contain the private cloud-device key.")) | Out-Null
+$rows.Add((New-CheckRow "APK decompressed entries contain AppID bytes" ($apkAppIdEntries.Count -gt 0) ("entry_count=" + $apkAppIdEntries.Count + "; entries=" + ($apkAppIdEntries -join ", ")) "Real APK may not contain the expected vivo AppID.")) | Out-Null
 
 $passCount = @($rows | Where-Object { $_.Pass }).Count
 $failCount = @($rows | Where-Object { -not $_.Pass }).Count
