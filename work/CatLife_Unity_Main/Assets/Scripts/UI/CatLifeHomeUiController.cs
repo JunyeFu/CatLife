@@ -886,7 +886,7 @@ namespace CatLife.UI
             if (focusDurationSettingsRow != null)
             {
                 RectTransform rowRect = focusDurationSettingsRow.GetComponent<RectTransform>();
-                rowRect.anchoredPosition = new Vector2(60f, -716f);
+                rowRect.anchoredPosition = new Vector2(60f, -910f);
                 rowRect.sizeDelta = new Vector2(260f, 44f);
                 ApplySettingsInlineInputLayout(
                     focusDurationSettingsRow,
@@ -896,7 +896,7 @@ namespace CatLife.UI
             if (autoFocusDelaySettingsRow != null)
             {
                 RectTransform rowRect = autoFocusDelaySettingsRow.GetComponent<RectTransform>();
-                rowRect.anchoredPosition = new Vector2(60f, -900f);
+                rowRect.anchoredPosition = new Vector2(60f, -1094f);
                 rowRect.sizeDelta = new Vector2(260f, 44f);
                 ApplySettingsInlineInputLayout(
                     autoFocusDelaySettingsRow,
@@ -1324,7 +1324,7 @@ namespace CatLife.UI
             rowRect.anchorMin = new Vector2(0f, 1f);
             rowRect.anchorMax = new Vector2(0f, 1f);
             rowRect.pivot = new Vector2(0f, 1f);
-            rowRect.anchoredPosition = new Vector2(60f, -716f);
+            rowRect.anchoredPosition = new Vector2(60f, -910f);
             rowRect.sizeDelta = new Vector2(260f, 44f);
 
             GameObject inputObject = AddRuntimePanel("FocusDurationMinutesInput", focusDurationSettingsRow.transform, null, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(142f, 0f), new Vector2(74f, 34f), Color.clear);
@@ -1390,7 +1390,7 @@ namespace CatLife.UI
             rowRect.anchorMin = new Vector2(0f, 1f);
             rowRect.anchorMax = new Vector2(0f, 1f);
             rowRect.pivot = new Vector2(0f, 1f);
-            rowRect.anchoredPosition = new Vector2(60f, -900f);
+            rowRect.anchoredPosition = new Vector2(60f, -1094f);
             rowRect.sizeDelta = new Vector2(260f, 44f);
 
             GameObject inputObject = AddRuntimePanel("AutoFocusDelaySecondsInput", autoFocusDelaySettingsRow.transform, null, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(142f, 0f), new Vector2(74f, 34f), Color.clear);
