@@ -21,8 +21,8 @@
 | 1 | 无损源文件隔离 | 已完成 | 仅移动已证明非运行时依赖的源文件 | 归档 manifest、场景功能不变 |
 | 2 | 导入设置无损优化 | 已完成 | 是，但仅无损项 | Read/Write、无关导入项关闭且截图不变 |
 | 3 | 高质量贴图平台规则 | 已完成 | 是，逐类 A/B | Android 压缩规则和截图对比 |
-| 4 | 重复材质与贴图合并 | 下一阶段 | 是，小批量 | 材质引用正确、draw call/包体下降 |
-| 5 | 模型与动画轻量化 | 待开始 | 是，小批量 | 猫咪不离地、不闪烁，11 动画可用 |
+| 4 | 重复材质与贴图合并 | 已完成 | 是，小批量 | 材质引用正确、draw call/包体下降 |
+| 5 | 模型与动画轻量化 | 下一阶段 | 是，小批量 | 猫咪不离地、不闪烁，11 动画可用 |
 | 6 | 构建/Shader/Strip 收尾 | 待开始 | 否，主要改构建设置 | Release 构建、无新增运行错误 |
 | 7 | 回归报告与保留决策 | 待开始 | 否 | 前后体积、性能、截图、功能证据 |
 
@@ -427,6 +427,104 @@ work/CatLife_Unity_Main/Reports/VisualChecks/stage3-texture-policy-playmode.png
 - 材质不错贴、不丢色。
 - Draw call 或包体有下降。
 - 回滚边界清晰。
+
+### 2026-07-05 完全等价材质合并
+
+本阶段只合并可证明完全等价的材质引用，不做肉眼相似材质合并，不删除材质资产，不改贴图本体。
+
+已新增 Editor 工具：
+
+| 菜单 | 用途 |
+|---|---|
+| `CatLife/Optimization/Stage 4/Audit Material Deduplication` | 审计 `MainScene.unity` 当前依赖材质，查找序列化内容完全等价的 `.mat` 组。 |
+| `CatLife/Optimization/Stage 4/Apply Material Deduplication` | 将场景 Renderer 上的重复材质引用替换为同一 keeper，并保存场景。 |
+
+工具文件：
+
+```text
+work/CatLife_Unity_Main/Assets/Editor/CatLifeMaterialDeduplicationPolicy.cs
+```
+
+阶段 4 审计报告：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-194554-stage4-material-dedup-audit/
+```
+
+审计结果：
+
+| 指标 | 合并前 |
+|---|---:|
+| MainScene material dependencies | 349 |
+| Renderer material slots | 529 |
+| Renderer unique material paths | 350 |
+| Exact duplicate groups | 1 |
+| Duplicate materials | 153 |
+
+唯一可安全合并组：
+
+| Keeper | 组内材质数 | 涉及 Renderer slots |
+|---|---:|---:|
+| `Assets/Materials/TownGLB/GLB_Material.001.mat` | 154 | 163 |
+
+阶段 4 apply 报告：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-194637-stage4-material-dedup-apply/
+```
+
+应用结果：
+
+| 指标 | 数值 |
+|---|---:|
+| Renderers changed | 162 |
+| Material slots changed | 162 |
+| Duplicate groups before apply | 1 |
+| Duplicate materials before apply | 153 |
+
+合并后状态：
+
+| 指标 | 合并后 |
+|---|---:|
+| MainScene material dependencies | 196 |
+| Renderer material slots | 529 |
+| Renderer unique material paths | 197 |
+| Exact duplicate groups | 0 |
+| Duplicate materials | 0 |
+
+复验 inventory：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-194745-inventory/
+```
+
+| 指标 | 阶段 3 后 | 阶段 4 后 | 变化 |
+|---|---:|---:|---:|
+| `Assets/` 文件数 | 1335 | 1336 | +1，新增阶段 4 Editor 工具。 |
+| `Assets/` 源文件总量 | 8812.11 MiB | 8812.17 MiB | +0.06 MiB，新增脚本/元数据。 |
+| `MainScene.unity` 依赖数 | 923 | 770 | -153 |
+| `MainScene.unity` 依赖源文件总量 | 7620.28 MiB | 7619.72 MiB | -0.56 MiB |
+
+运行验证：
+
+| 验证项 | 结果 |
+|---|---|
+| Runtime assembly validator | 通过，场景接线、NavMesh、猫行为驱动、识别/LLM 系统、UI 绑定和 11 个 Animator state 均存在。 |
+| Play Mode 冒烟 | 通过，主相机、`CatLifeHomeUiController`、猫行为驱动、导航、动画控制和目的地规划均存在；运行时唯一材质路径数为 197。 |
+| Game View 视觉检查 | 通过，小镇、猫咪、石板、专注 UI 和解锁滑槽可见；未发现丢色、错贴或缺材质。 |
+| Console | 0 error。 |
+
+视觉证据：
+
+```text
+work/CatLife_Unity_Main/Reports/VisualChecks/stage4-material-dedup-playmode.png
+```
+
+阶段 4 结论：
+
+- 已把 154 个完全等价的 `TownGLB` 材质引用合并到一个 keeper，消除了 153 个 MainScene 重复材质依赖。
+- 本阶段没有删除材质资产，回滚边界清晰；如后续确认长期稳定，可在单独阶段考虑归档未使用重复 `.mat` 资产。
+- 下一阶段进入“阶段 5：模型与动画轻量化”，重点应先审计 mesh compression、动画曲线和模型导入设置，不能影响猫咪贴地、Walk 连续播放和 11 个动作。
 
 ## 阶段 5：模型与动画轻量化
 
