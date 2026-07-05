@@ -22,8 +22,8 @@
 | 2 | 导入设置无损优化 | 已完成 | 是，但仅无损项 | Read/Write、无关导入项关闭且截图不变 |
 | 3 | 高质量贴图平台规则 | 已完成 | 是，逐类 A/B | Android 压缩规则和截图对比 |
 | 4 | 重复材质与贴图合并 | 已完成 | 是，小批量 | 材质引用正确、draw call/包体下降 |
-| 5 | 模型与动画轻量化 | 下一阶段 | 是，小批量 | 猫咪不离地、不闪烁，11 动画可用 |
-| 6 | 构建/Shader/Strip 收尾 | 待开始 | 否，主要改构建设置 | Release 构建、无新增运行错误 |
+| 5 | 模型与动画轻量化 | 已完成 | 是，小批量 | 猫咪不离地、不闪烁，11 动画可用 |
+| 6 | 构建/Shader/Strip 收尾 | 下一阶段 | 否，主要改构建设置 | Release 构建、无新增运行错误 |
 | 7 | 回归报告与保留决策 | 待开始 | 否 | 前后体积、性能、截图、功能证据 |
 
 ## 阶段 0：体积归因基线
@@ -541,6 +541,93 @@ work/CatLife_Unity_Main/Reports/VisualChecks/stage4-material-dedup-playmode.png
 - 猫咪不离地、不闪烁。
 - Walk 连续播放正常。
 - 10 个动作和专注/非专注动画偏好仍可触发。
+
+### 2026-07-05 静态模型导入轻量化
+
+本阶段只处理低风险模型导入设置，不改猫咪 rig/root motion/动画曲线，不改猫咪模型压缩，避免引入离地、闪烁、Walk 中断或动作丢失问题。
+
+已新增 Editor 工具：
+
+| 菜单 | 用途 |
+|---|---|
+| `CatLife/Optimization/Stage 5/Audit Model Import Policy` | 审计阶段 5 关注模型的 mesh、顶点、三角面、BlendShape、动画 clip 和 importer 设置。 |
+| `CatLife/Optimization/Stage 5/Apply Model Import Policy` | 对静态小镇模型应用低风险导入设置；猫咪 FBX 仅保护不修改。 |
+
+工具文件：
+
+```text
+work/CatLife_Unity_Main/Assets/Editor/CatLifeModelImportPolicy.cs
+```
+
+阶段 5 审计报告：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-201058-stage5-model-import-audit/
+```
+
+审计结果：
+
+| 模型 | Meshes | Vertices | Triangles | BlendShape meshes | Anim clips | 初始 Mesh Compression | 初始 Import BlendShapes | 决策 |
+|---|---:|---:|---:|---:|---:|---|---:|---|
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260630.blend` | 167 | 1752016 | 850272 | 0 | 0 | Off | on | 静态小镇，可低风险压缩。 |
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260630.fbx` | 167 | 1752018 | 850272 | 0 | 0 | Off | on | 静态小镇，可低风险压缩；本地应用，`.fbx.meta` 按项目规则忽略。 |
+| `Assets/Art/Cat/Animations/CatLife_cat_10_actions_final_state.fbx` | 1 | 138630 | 239991 | 0 | 68 | Off | on | 保护猫咪动画/模型，不修改。 |
+
+阶段 5 apply 报告：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-201149-stage5-model-import-apply/
+```
+
+应用结果：
+
+```text
+Changed importers: 2
+```
+
+已应用设置：
+
+| 模型 | Mesh Compression | Import BlendShapes | 说明 |
+|---|---|---:|---|
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260630.blend` | Low | off | Git 可追踪变更写入 `.blend.meta`。 |
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260630.fbx` | Low | off | 本地 Unity 工程已写入；`.fbx.meta` 被 `.gitignore` 忽略，可通过阶段 5 工具重跑恢复。 |
+| `Assets/Art/Cat/Animations/CatLife_cat_10_actions_final_state.fbx` | Off | on | 未修改，保留猫咪动画和模型安全边界。 |
+
+复验 inventory：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-201343-inventory/
+```
+
+| 指标 | 阶段 4 后 | 阶段 5 后 | 说明 |
+|---|---:|---:|---|
+| `Assets/` 文件数 | 1336 | 1337 | 新增阶段 5 Editor 工具。 |
+| `Assets/` 源文件总量 | 8812.17 MiB | 8812.20 MiB | 只新增脚本/元数据，模型源文件本体不改。 |
+| `MainScene.unity` 依赖数 | 770 | 770 | 场景依赖不变。 |
+| `MainScene.unity` 依赖源文件总量 | 7619.72 MiB | 7619.72 MiB | 源文件体积不变；收益体现在 Unity 导入产物和后续构建。 |
+
+运行验证：
+
+| 验证项 | 结果 |
+|---|---|
+| Runtime assembly validator | 通过，场景接线、NavMesh、猫行为驱动、识别/LLM 系统、UI 绑定和 11 个 Animator state 均存在。 |
+| Play Mode 冒烟 | 通过，主相机、`CatLifeHomeUiController`、猫行为驱动、导航、动画控制和目的地规划均存在。 |
+| 动画验证 | `CatLife_TownWalker` Animator 含 11 个 clips；`CL_CAT_SRC_Walk_60fps` 长度 1.00s、`loopTime=true`、112 条曲线。 |
+| 猫咪高度 | Play Mode 中 `CatCompanionModel` transform Y 为 `-0.020`，保持当前项目基线；视觉截图中猫咪未离地。 |
+| Game View 视觉检查 | 通过，小镇低机位大厅未出现明显破面/变形；猫咪、石板、专注 UI 和解锁滑槽正常。 |
+| Console | 0 error。 |
+
+视觉证据：
+
+```text
+work/CatLife_Unity_Main/Reports/VisualChecks/stage5-model-import-playmode.png
+```
+
+阶段 5 结论：
+
+- 静态小镇模型启用低风险 mesh compression，并关闭已确认无用的 BlendShape 导入。
+- 猫咪模型和 11 个动作链路未改，避免破坏贴地、连续行走和动作状态机。
+- 下一阶段进入“阶段 6：构建与 Shader 收尾”，重点是 Release 构建、Minify/Stripping 起步设置和 Shader 变体收尾。
 
 ## 阶段 6：构建与 Shader 收尾
 
