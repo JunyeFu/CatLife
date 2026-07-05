@@ -403,6 +403,7 @@ namespace CatLife.UI
             splashCanvasGroup.interactable = true;
             splashOverlayRoot.SetActive(true);
             splashOverlayRoot.transform.SetAsLastSibling();
+            ConfigureSplashOverlayVisuals();
         }
 
         private void UpdateSplashScreen()
@@ -415,6 +416,11 @@ namespace CatLife.UI
             float hold = Mathf.Clamp(splashHoldSeconds, 0.5f, 2.2f);
             float fade = Mathf.Clamp(splashFadeSeconds, 0.1f, 1f);
             float elapsed = Time.unscaledTime - splashStartedAt;
+            if (splashOverlayRoot != null)
+            {
+                splashOverlayRoot.transform.SetAsLastSibling();
+            }
+
             if (elapsed <= hold)
             {
                 splashCanvasGroup.alpha = 1f;
@@ -450,6 +456,7 @@ namespace CatLife.UI
         {
             if (splashOverlayRoot != null)
             {
+                ConfigureSplashOverlayVisuals();
                 return;
             }
 
@@ -459,9 +466,19 @@ namespace CatLife.UI
                 return;
             }
 
-            GameObject root = new GameObject("CatLifeSplashOverlay", typeof(RectTransform), typeof(CanvasGroup), typeof(Image), typeof(Button));
-            root.transform.SetParent(canvasRect, false);
+            Transform existingRoot = canvasRect.Find("CatLifeSplashOverlay");
+            GameObject root = existingRoot != null ? existingRoot.gameObject : new GameObject("CatLifeSplashOverlay", typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup), typeof(GraphicRaycaster), typeof(Image), typeof(Button));
+            if (existingRoot == null)
+            {
+                root.transform.SetParent(canvasRect, false);
+            }
+
             RectTransform rootRect = root.GetComponent<RectTransform>();
+            if (rootRect == null)
+            {
+                rootRect = root.AddComponent<RectTransform>();
+            }
+
             rootRect.anchorMin = Vector2.zero;
             rootRect.anchorMax = Vector2.one;
             rootRect.offsetMin = Vector2.zero;
@@ -469,19 +486,44 @@ namespace CatLife.UI
             rootRect.pivot = new Vector2(0.5f, 0.5f);
 
             Image background = root.GetComponent<Image>();
+            if (background == null)
+            {
+                background = root.AddComponent<Image>();
+            }
+
             background.color = Color.white;
             background.raycastTarget = true;
 
             Button skipButton = root.GetComponent<Button>();
+            if (skipButton == null)
+            {
+                skipButton = root.AddComponent<Button>();
+            }
+
             skipButton.transition = Selectable.Transition.None;
             skipButton.targetGraphic = background;
+            skipButton.onClick.RemoveListener(DismissSplashScreen);
             skipButton.onClick.AddListener(DismissSplashScreen);
 
             splashCanvasGroup = root.GetComponent<CanvasGroup>();
+            if (splashCanvasGroup == null)
+            {
+                splashCanvasGroup = root.AddComponent<CanvasGroup>();
+            }
 
-            GameObject imageObject = new GameObject("CatLifeSplashImage", typeof(RectTransform), typeof(Image));
-            imageObject.transform.SetParent(root.transform, false);
+            Transform existingImage = root.transform.Find("CatLifeSplashImage");
+            GameObject imageObject = existingImage != null ? existingImage.gameObject : new GameObject("CatLifeSplashImage", typeof(RectTransform), typeof(Image));
+            if (existingImage == null)
+            {
+                imageObject.transform.SetParent(root.transform, false);
+            }
+
             RectTransform imageRect = imageObject.GetComponent<RectTransform>();
+            if (imageRect == null)
+            {
+                imageRect = imageObject.AddComponent<RectTransform>();
+            }
+
             imageRect.anchorMin = Vector2.zero;
             imageRect.anchorMax = Vector2.one;
             imageRect.offsetMin = Vector2.zero;
@@ -489,13 +531,58 @@ namespace CatLife.UI
             imageRect.pivot = new Vector2(0.5f, 0.5f);
 
             Image splashImage = imageObject.GetComponent<Image>();
-            splashImage.sprite = LoadSplashSprite();
-            splashImage.preserveAspect = true;
-            splashImage.color = Color.white;
-            splashImage.raycastTarget = false;
+            if (splashImage == null)
+            {
+                splashImage = imageObject.AddComponent<Image>();
+            }
 
             splashOverlayRoot = root;
+            ConfigureSplashOverlayVisuals();
             splashOverlayRoot.SetActive(false);
+        }
+
+        private void ConfigureSplashOverlayVisuals()
+        {
+            if (splashOverlayRoot == null)
+            {
+                return;
+            }
+
+            Canvas overlayCanvas = splashOverlayRoot.GetComponent<Canvas>();
+            if (overlayCanvas == null)
+            {
+                overlayCanvas = splashOverlayRoot.AddComponent<Canvas>();
+            }
+
+            overlayCanvas.overrideSorting = true;
+            overlayCanvas.sortingOrder = short.MaxValue;
+
+            if (splashOverlayRoot.GetComponent<GraphicRaycaster>() == null)
+            {
+                splashOverlayRoot.AddComponent<GraphicRaycaster>();
+            }
+
+            Image background = splashOverlayRoot.GetComponent<Image>();
+            if (background != null)
+            {
+                background.color = Color.white;
+                background.raycastTarget = true;
+            }
+
+            Transform imageTransform = splashOverlayRoot.transform.Find("CatLifeSplashImage");
+            Image splashImage = imageTransform != null ? imageTransform.GetComponent<Image>() : null;
+            if (splashImage != null)
+            {
+                splashImage.sprite = LoadSplashSprite();
+                splashImage.preserveAspect = true;
+                splashImage.color = Color.white;
+                splashImage.raycastTarget = false;
+            }
+
+            if (splashCanvasGroup == null)
+            {
+                splashCanvasGroup = splashOverlayRoot.GetComponent<CanvasGroup>();
+            }
         }
 
         private Sprite LoadSplashSprite()
