@@ -57,6 +57,7 @@ CatLife_提交自检表_20260705.md
 | 主场景 | 猫 + 小镇可见 |
 | 状态链 | 普通 -> 过渡 -> 专注 -> 奖励 |
 | LLM 路径 | logcat 能判断 vivo 云端真实调用、BlueLM 端侧调用、失败码或本地 fallback 状态之一 |
+| 云真机交接 | `CatLife_cloud_device_recording_handoff_20260705.md` 已生成，APK hash 与待上传 APK 一致 |
 | 日志 | 无 crash、ANR、关键 NullReference |
 | 录屏 | 至少 1 段真机流程视频 |
 
@@ -97,9 +98,10 @@ Select-String -Path "06-deliverables/final-submission/**/*" -Pattern "sk-|api_ke
 2. 逐个双击打开。
 3. APK 真机安装并录屏。
 4. 搜索密钥和隐私内容。
-5. 更新本检查表状态。
-6. 压缩或上传前记录 SHA256。
-7. 上传后保存平台成功截图。
+5. 若使用云真机，先运行 `tools/final-submission/prepare-cloud-device-handoff.ps1`，再按交接文档采集或导入证据。
+6. 更新本检查表状态。
+7. 压缩或上传前记录 SHA256。
+8. 上传后保存平台成功截图。
 
 ## 8. 最终状态记录模板
 

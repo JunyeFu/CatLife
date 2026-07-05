@@ -70,6 +70,14 @@ The public secret scan writes `CatLife_public_secret_scan_20260705.md`. It scans
 
 Current final requirements audit status: `PASS 10 / PARTIAL 1 / MISSING 5 / MANUAL_REVIEW 0`. The remaining blockers are final demo video plus cloud-device/device install, startup, LLM/fallback, focus-flow, and recording evidence.
 
+Before uploading the real APK to a vivo cloud device, generate the cloud-device recording handoff:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/prepare-cloud-device-handoff.ps1
+```
+
+This writes `CatLife_cloud_device_recording_handoff_20260705.md`. The handoff records APK hash, local ADB state, required cloud-device downloads, import commands, and the private credential boundary. It must not print the plaintext AppKEY. The real/local APK is still expected to contain the ignored private vivo cloud-device key so the cloud phone can run the demo without extra configuration.
+
 Before final PPT upload, run the extractable-text claim audit:
 
 ```powershell
