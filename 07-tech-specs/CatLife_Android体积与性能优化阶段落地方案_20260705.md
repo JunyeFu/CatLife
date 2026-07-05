@@ -17,8 +17,8 @@
 
 | 阶段 | 名称 | 当前状态 | 是否允许改资产 | 退出证据 |
 |---|---|---|---:|---|
-| 0 | 体积归因基线 | 正在落地 | 否 | `BuildSize` 报告工具、MainScene 依赖表、APK entry 表 |
-| 1 | 无损源文件隔离 | 待开始 | 仅移动已证明非运行时依赖的源文件 | 归档 manifest、场景功能不变 |
+| 0 | 体积归因基线 | 已完成首轮 | 否 | `BuildSize` 报告工具、MainScene 依赖表、APK entry 表 |
+| 1 | 无损源文件隔离 | 第一批已落地 | 仅移动已证明非运行时依赖的源文件 | 归档 manifest、场景功能不变 |
 | 2 | 导入设置无损优化 | 待开始 | 是，但仅无损项 | Read/Write、无关导入项关闭且截图不变 |
 | 3 | 高质量贴图平台规则 | 待开始 | 是，逐类 A/B | Android 压缩规则和截图对比 |
 | 4 | 重复材质与贴图合并 | 待开始 | 是，小批量 | 材质引用正确、draw call/包体下降 |
@@ -153,6 +153,52 @@ APK 聚合体积前项：
 - MainScene、猫咪 Animator、NavMesh、UI 正常。
 - 包体或依赖源文件体积下降。
 - 源文件有归档 manifest，可回滚。
+
+### 2026-07-05 第一批隔离
+
+本批只处理已被 Unity `AssetDatabase.GetDependencies` 证明没有运行时用户的重复源文件，不处理任何 MainScene 仍依赖的资源。
+
+归档目录：
+
+```text
+work/CatLife_Unity_Main/ArchivedSourceAssets/stage1-source-isolation-20260705/
+```
+
+归档 manifest：
+
+```text
+work/CatLife_Unity_Main/ArchivedSourceAssets/stage1-source-isolation-20260705/MANIFEST.md
+```
+
+已移出 `Assets/`：
+
+| 原 Assets 路径 | 归档路径 | 源文件体积 | 处理理由 |
+|---|---|---:|---|
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260702.glb` | `ArchivedSourceAssets/stage1-source-isolation-20260705/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260702.glb` | 64.20 MiB | 重复 GLB，`MainScene.unity` 使用的是 `20260702_1.glb`；场景/Prefab/材质/脚本配置/控制器依赖扫描用户数为 0。 |
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260702.glb.meta` | `ArchivedSourceAssets/stage1-source-isolation-20260705/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260702.glb.meta` | 155 bytes | 保留原 Unity GUID 元数据用于回滚。 |
+
+明确不移动：
+
+| 文件 | 原因 |
+|---|---|
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260702_1.glb` | `MainScene.unity` 当前依赖。 |
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260630.blend` | `MainScene.unity` 当前依赖。 |
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260630.fbx` | `MainScene.unity` 当前依赖。 |
+
+复验 inventory：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-171554-inventory/
+```
+
+复验结果：
+
+| 指标 | 阶段 0 首轮 | 阶段 1 第一批后 | 变化 |
+|---|---:|---:|---:|
+| `Assets/` 文件数 | 1336 | 1335 | -1 |
+| `Assets/` 源文件总量 | 8911.63 MiB | 8847.52 MiB | -64.11 MiB |
+
+最新 `project_assets_top.csv` 已不再包含 `catlife_v2_island_grass_style_no_skybox_20260702.glb`，仍保留当前运行时依赖 `catlife_v2_island_grass_style_no_skybox_20260702_1.glb`。
 
 ## 阶段 2：导入设置无损优化
 
