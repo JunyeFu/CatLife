@@ -19,8 +19,8 @@
 |---|---|---|---:|---|
 | 0 | 体积归因基线 | 已完成首轮 | 否 | `BuildSize` 报告工具、MainScene 依赖表、APK entry 表 |
 | 1 | 无损源文件隔离 | 已完成 | 仅移动已证明非运行时依赖的源文件 | 归档 manifest、场景功能不变 |
-| 2 | 导入设置无损优化 | 下一阶段 | 是，但仅无损项 | Read/Write、无关导入项关闭且截图不变 |
-| 3 | 高质量贴图平台规则 | 待开始 | 是，逐类 A/B | Android 压缩规则和截图对比 |
+| 2 | 导入设置无损优化 | 已完成 | 是，但仅无损项 | Read/Write、无关导入项关闭且截图不变 |
+| 3 | 高质量贴图平台规则 | 下一阶段 | 是，逐类 A/B | Android 压缩规则和截图对比 |
 | 4 | 重复材质与贴图合并 | 待开始 | 是，小批量 | 材质引用正确、draw call/包体下降 |
 | 5 | 模型与动画轻量化 | 待开始 | 是，小批量 | 猫咪不离地、不闪烁，11 动画可用 |
 | 6 | 构建/Shader/Strip 收尾 | 待开始 | 否，主要改构建设置 | Release 构建、无新增运行错误 |
@@ -256,6 +256,61 @@ work/CatLife_Unity_Main/Reports/BuildSize/20260705-175025-inventory/
 - 关键截图无可见退步。
 - Play Mode Console 无新增错误。
 - Android 构建体积和运行内存有可解释下降。
+
+### 2026-07-05 导入设置无损优化
+
+本阶段只处理 Importer 开关，不改模型、材质、贴图压缩、场景引用和 Prefab 引用。
+
+导入设置审计结果：
+
+| 项目 | 审计结果 | 处理 |
+|---|---|---|
+| `Assets/` 内 Texture2D `Read/Write` | 0 个开启 | 无需修改。 |
+| `Assets/UI/` 贴图 mipmap | 0 个开启 | 无需修改。 |
+| `Assets/Resources/` 贴图 mipmap | 0 个开启 | 无需修改。 |
+| 猫咪动作 FBX `CatLife_cat_10_actions_final_state.fbx` | `Read/Write` 关闭，动画开启，相机/灯光关闭 | 保持不变，避免破坏 11 个动作。 |
+| 静态小镇模型 `.blend/.fbx` | 动画、相机、灯光导入仍开启 | 关闭无关导入项。 |
+
+已修改导入设置：
+
+| 资源 | `Read/Write` | `Import Animation` | `Import Cameras` | `Import Lights` | 说明 |
+|---|---:|---:|---:|---:|---|
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260630.blend` | 关 | 关 | 关 | 关 | 当前 Git 可追踪变更在 `.blend.meta`。 |
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260630.fbx` | 关 | 关 | 关 | 关 | FBX 源文件和 `.meta` 按项目大文件规则被忽略，但当前本地 Unity 工程已写入同一设置。 |
+
+阶段 2 复验 inventory：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-183117-inventory/
+```
+
+| 指标 | 阶段 1 完成后 | 阶段 2 后 | 说明 |
+|---|---:|---:|---|
+| `Assets/` 文件数 | 1334 | 1334 | 未新增或删除运行时资源。 |
+| `Assets/` 源文件总量 | 8812.04 MiB | 8812.06 MiB | Importer meta 变化带来的微小统计差异；未新增大资源。 |
+| `MainScene.unity` 依赖源文件总量 | 7620.28 MiB | 7620.28 MiB | 场景依赖保持不变。 |
+
+运行验证：
+
+| 验证项 | 结果 |
+|---|---|
+| Runtime assembly validator | 通过，场景接线、NavMesh、猫行为驱动、识别/LLM 系统、UI 绑定和 11 个 Animator state 均存在。 |
+| Play Mode 冒烟 | 通过，主相机、`CatBehaviorDriver`、`CatNavigationAgent`、`CatAnimationController`、`CatDestinationPlanner`、`CatLife_TownWalker` Animator 均存在。 |
+| Game View 视觉检查 | 通过，小镇正面、猫咪、专注 UI 和解锁滑槽可见，无缺材质、丢模型或明显画面退步。 |
+| Console | 清理临时检查脚本记录后 0 error。 |
+
+视觉证据：
+
+```text
+work/CatLife_Unity_Main/Reports/VisualChecks/stage2-import-settings-playmode.png
+```
+
+阶段 2 结论：
+
+- 静态小镇模型不再导入无用动画、相机和灯光，降低导入负担和潜在构建冗余。
+- 未改变材质、贴图质量、模型网格和猫咪动画链路。
+- 本阶段未重新打 Android 包；真实 APK 体积收益在下一次 Android 构建或阶段 6 构建收尾时统一量化。
+- 下一阶段进入“阶段 3：高质量贴图平台规则”，只能按视觉风险分组逐类 A/B，不能全局降分辨率。
 
 ## 阶段 3：高质量贴图平台规则
 
