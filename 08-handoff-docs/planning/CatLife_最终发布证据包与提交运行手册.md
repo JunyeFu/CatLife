@@ -177,7 +177,7 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 
 - `check-final-submission.ps1` 自动检查通过；
 - `audit-final-requirements.ps1` 没有 `MISSING` 或 `PARTIAL` 行，且 `MANUAL_REVIEW` 行已有人工签字结论；
-- `audit-ppt-claims.ps1 -AllowHits` 已生成 PPT 文本审计，且没有高风险命中；当前中风险大模型表述必须改成“LLM 提供高层建议/行为偏置，本地规则控制移动和动画”，森林相关内容只能作为历史/概念展示，不能作为当前产品范围；
+- `audit-ppt-claims.ps1` 已生成 PPT 文本审计，且没有高风险、中风险或人工复核命中；本地最终 PPT 已通过 `patch-ppt-claims.ps1` 把大模型表述降级为行为偏置，并把森林相关文字改为历史概念，不作为当前产品范围；
 - 人工打开 PPT、视频、海报、APK、代码包全部无明显错误；
 - 视频必须有 `CatLife_video_manifest.md`，并确认时长、分辨率、首屏、隐私和功能演示符合要求；
 - `evidence/` 中有构建、安装、设备、运行日志和录屏证据；
@@ -201,6 +201,6 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-final-requ
 - APK：`06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk`
 - SHA256：`97CA85AC82AF3A875B0D61E782B4E5C9506ABB86EE58E3B645CE6A61321A96B1`
 - 私有 key 边界：真实版 APK 必须包含本机 ignored 私有 Resources 中的云真机可用 key；GitHub、代码包、日志、截图、PPT、海报、录屏字幕和公开文档不得包含明文 AppKEY。
-- PPT 文本审计：`06-deliverables/final-submission/CatLife_PPT_claim_audit_20260705.md` 当前没有高风险命中；仍有 1 条大模型中风险口径和 2 条森林人工复核项。
+- PPT 文本审计：`06-deliverables/final-submission/CatLife_PPT_claim_audit_20260705.md` 当前 PASS，高风险 0、中风险 0、人工复核 0；修复记录见 `CatLife_PPT_claim_patch_20260705.md`。
 
 当前仍缺视频、vivo 云真机安装证据、启动/LLM logcat 和录屏证据。PPT 已复制到 `06-deliverables/final-submission/CatLife_作品介绍PPT_v1.pptx`，海报已生成到 `06-deliverables/final-submission/CatLife_作品海报_v1.png`，代码包已生成到 `06-deliverables/final-submission/CatLife_LLM_code_package_v1.zip`，并分别记录 SHA256。下一步必须优先填充本手册定义的 `evidence/` 目录，不能仅凭 APK、PPT、海报和代码包文件存在标记为最终可提交。

@@ -71,7 +71,7 @@ Before final PPT upload, run the extractable-text claim audit:
 powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-ppt-claims.ps1 -AllowHits
 ```
 
-This writes `CatLife_PPT_claim_audit_20260705.md` and `CatLife_PPT_extracted_text_20260705.md`. High-risk hits must be resolved before upload. Medium/manual hits require manual review; for the current PPT this means the large-model wording must stay as high-level suggestion/bias rather than direct movement control, and forest wording/images must be historical or concept-only because the current product rule is no forest scene.
+This writes `CatLife_PPT_claim_audit_20260705.md` and `CatLife_PPT_extracted_text_20260705.md`. High-risk hits must be resolved before upload. The current local PPT has already been patched through `patch-ppt-claims.ps1`; extractable text now audits as PASS with `0` high-risk, `0` medium-risk, and `0` manual-review hits. Manual visual review is still required for bitmap text, screenshots, and narration.
 
 After adding the final demo video, generate the video manifest before rerunning the final checker:
 
