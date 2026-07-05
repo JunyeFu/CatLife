@@ -20,8 +20,8 @@
 | 0 | 体积归因基线 | 已完成首轮 | 否 | `BuildSize` 报告工具、MainScene 依赖表、APK entry 表 |
 | 1 | 无损源文件隔离 | 已完成 | 仅移动已证明非运行时依赖的源文件 | 归档 manifest、场景功能不变 |
 | 2 | 导入设置无损优化 | 已完成 | 是，但仅无损项 | Read/Write、无关导入项关闭且截图不变 |
-| 3 | 高质量贴图平台规则 | 下一阶段 | 是，逐类 A/B | Android 压缩规则和截图对比 |
-| 4 | 重复材质与贴图合并 | 待开始 | 是，小批量 | 材质引用正确、draw call/包体下降 |
+| 3 | 高质量贴图平台规则 | 已完成 | 是，逐类 A/B | Android 压缩规则和截图对比 |
+| 4 | 重复材质与贴图合并 | 下一阶段 | 是，小批量 | 材质引用正确、draw call/包体下降 |
 | 5 | 模型与动画轻量化 | 待开始 | 是，小批量 | 猫咪不离地、不闪烁，11 动画可用 |
 | 6 | 构建/Shader/Strip 收尾 | 待开始 | 否，主要改构建设置 | Release 构建、无新增运行错误 |
 | 7 | 回归报告与保留决策 | 待开始 | 否 | 前后体积、性能、截图、功能证据 |
@@ -314,17 +314,103 @@ work/CatLife_Unity_Main/Reports/VisualChecks/stage2-import-settings-playmode.png
 
 ## 阶段 3：高质量贴图平台规则
 
-先按屏幕占比分组，不做全局统一压缩：
+先按屏幕占比分组，不做一刀切压缩；在用户确认允许“合理降级贴图分辨率”后，本阶段采用可回滚的 Android 平台导入规则降低小镇贴图最大尺寸。
 
-- 猫咪主贴图、近景地面、主建筑、UI：高质量优先。
-- 远景树木、栅栏、装饰物：中等压缩。
-- Mask/AO/Roughness 等非颜色图：关闭 sRGB，允许更高压缩。
+- 猫咪主贴图、UI、开屏资源：质量优先，不降猫咪分辨率，不动 UI/开屏默认设置。
+- 小镇颜色贴图：从 2048 上限保守降到 1024，使用 Android `ASTC_4x4` 高质量压缩。
+- 小镇 Metallic/Roughness 生成 mask：从 2048 上限降到 1024，使用 Android `ASTC_8x8` 更高压缩。
+- 非小镇/非猫/非 UI 贴图：默认保持不变，避免误伤系统或工具贴图。
 
 退出条件：
 
 - 低机位大厅和猫咪近景不糊。
 - 石板路和 UI 字体保持清晰。
 - 每类贴图规则都有前后截图或人工确认。
+
+### 2026-07-05 合理降级贴图分辨率与 Android 平台规则
+
+已新增 Editor 工具：
+
+| 菜单 | 用途 |
+|---|---|
+| `CatLife/Optimization/Stage 3/Audit Android Texture Policy` | 仅审计当前贴图分组、MainScene 依赖和 Android override 状态。 |
+| `CatLife/Optimization/Stage 3/Apply Android Texture Policy` | 应用阶段 3 Android 贴图规则并输出报告。 |
+
+工具文件：
+
+```text
+work/CatLife_Unity_Main/Assets/Editor/CatLifeTextureImportPolicy.cs
+```
+
+阶段 3 规则：
+
+| 分组 | 数量 | MainScene 依赖 | Android 设置 | 处理理由 |
+|---|---:|---:|---|---|
+| `CatHighQuality` | 5 | 3 | `ASTC_4x4` / max 2048 / quality 100 | 猫咪是主角，保持全分辨率，只做高质量平台压缩。 |
+| `TownColorBalanced` | 462 | 308 | `ASTC_4x4` / max 1024 / quality 90 | 小镇颜色贴图占体积大头，1024 上限是当前画面可接受的保守降级。 |
+| `TownMaskCompact` | 154 | 154 | `ASTC_8x8` / max 1024 / quality 80 | Metallic/Roughness mask 不直接被用户检查，允许更高压缩。 |
+| `KeepDefault` | 19 | 14 | 不改 | UI、开屏资源和其他低风险外资源保持默认。 |
+
+阶段 3 报告：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-185549-stage3-texture-policy-audit/
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-191222-stage3-texture-policy-apply-resolution/
+```
+
+最终 apply 报告显示：
+
+```text
+Changed importers: 616
+```
+
+Android ASTC 估算结果：
+
+| 分组 | 全量估算 | MainScene 依赖估算 | 说明 |
+|---|---:|---:|---|
+| Cat | 26.67 MiB | 16.00 MiB | 猫咪保持 2048 + ASTC 4x4。 |
+| TownColor | 616.01 MiB | 410.67 MiB | 小镇颜色贴图 1024 + ASTC 4x4。 |
+| TownMask | 51.34 MiB | 51.34 MiB | 小镇 mask 1024 + ASTC 8x8。 |
+
+对比阶段 0/1 的源 PNG 体积：`Assets/Art/Town/Textures` 源 PNG 约 5003.36 MiB，其中 `MainScene.unity` 依赖贴图源约 3870.23 MiB。阶段 3 没有改 PNG 本体，所以 source inventory 不下降；收益会体现在 Android 平台导入结果和后续 APK build 中。
+
+重要版本化说明：
+
+- 猫咪贴图 `.png.meta` 是 Git tracked，本阶段 Android override 会随提交保存。
+- 小镇贴图目录 `Assets/Art/Town/Textures/Extracted/` 和 `Assets/Art/Town/Textures/GeneratedMasks/` 按项目大文件规则被 `.gitignore` 整目录忽略，当前本机 Unity 已实际写入 616 个 importer 设置，但这些忽略目录下的 `.png.meta` 不进入 Git。
+- 为保证可复现，阶段 3 规则已固化在 `CatLifeTextureImportPolicy` Editor 工具中；重建或换机后运行 `CatLife/Optimization/Stage 3/Apply Android Texture Policy` 可恢复同一规则。
+
+复验 inventory：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-192124-inventory/
+```
+
+| 指标 | 阶段 2 后 | 阶段 3 后 | 说明 |
+|---|---:|---:|---|
+| `Assets/` 文件数 | 1334 | 1335 | 新增阶段 3 Editor 工具。 |
+| `Assets/` 源文件总量 | 8812.06 MiB | 8812.11 MiB | 只新增脚本/元数据，PNG 本体未改。 |
+| `MainScene.unity` 依赖源文件总量 | 7620.28 MiB | 7620.28 MiB | 场景依赖不变。 |
+
+运行验证：
+
+| 验证项 | 结果 |
+|---|---|
+| Play Mode 冒烟 | 通过，主相机、`CatLifeHomeUiController`、猫行为驱动、导航、动画控制和目的地规划均存在。 |
+| Game View 视觉检查 | 通过，低机位大厅、猫咪、前景石板、专注 UI 和解锁滑槽可见；未发现贴图破损、丢材质或明显不可接受的糊化。 |
+| Console | 0 error。 |
+
+视觉证据：
+
+```text
+work/CatLife_Unity_Main/Reports/VisualChecks/stage3-texture-policy-playmode.png
+```
+
+阶段 3 结论：
+
+- 已完成“合理降级贴图分辨率以缩小体积”的第一批高收益处理。
+- 当前策略避免动 UI、开屏和猫咪分辨率，把主要降级集中在小镇贴图和非直观 mask。
+- 下一阶段进入“阶段 4：重复材质与贴图合并”，重点处理 462 张小镇颜色贴图和 154 张 mask 中的重复引用，而不是继续盲目降低分辨率。
 
 ## 阶段 4：重复材质与贴图合并
 
