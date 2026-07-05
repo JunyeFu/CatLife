@@ -70,7 +70,16 @@ public static class CatLifeCatTownWalkerSetup
         ModelImporter importer = AssetImporter.GetAtPath(WalkFbxPath) as ModelImporter;
         if (importer == null)
         {
-            Debug.LogWarning("[CatLifeCatTownWalkerSetup] Missing walk FBX: " + WalkFbxPath);
+            AnimationClip generatedClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(WalkClipPath);
+            if (generatedClip != null)
+            {
+                Debug.Log("[CatLifeCatTownWalkerSetup] Walk source FBX is archived; using generated runtime clip: " + WalkClipPath);
+            }
+            else
+            {
+                Debug.LogWarning("[CatLifeCatTownWalkerSetup] Missing walk FBX and generated clip: " + WalkFbxPath);
+            }
+
             return;
         }
 
@@ -103,7 +112,15 @@ public static class CatLifeCatTownWalkerSetup
         AnimationClip source = FindWalkSourceClip();
         if (source == null)
         {
-            Debug.LogWarning("[CatLifeCatTownWalkerSetup] No AnimationClip found in " + WalkFbxPath + "; using existing generated walk clip.");
+            if (existing != null)
+            {
+                Debug.Log("[CatLifeCatTownWalkerSetup] Walk source FBX is unavailable; using existing generated walk clip: " + WalkClipPath);
+            }
+            else
+            {
+                Debug.LogWarning("[CatLifeCatTownWalkerSetup] No AnimationClip found in " + WalkFbxPath + " and no generated walk clip exists.");
+            }
+
             return existing;
         }
 

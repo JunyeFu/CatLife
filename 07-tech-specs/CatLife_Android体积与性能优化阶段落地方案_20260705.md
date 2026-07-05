@@ -18,8 +18,8 @@
 | 阶段 | 名称 | 当前状态 | 是否允许改资产 | 退出证据 |
 |---|---|---|---:|---|
 | 0 | 体积归因基线 | 已完成首轮 | 否 | `BuildSize` 报告工具、MainScene 依赖表、APK entry 表 |
-| 1 | 无损源文件隔离 | 第一批已落地 | 仅移动已证明非运行时依赖的源文件 | 归档 manifest、场景功能不变 |
-| 2 | 导入设置无损优化 | 待开始 | 是，但仅无损项 | Read/Write、无关导入项关闭且截图不变 |
+| 1 | 无损源文件隔离 | 已完成 | 仅移动已证明非运行时依赖的源文件 | 归档 manifest、场景功能不变 |
+| 2 | 导入设置无损优化 | 下一阶段 | 是，但仅无损项 | Read/Write、无关导入项关闭且截图不变 |
 | 3 | 高质量贴图平台规则 | 待开始 | 是，逐类 A/B | Android 压缩规则和截图对比 |
 | 4 | 重复材质与贴图合并 | 待开始 | 是，小批量 | 材质引用正确、draw call/包体下降 |
 | 5 | 模型与动画轻量化 | 待开始 | 是，小批量 | 猫咪不离地、不闪烁，11 动画可用 |
@@ -199,6 +199,48 @@ work/CatLife_Unity_Main/Reports/BuildSize/20260705-171554-inventory/
 | `Assets/` 源文件总量 | 8911.63 MiB | 8847.52 MiB | -64.11 MiB |
 
 最新 `project_assets_top.csv` 已不再包含 `catlife_v2_island_grass_style_no_skybox_20260702.glb`，仍保留当前运行时依赖 `catlife_v2_island_grass_style_no_skybox_20260702_1.glb`。
+
+### 2026-07-05 第二批隔离与阶段 1 收口
+
+第二批继续只处理 Unity 依赖扫描中用户数为 0 的源文件。全量候选扫描范围为 `Assets/` 下的 `.blend`、`.fbx`、`.glb`、`.gltf`、`.zip`、`.mp4`、`.mov`、`.psd`、`.kra`、`.rar`、`.7z`。
+
+已移出 `Assets/`：
+
+| 原 Assets 路径 | 归档路径 | 源文件体积 | 处理理由 |
+|---|---|---:|---|
+| `Assets/Art/Cat/Animations/CL_CAT_SRC_Walk_60fps.fbx` | `ArchivedSourceAssets/stage1-source-isolation-20260705/Art/Cat/Animations/CL_CAT_SRC_Walk_60fps.fbx` | 35.48 MiB | 源 FBX 用户数为 0；运行时依赖的是已重定向并跟踪的 `Assets/Art/Cat/Animations/Clips/CL_CAT_SRC_Walk_60fps.anim`。 |
+| `Assets/Art/Cat/Animations/CL_CAT_SRC_Walk_60fps.fbx.meta` | `ArchivedSourceAssets/stage1-source-isolation-20260705/Art/Cat/Animations/CL_CAT_SRC_Walk_60fps.fbx.meta` | 2861 bytes | 保留原 Unity GUID 元数据用于回滚。 |
+
+配套代码调整：
+
+- `CatLifeCatTownWalkerSetup` 在源 Walk FBX 已归档时复用 `Assets/Art/Cat/Animations/Clips/CL_CAT_SRC_Walk_60fps.anim`，不会因为源 FBX 离开 `Assets/` 而失败。
+
+阶段 1 收口扫描结果：
+
+| 剩余 DCC/模型候选 | 用户数 | 处理结论 |
+|---|---:|---|
+| `Assets/Art/Cat/Animations/CatLife_cat_10_actions_final_state.fbx` | 1 | `MainScene.unity` 依赖，不能移出。 |
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260630.blend` | 1 | `MainScene.unity` 依赖，不能移出。 |
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260630.fbx` | 1 | `MainScene.unity` 依赖，不能移出。 |
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260702_1.glb` | 1 | `MainScene.unity` 依赖，不能移出。 |
+
+阶段 1 完成复验 inventory：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-175025-inventory/
+```
+
+| 指标 | 阶段 0 首轮 | 阶段 1 第一批后 | 阶段 1 完成后 | 阶段 1 总变化 |
+|---|---:|---:|---:|---:|
+| `Assets/` 文件数 | 1336 | 1335 | 1334 | -2 |
+| `Assets/` 源文件总量 | 8911.63 MiB | 8847.52 MiB | 8812.04 MiB | -99.59 MiB |
+| `MainScene.unity` 依赖源文件总量 | 7619.33 MiB | 7620.28 MiB | 7620.28 MiB | 约持平 |
+
+阶段 1 结论：
+
+- 所有已证明用户数为 0 的 DCC/模型源文件已移出 `Assets/` 并保留归档 manifest。
+- `Assets/` 中剩余的大型 DCC/模型源文件都仍被 `MainScene.unity` 依赖，不能在阶段 1 直接移动。
+- 下一阶段应进入“阶段 2：导入设置无损优化”，优先处理 MainScene 仍依赖资源的导入选项，而不是继续做源文件隔离。
 
 ## 阶段 2：导入设置无损优化
 
