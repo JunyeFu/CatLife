@@ -173,6 +173,7 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 只有同时满足以下条件，才能把 CatLife 标记为“可提交”：
 
 - `check-final-submission.ps1` 自动检查通过；
+- `audit-final-requirements.ps1` 没有 `MISSING` 或 `PARTIAL` 行，且 `MANUAL_REVIEW` 行已有人工签字结论；
 - 人工打开 PPT、视频、海报、APK、代码包全部无明显错误；
 - 视频必须有 `CatLife_video_manifest.md`，并确认时长、分辨率、首屏、隐私和功能演示符合要求；
 - `evidence/` 中有构建、安装、设备、运行日志和录屏证据；
@@ -181,6 +182,12 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/import-cloud-dev
 - 代码包没有真实密钥，README 标明大模型调用位置和降级行为；
 - `vivo-cloud-llm-logcat.txt` 能说明真实调用成功，或说明失败原因和本地 fallback 已接管；
 - 已记录上传成功截图或平台提交确认。
+
+最终审计命令：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-final-requirements.ps1
+```
 
 ## 9. 当前缺口
 

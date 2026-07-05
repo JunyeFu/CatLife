@@ -56,6 +56,14 @@ The checker writes:
 
 - `06-deliverables/final-submission/CatLife_submission_check_20260705.md`
 
+Before marking the full 10-stage objective complete, run the final requirements audit:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/audit-final-requirements.ps1
+```
+
+This writes `06-deliverables/final-submission/CatLife_final_requirements_audit_20260705.md` and cross-checks official deliverables, PPT claim alignment, cloud-device evidence, LLM evidence, recordings, and credential boundaries.
+
 After adding the final demo video, generate the video manifest before rerunning the final checker:
 
 ```powershell
