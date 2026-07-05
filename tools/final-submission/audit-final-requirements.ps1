@@ -81,6 +81,35 @@ function Get-FirstRegexGroup {
     return $match.Groups[1].Value
 }
 
+function Test-PptAuditHasUserValidationHit {
+    param([string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return $false
+    }
+
+    $content = Get-Content -LiteralPath $Path -Raw -ErrorAction SilentlyContinue
+    if ([string]::IsNullOrWhiteSpace($content)) {
+        return $false
+    }
+
+    $patterns = @(
+        "User validation claims need real anonymized evidence",
+        "user_validation_completed_claim",
+        "user\s+validation\s+completed",
+        "survey\s+results",
+        "interview\s+results"
+    )
+
+    foreach ($pattern in $patterns) {
+        if ($content -match $pattern) {
+            return $true
+        }
+    }
+
+    return $false
+}
+
 function New-AuditRow {
     param(
         [string]$Area,
@@ -194,7 +223,30 @@ Add-AuditRow (New-AuditRow "PPT claim alignment" "No forest scene is required by
 
 Add-AuditRow (New-AuditRow "PPT claim alignment" "PPT wording must not claim completed BlueLM on-device SDK or true Android behavior recognition before evidence exists." "MANUAL_REVIEW" ($(if(Test-Path -LiteralPath $pptDefectTable){$pptDefectTable}else{"PPT defect table missing"})) "Review the final PPT manually against the defect table before upload.")
 
-Add-AuditRow (New-AuditRow "PPT claim alignment" "User validation data is not proven by templates alone." ($(if($userValidationEvidence){"MANUAL_REVIEW"}else{"MISSING"})) ($(if($userValidationEvidence){$userValidationEvidence.FullName}else{"user validation evidence missing"})) "Add anonymized user feedback summary or avoid claiming completed user validation.")
+$pptClaimAuditFile = if ($pptClaimAudit) { $pptClaimAudit.FullName } else { "" }
+$userValidationClaimed = Test-PptAuditHasUserValidationHit -Path $pptClaimAuditFile
+$userValidationStatus = if ($userValidationEvidence) {
+    "MANUAL_REVIEW"
+} elseif ($userValidationClaimed) {
+    "MISSING"
+} else {
+    "PASS"
+}
+$userValidationEvidenceText = if ($userValidationEvidence) {
+    $userValidationEvidence.FullName
+} elseif ($userValidationClaimed) {
+    "completed user-validation claim found without evidence"
+} else {
+    "no completed user-validation claim found in extracted PPT text"
+}
+$userValidationNextAction = if ($userValidationEvidence) {
+    "Review anonymized user validation evidence before upload."
+} elseif ($userValidationClaimed) {
+    "Add anonymized user feedback summary or remove completed user-validation wording."
+} else {
+    "Keep PPT wording as planned/future validation unless real anonymized feedback is added."
+}
+Add-AuditRow (New-AuditRow "PPT claim alignment" "User validation data is either evidenced or not claimed as completed." $userValidationStatus $userValidationEvidenceText $userValidationNextAction)
 
 Add-AuditRow (New-AuditRow "Security" "Tracked final docs and scripts have no obvious plaintext AppKEY or bearer token." "MANUAL_REVIEW" "Run repo secret scan before every submission." "Use the documented rg scan and inspect any hit manually.")
 
