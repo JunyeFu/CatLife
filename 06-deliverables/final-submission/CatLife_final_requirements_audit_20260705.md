@@ -1,6 +1,6 @@
 ﻿# CatLife Final Requirements Audit
 
-Generated: 2026-07-05 10:29:19
+Generated: 2026-07-05 10:44:08
 Project root: C:\Users\fujunye\Desktop\Agent\05-AIGC
 
 ## Summary
@@ -21,7 +21,7 @@ Final submission is not complete. Missing or partial evidence remains.
 | Official deliverable | Poster exists, is tracked by manifest, and stays local binary. | PASS | CatLife_作品海报_v1.png; manifest=CatLife_poster_manifest.md | Manual upload preview readability remains required. |
 | Official deliverable | Runnable product APK exists and has build hash evidence. | PASS | CatLife_MVP_Android_v0.1.0.apk; hash evidence present | Complete install, startup, LLM, focus, and recording evidence. |
 | Official deliverable | Large-model code package exists and has manifest. | PASS | CatLife_LLM_code_package_v1.zip; manifest=CatLife_LLM_code_package_manifest.md | Rerun package-llm-code.ps1 after any LLM code changes. |
-| Credential boundary | Real APK must include local ignored vivo key, while public materials only keep redacted evidence. | PASS | private exists=True; ignored=True; redacted evidence=True | Keep private Resources ignored; never commit plaintext AppKEY. |
+| Credential boundary | Real APK must include local ignored vivo key, while public materials only keep redacted evidence. | PASS | private exists=True; ignored=True; redacted evidence=True; apk boundary report=True | Keep private Resources ignored; never commit plaintext AppKEY. |
 | Runtime evidence | APK install evidence proves cloud/local device installation. | MISSING | C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\evidence\android\01-install\install.log | Install on vivo cloud device or import cloud-device install log. |
 | Runtime evidence | Startup logcat proves the app launches on device. | MISSING | C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\evidence\android\02-startup\logcat_startup.txt | Capture startup logcat with collect-stage9-android-evidence.ps1 or import-cloud-device-evidence.ps1. |
 | Runtime evidence | LLM evidence proves vivo cloud, BlueLM, or fallback source. | MISSING | C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\evidence\android\03-llm\logcat_vivo_cloud_llm.txt | Capture LLM logcat showing vivo_cloud, bluelm_on_device, local_template, or failure/fallback state. |
@@ -43,6 +43,7 @@ Final submission is not complete. Missing or partial evidence remains.
 - Cloud-device upload workspace manifest: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\CatLife_cloud_device_upload_workspace_manifest_20260705.md
 - Final evidence import summary: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\CatLife_final_evidence_import_summary_20260705.md
 - Final evidence input check: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\CatLife_final_evidence_input_check_20260705.md
+- APK credential boundary: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\CatLife_apk_private_credential_boundary_20260705.md
 - PPT defect table: C:\Users\fujunye\Desktop\Agent\05-AIGC\08-handoff-docs\planning\CatLife_PPT功能缺陷对照表_20260705.md
 - Review checklist: not auto-resolved
 - Release runbook: not auto-resolved

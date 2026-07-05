@@ -174,6 +174,14 @@ This copies the video to `CatLife_作品演示视频_v1.mp4`, imports cloud-devi
 
 The Stage9 collector writes only redacted credential status. The real APK must contain the local ignored `Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json` when it is exported for vivo cloud-device recording, so the cloud phone can try the real vivo API without extra setup. Generated logs, summaries, code package files, GitHub files, screenshots, PPT, poster, and video subtitles must not contain the plaintext AppKEY.
 
+Before uploading the APK to the cloud device, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/test-apk-credential-boundary.ps1
+```
+
+This writes `CatLife_apk_private_credential_boundary_20260705.md`. The report checks the ignored private config, placeholder rejection, Unity Resources loading path, APK artifact hash match, and redacted credential boundary without printing the plaintext AppKEY.
+
 To prepare a draft large-model code package for review:
 
 ```powershell

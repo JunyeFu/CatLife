@@ -87,6 +87,14 @@ powershell -ExecutionPolicy Bypass -File tools/final-submission/prepare-cloud-de
 
 该脚本输出 `06-deliverables/final-submission/CatLife_cloud_device_recording_handoff_20260705.md`，记录当前 APK 文件、SHA256、本机 ADB 状态、云真机 ADB 采证命令、网页下载文件清单和导入命令。它只记录私有凭据的存在/边界，不输出明文 AppKEY。真实版/最终提交 APK 仍必须包含本机 ignored 私有 Resources 中的云真机可用 key，方便上传云真机后直接演示真实 API 或记录 fallback。
 
+上传 APK 前再运行私有凭据边界检查：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/final-submission/test-apk-credential-boundary.ps1
+```
+
+该脚本输出 `06-deliverables/final-submission/CatLife_apk_private_credential_boundary_20260705.md`，检查本机私有配置存在、`.gitignore` 保护、AppKEY 非占位、Unity 运行时 Resources 读取路径、构建脚本私有凭据证据链和 APK hash 是否匹配；报告只写 `REDACTED`，不输出明文 AppKEY。
+
 如需给云真机上传前准备一个本机工作区，运行：
 
 ```powershell

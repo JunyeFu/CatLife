@@ -164,6 +164,7 @@ $userValidationEvidence = Find-FirstFile -Root $finalDir -Patterns @("*user*feed
 $privateConfigRelative = "work/CatLife_Unity_Main/Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json"
 $privateConfigPath = Join-Path $ProjectRoot $privateConfigRelative
 $privateConfigEvidence = Join-Path $finalDir "evidence\android\00-build\private_config_presence_redacted.txt"
+$apkCredentialBoundaryReport = Join-Path $finalDir "CatLife_apk_private_credential_boundary_20260705.md"
 $apkHashEvidence = Join-Path $finalDir "evidence\android\00-build\apk-sha256.txt"
 $installEvidence = Join-Path $finalDir "evidence\android\01-install\install.log"
 $startupEvidence = Join-Path $finalDir "evidence\android\02-startup\logcat_startup.txt"
@@ -187,8 +188,9 @@ Add-AuditRow (New-AuditRow "Official deliverable" "Runnable product APK exists a
 
 Add-AuditRow (New-AuditRow "Official deliverable" "Large-model code package exists and has manifest." ($(if($codePackage -and $llmManifest){"PASS"}elseif($codePackage){"PARTIAL"}else{"MISSING"})) ($(if($codePackage){$codePackage.Name}else{"code package=missing"}) + $(if($llmManifest){"; manifest=" + $llmManifest.Name}else{"; manifest=missing"})) "Rerun package-llm-code.ps1 after any LLM code changes.")
 
-$privateBoundaryOk = (Test-Path -LiteralPath $privateConfigPath) -and (Test-GitIgnored $privateConfigRelative) -and (Test-Path -LiteralPath $privateConfigEvidence)
-Add-AuditRow (New-AuditRow "Credential boundary" "Real APK must include local ignored vivo key, while public materials only keep redacted evidence." ($(if($privateBoundaryOk){"PASS"}else{"MISSING"})) ("private exists=" + (Test-Path -LiteralPath $privateConfigPath) + "; ignored=" + (Test-GitIgnored $privateConfigRelative) + "; redacted evidence=" + (Test-Path -LiteralPath $privateConfigEvidence)) "Keep private Resources ignored; never commit plaintext AppKEY.")
+$apkCredentialBoundaryOk = Test-TextFileHasSignal -Path $apkCredentialBoundaryReport -Pattern "Ready for cloud-device real APK credential boundary:\s+True"
+$privateBoundaryOk = (Test-Path -LiteralPath $privateConfigPath) -and (Test-GitIgnored $privateConfigRelative) -and (Test-Path -LiteralPath $privateConfigEvidence) -and $apkCredentialBoundaryOk
+Add-AuditRow (New-AuditRow "Credential boundary" "Real APK must include local ignored vivo key, while public materials only keep redacted evidence." ($(if($privateBoundaryOk){"PASS"}else{"MISSING"})) ("private exists=" + (Test-Path -LiteralPath $privateConfigPath) + "; ignored=" + (Test-GitIgnored $privateConfigRelative) + "; redacted evidence=" + (Test-Path -LiteralPath $privateConfigEvidence) + "; apk boundary report=" + $apkCredentialBoundaryOk) "Keep private Resources ignored; never commit plaintext AppKEY.")
 
 $installOk = Test-TextFileHasSignal -Path $installEvidence -Pattern "Success|INSTALL_SUCCEEDED|installed|安装成功"
 $startupOk = Test-TextFileHasSignal -Path $startupEvidence -Pattern "CatLife|Unity|Activity|com\.catlife\.mvp"
@@ -362,6 +364,7 @@ $lines.Add("- Cloud-device handoff: " + $(if($cloudDeviceHandoff){$cloudDeviceHa
 $lines.Add("- Cloud-device upload workspace manifest: " + $(if($cloudUploadWorkspaceManifest){$cloudUploadWorkspaceManifest.FullName}else{"missing"}))
 $lines.Add("- Final evidence import summary: " + $(if($finalEvidenceImportSummary){$finalEvidenceImportSummary.FullName}else{"missing"}))
 $lines.Add("- Final evidence input check: " + $(if($finalEvidenceInputCheck){$finalEvidenceInputCheck.FullName}else{"missing"}))
+$lines.Add("- APK credential boundary: $apkCredentialBoundaryReport")
 $lines.Add("- PPT defect table: " + $(if([string]::IsNullOrWhiteSpace($pptDefectTable)){"not auto-resolved"}else{$pptDefectTable}))
 $lines.Add("- Review checklist: " + $(if([string]::IsNullOrWhiteSpace($reviewChecklist)){"not auto-resolved"}else{$reviewChecklist}))
 $lines.Add("- Release runbook: " + $(if([string]::IsNullOrWhiteSpace($runbook)){"not auto-resolved"}else{$runbook}))
