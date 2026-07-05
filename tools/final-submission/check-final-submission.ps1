@@ -106,6 +106,47 @@ function Find-FirstEvidenceFile {
     return $null
 }
 
+function Test-TextFileHasSignal {
+    param(
+        [string]$Path,
+        [string]$Pattern
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return $false
+    }
+
+    $item = Get-Item -LiteralPath $Path
+    if ($item.Length -eq 0) {
+        return $false
+    }
+
+    $content = Get-Content -LiteralPath $Path -Raw -ErrorAction SilentlyContinue
+    if ([string]::IsNullOrWhiteSpace($content)) {
+        return $false
+    }
+
+    if ($content -match "\bTODO\b" -or $content -match "Status:\s*MISSING") {
+        return $false
+    }
+
+    return ($content -match $Pattern)
+}
+
+function Get-SignalEvidenceFile {
+    param(
+        [string]$RelativePath,
+        [string]$Pattern
+    )
+
+    $path = Join-Path $finalDir $RelativePath
+    if (Test-TextFileHasSignal -Path $path -Pattern $Pattern) {
+        return Get-Item -LiteralPath $path
+    }
+
+    return $null
+}
+
 function Get-Sha256OrBlank {
     param($File)
     if (-not $File) {
@@ -184,14 +225,21 @@ foreach ($root in $scanRoots) {
 
 $checks.Add((New-Result "Secret scan" "final-submission and LLM template contain no common secret patterns" ($secretHits.Count -eq 0) ("hits=" + $secretHits.Count) "Review and remove matched text"))
 
-$buildEvidence = Find-FirstEvidenceFile @("*build*.log", "unity-build-settings.txt", "apk-sha256.txt")
-$installEvidence = Find-FirstEvidenceFile @("*install*.txt", "*install*.log", "device-info.txt", "adb_devices.txt")
-$runtimeEvidence = Find-FirstEvidenceFile @("*logcat*.txt", "*android-runtime*.txt", "smoke-test-notes.md")
-$llmEvidence = Find-FirstEvidenceFile @("logcat_vivo_cloud_llm.txt", "logcat_bluelm_init.txt", "logcat_bluelm_generate.txt", "*vivo-cloud-llm-logcat.txt")
+$canonicalBuildEvidence = Get-SignalEvidenceFile -RelativePath "evidence\android\00-build\apk-sha256.txt" -Pattern "SHA256:\s*[A-Fa-f0-9]{64}"
+$buildEvidence = if ($canonicalBuildEvidence) { $canonicalBuildEvidence } else { Find-FirstEvidenceFile @("*build*.log", "unity-build-settings.txt", "apk-sha256.txt") }
+$installEvidence = Get-SignalEvidenceFile -RelativePath "evidence\android\01-install\install.log" -Pattern "Success|INSTALL_SUCCEEDED|installed|安装成功"
+$startupEvidence = Get-SignalEvidenceFile -RelativePath "evidence\android\02-startup\logcat_startup.txt" -Pattern "CatLife|Unity|Activity|com\.catlife\.mvp"
+$llmEvidence = Get-SignalEvidenceFile -RelativePath "evidence\android\03-llm\logcat_vivo_cloud_llm.txt" -Pattern "vivo_cloud|bluelm_on_device|local_template|fallback|llm_source|llm_error|BlueLM|LLM"
 $recordingEvidence = Find-FirstEvidenceFile @("*device*.mp4", "*recording*.mp4", "raw-device-recording.mp4", "startup_screenrecord.mp4", "focus_5min_screenrecord.mp4")
-$deviceEvidence = if ($installEvidence) { $installEvidence } elseif ($runtimeEvidence) { $runtimeEvidence } else { $null }
+$androidEvidenceOk = [bool]$installEvidence -and [bool]$startupEvidence
+$deviceEvidence = if ($androidEvidenceOk) { $startupEvidence } else { $null }
+$androidEvidenceText = if ($androidEvidenceOk) {
+    "install=" + $installEvidence.FullName + "; startup=" + $startupEvidence.FullName
+} else {
+    "install=" + $(if($installEvidence){$installEvidence.FullName}else{"missing"}) + "; startup=" + $(if($startupEvidence){$startupEvidence.FullName}else{"missing"})
+}
 $checks.Add((New-Result "Build evidence" "Real build settings/log/hash evidence exists under final-submission/evidence" ([bool]$buildEvidence) ($(if($buildEvidence){$buildEvidence.FullName}else{"missing"})) "Build the APK, then run collect-stage9-android-evidence.ps1 to save build log/settings/hash"))
-$checks.Add((New-Result "Android evidence" "Install/runtime/logcat evidence exists" ([bool]$deviceEvidence) ($(if($deviceEvidence){$deviceEvidence.FullName}else{"missing"})) "Save adb install and logcat evidence after device test"))
+$checks.Add((New-Result "Android evidence" "Install and startup logcat evidence exists with device/runtime signals" $androidEvidenceOk $androidEvidenceText "Save adb install and startup logcat evidence after device test"))
 $checks.Add((New-Result "LLM runtime evidence" "logcat can distinguish vivo_cloud, bluelm_on_device, local_template, failure code, or fallback state" ([bool]$llmEvidence) ($(if($llmEvidence){$llmEvidence.FullName}else{"missing"})) "Run collect-stage9-android-evidence.ps1 after APK install or save cloud-device LLM logcat"))
 $checks.Add((New-Result "Recording evidence" "Raw device or cloud-device recording exists under evidence/04-recordings" ([bool]$recordingEvidence) ($(if($recordingEvidence){$recordingEvidence.FullName}else{"missing"})) "Record APK or cloud-device flow before editing final video"))
 

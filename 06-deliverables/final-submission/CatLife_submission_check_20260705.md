@@ -1,6 +1,6 @@
 ﻿# CatLife Submission Check
 
-Generated: 2026-07-05 10:10:39
+Generated: 2026-07-05 10:29:19
 Directory: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission
 
 ## 1. Check Results
@@ -16,7 +16,7 @@ Directory: C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submissi
 | Private APK credential boundary | Real APK includes local ignored vivo cloud key for cloud-device recording, while Git/code package excludes plaintext key | PASS | exists=True; ignored=True; value=REDACTED | Keep private Resources ignored and record only redacted evidence |
 | Secret scan | final-submission and LLM template contain no common secret patterns | PASS | hits=0 | Review and remove matched text |
 | Build evidence | Real build settings/log/hash evidence exists under final-submission/evidence | PASS | C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\evidence\android\00-build\apk-sha256.txt | Build the APK, then run collect-stage9-android-evidence.ps1 to save build log/settings/hash |
-| Android evidence | Install/runtime/logcat evidence exists | MISSING | missing | Save adb install and logcat evidence after device test |
+| Android evidence | Install and startup logcat evidence exists with device/runtime signals | MISSING | install=missing; startup=missing | Save adb install and startup logcat evidence after device test |
 | LLM runtime evidence | logcat can distinguish vivo_cloud, bluelm_on_device, local_template, failure code, or fallback state | MISSING | missing | Run collect-stage9-android-evidence.ps1 after APK install or save cloud-device LLM logcat |
 | Recording evidence | Raw device or cloud-device recording exists under evidence/04-recordings | MISSING | missing | Record APK or cloud-device flow before editing final video |
 
