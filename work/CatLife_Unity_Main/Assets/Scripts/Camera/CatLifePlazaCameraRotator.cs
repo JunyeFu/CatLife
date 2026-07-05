@@ -5,16 +5,16 @@ namespace CatLife.CameraControls
     [DisallowMultipleComponent]
     public sealed class CatLifePlazaCameraRotator : MonoBehaviour
     {
-        [SerializeField] private Vector3 fixedPosition = new Vector3(0.1f, 2.88f, -0.58f);
-        [SerializeField] private float yawDegrees = 180f;
-        [SerializeField] private float basePitchDegrees = 8f;
-        [SerializeField] private float pitchDegrees = 8f;
-        [SerializeField] private float rollDegrees;
+        [SerializeField] private Vector3 fixedPosition = new Vector3(0.1f, 1.9f, 1.2f);
+        [SerializeField] private float yawDegrees = 182.600662f;
+        [SerializeField] private float basePitchDegrees = 6.653839f;
+        [SerializeField] private float pitchDegrees = 6.653839f;
+        [SerializeField] private float rollDegrees = 0.361923f;
         [SerializeField] private float pitchOffsetDegrees;
         [SerializeField] private float maxPitchOffsetDegrees = 45f;
         [SerializeField] private float degreesPerSecond = 10f;
         [SerializeField] private bool useUnscaledTime = true;
-        [SerializeField] private bool useSceneTransformOnAwake = true;
+        [SerializeField] private bool useSceneTransformOnAwake;
 
         private float rotationDirection;
 
