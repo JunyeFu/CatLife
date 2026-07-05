@@ -24,7 +24,7 @@
 | 4 | 重复材质与贴图合并 | 已完成 | 是，小批量 | 材质引用正确、draw call/包体下降 |
 | 5 | 模型与动画轻量化 | 已完成 | 是，小批量 | 猫咪不离地、不闪烁，11 动画可用 |
 | 6 | 构建/Shader/Strip 收尾 | 已完成 | 否，主要改构建设置 | Release 构建成功、无新增运行错误 |
-| 7 | 回归报告与保留决策 | 下一阶段 | 否 | 前后体积、性能、截图、功能证据 |
+| 7 | 回归报告与保留决策 | 已完成 | 否 | 前后体积、性能、截图、功能证据 |
 
 ## 阶段 0：体积归因基线
 
@@ -747,3 +747,105 @@ APK 内部聚合前项：
 | 决策 | 保留、回退、继续观察 |
 
 只有同时满足“质量不下降”和“体积/性能有收益”的改动，才进入长期基线。
+
+### 2026-07-05 阶段 1-6 回归与保留决策
+
+本阶段不再修改资源、不重新压缩贴图、不删除资产，只审查阶段 1-6 的当前结果是否满足“质量不下降且体积/性能有收益”的保留条件。
+
+#### 体积对比
+
+| 项 | 阶段前基线 | 阶段 6 Release 构建 | 结论 |
+|---|---:|---:|---|
+| APK bytes | 2803906139 | 424876644 | 下降 2379029495 bytes。 |
+| APK MiB | 2674.97 MiB | 405.19 MiB | 下降 2269.78 MiB，保留。 |
+| Build result | 旧包 | Succeeded | Release 构建成功。 |
+| Build errors | 未统计 | 0 | 无构建错误。 |
+| Build warnings | 未统计 | 435 | 阶段 7 归类为非阻塞观察项，后续单独复盘。 |
+
+阶段 6 构建证据：
+
+```text
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-211125-stage6-release-detailed-build/
+work/CatLife_Unity_Main/Reports/BuildSize/20260705-211125-stage6-release-detailed-build/CatLife_Stage6_Release.apk
+```
+
+#### APK 内部剩余体积
+
+| APK group | 压缩体积 | 未压缩体积 | 决策 |
+|---|---:|---:|---|
+| `assets/bin/Data/sharedassets0.assets` | 377.76 MiB | 627.74 MiB | 保留当前质量；后续只做归因，不直接压缩。 |
+| `lib/arm64-v8a` | 21.09 MiB | 68.61 MiB | IL2CPP/Unity native runtime，保留。 |
+| `assets/bin/Data/Managed` | 1.76 MiB | 5.71 MiB | 保留。 |
+| `assets/bin/Data/Resources` | 1.10 MiB | 4.27 MiB | 保留。 |
+| `classes.dex` | 0.73 MiB | 0.73 MiB | 保留。 |
+
+#### Packed asset 前项
+
+| 资源 | Packed size | 决策 |
+|---|---:|---|
+| `Assets/Art/Cat/Animations/CatLife_cat_10_actions_final_state.fbx` | 12.80 MiB | 猫咪 10 动作/状态机核心资产，保留。 |
+| `Assets/Art/Cat/Textures/Meshy_AI_Low_Poly_Orange_Cat_quadruped_texture_0_normal.png` | 5.33 MiB | 猫咪主角近景质量资产，保留。 |
+| `Assets/Art/Cat/Textures/Meshy_AI_Low_Poly_Orange_Cat_quadruped_texture_0.png` | 5.33 MiB | 猫咪主角近景质量资产，保留。 |
+| `Assets/Art/Cat/Textures/CatLife_OrangeCat_MetallicSmoothness.png` | 5.33 MiB | 猫咪材质资产，保留。 |
+| `Assets/Resources/CatLifeSplash/CatLifeSplashLogo.png` | 4.50 MiB | 用户指定真实开屏页资产，保留。 |
+| `Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260702_1.glb` | 多项约 2.42-5.15 MiB | 小镇主场景资产，保留；后续只做重复/引用归因。 |
+
+#### 运行与功能回归
+
+| 验证项 | 证据 | 结果 |
+|---|---|---|
+| Editor 状态 | `mcpforunity://editor/state` | Unity 6.4，`MainScene`，无编译/刷新阻塞。 |
+| Runtime assembly validator | Unity MCP 执行 `CatLifeRuntimeAssemblyValidator.ValidateCurrentSceneReport()` | 通过；场景接线、NavMesh、猫行为驱动、识别/LLM 系统、BlueLM fallback、开屏页、UI 绑定和 11 个 Animator state 均存在。 |
+| Play Mode 视觉 | `Reports/VisualChecks/stage7-regression-playmode.png` | 通过；低机位大厅、猫咪、顶部状态栏、专注计时和解锁滑槽正常。 |
+| 摄像头 | Unity MCP camera resource | 仅 `Main Camera`，FOV 80。 |
+| 猫咪运行态 | Unity MCP Play Mode 采样 | `CatCompanionModel` active，Y=`-0.02`，Animator=`CatLife_TownWalker`，speed=`1`。 |
+| Console | Unity MCP `read_console(types=error)` | 0 error。 |
+
+视觉证据：
+
+```text
+work/CatLife_Unity_Main/Reports/VisualChecks/stage7-regression-playmode.png
+```
+
+#### 性能观察
+
+Unity Editor 运行态采样：
+
+| 指标 | 当前值 | 说明 |
+|---|---:|---|
+| Game View resolution | 1080x2400 | 20:9 手机画面。 |
+| Draw calls | 159 | 可接受，后续真机用 profiler/logcat 复验。 |
+| SetPass calls | 29 | 当前 Editor 采样无阻塞。 |
+| Triangles | 1198596 | 小镇完整视觉质量下的当前成本。 |
+| Vertices | 1796575 | 小镇完整视觉质量下的当前成本。 |
+| Render textures | 33 | 与当前 URP/后处理配置相关。 |
+| Render texture memory | 110633528 bytes | 后续真机内存阶段可继续优化。 |
+
+说明：本阶段性能数据来自 Editor Play Mode，不等同于云真机最终性能。阶段 7 只作为“是否保留阶段 1-6 改动”的门禁；真机 FPS、内存和温度应在下一轮 Android 真机 QA 中单独采集。
+
+#### Warning 归类
+
+Release 构建报告记录 435 个 warnings。当前阶段未发现构建错误或运行时阻塞错误；Editor log 中主要可见 Unity/URP shader warning、URP 构建预处理提示和 Android 构建流水日志。决策：
+
+- 不因 warning 回退阶段 1-6，因为 Release APK 成功产出且 Play Mode/Runtime validator/Console 均通过。
+- 不在本阶段继续处理 warning，避免把“体积优化收口”扩散为渲染管线专项。
+- 下一轮如做真机 QA，应把 warning 分类为：URP shader warning、Android Gradle warning、资源导入 warning、业务脚本 warning，并只优先处理业务脚本和真机阻塞项。
+
+#### 保留/观察/回退决策
+
+| 项 | 决策 | 原因 |
+|---|---|---|
+| 阶段 1 源文件隔离 | 保留 | 只移出无运行时用户的源文件，保留 manifest，可回滚。 |
+| 阶段 2 导入设置无损优化 | 保留 | 不改视觉资产本体，运行回归通过。 |
+| 阶段 3 Android 贴图平台规则 | 保留 | 是本轮体积收益主因；猫咪/UI/开屏保质量，视觉回归通过。 |
+| 阶段 4 重复材质引用整理 | 保留 | 未发现材质丢失或低机位画面异常。 |
+| 阶段 5 静态模型导入轻量化 | 保留 | 猫咪 rig/动画链路未改，运行回归通过。 |
+| 阶段 6 Release 构建与 stripping | 保留 | Release APK 成功，0 build error，0 Console error。 |
+| 435 warnings | 观察 | 不阻塞当前基线；后续按真机 QA 结果决定处理优先级。 |
+| `sharedassets0.assets` 377.76 MiB | 观察 | 当前视觉质量下的最大剩余项；后续先归因，不直接压缩。 |
+
+阶段 7 结论：
+
+- 当前优化链路可以进入项目基线：包体从约 2.8GB 降到约 405MB，核心画面和猫咪行为链路未出现阻塞回归。
+- 继续压缩的下一步不是继续降贴图分辨率，而是对 `sharedassets0.assets` 做更细粒度归因：重复小镇网格、重复材质/贴图、开屏图占用、猫咪动画 FBX 打包结构、Resources 引用边界。
+- 下一轮建议进入 Android 真机 QA：安装阶段 6 APK，采集启动、首页、专注、设置、猫咪移动、离屏引导、解锁流程的截图/录屏、logcat、内存、帧率和崩溃日志。
