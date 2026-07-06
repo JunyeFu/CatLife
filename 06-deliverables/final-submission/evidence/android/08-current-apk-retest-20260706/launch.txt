@@ -1,0 +1,1 @@
+Starting: Intent { cmp=com.catlife.mvp/com.unity3d.player.UnityPlayerGameActivity }
