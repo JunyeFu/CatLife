@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace CatLife.EditorTools
@@ -44,6 +45,7 @@ namespace CatLife.EditorTools
 
         public static void RunEditModeValidationAndExit()
         {
+            EditorSceneManager.OpenScene("Assets/Scenes/MainScene.unity", OpenSceneMode.Single);
             bool passed = RunEditModeValidation();
             EditorApplication.Exit(passed ? 0 : 1);
         }
