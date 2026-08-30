@@ -33,7 +33,7 @@ tools/blender-mcp/blender_mcp_addon.py
 4. Select:
 
 ```text
-C:\Users\fujunye\Desktop\Agent\05-AIGC\tools\blender-mcp\blender_mcp_addon.py
+D:\Agent\AIGC innovation\tools\blender-mcp\blender_mcp_addon.py
 ```
 
 5. Enable the addon named `Interface: Blender MCP`.

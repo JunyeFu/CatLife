@@ -11,7 +11,7 @@
 ## Accepted Source Rig
 
 - Working blend file:
-  `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\CatLife_cat_animation_coordinate_corrected.blend`
+  `D:\Agent\AIGC innovation\03-3d-models\blender-work\CatLife_cat_animation_coordinate_corrected.blend`
 - Accepted rig objects:
   - `CL_CAT_CORRECTED_Armature`
   - `CL_CAT_CORRECTED_Mesh`
@@ -33,9 +33,9 @@
   - tiny leg settling through front/back upper leg bones
 - Visual QA:
   - full body:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\idlebreath-v06-headsync-108f\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\idlebreath-v06-headsync-108f\contact_sheet.png`
   - head close-up:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\idlebreath-v06-headsync-closeup\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\idlebreath-v06-headsync-closeup\contact_sheet.png`
 
 ## Lessons Learned
 
@@ -127,9 +127,9 @@ Before asking for acceptance, each new animation must satisfy:
   - tiny foreleg/backleg settling
 - Visual QA:
   - full body:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\alertlook-v01-120f\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\alertlook-v01-120f\contact_sheet.png`
   - head close-up:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\alertlook-v01-120f-closeup\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\alertlook-v01-120f-closeup\contact_sheet.png`
 
 ## Third Accepted Animation
 
@@ -150,7 +150,7 @@ Before asking for acceptance, each new animation must satisfy:
   - subtle tail counter motion
 - Visual QA:
   - full body:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\pawwave-v01-96f\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\pawwave-v01-96f\contact_sheet.png`
 
 ## Fourth Animation Draft
 
@@ -169,9 +169,9 @@ Before asking for acceptance, each new animation must satisfy:
   - subtle leg settling
 - Visual QA:
   - textured full body:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\tailwag-v01-96f\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\tailwag-v01-96f\contact_sheet.png`
   - textured tail view:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\tailwag-v01-96f-tailview\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\tailwag-v01-96f-tailview\contact_sheet.png`
 
 ## Fifth Animation Draft
 
@@ -192,9 +192,9 @@ Before asking for acceptance, each new animation must satisfy:
   - small ear and tail reactions
 - Visual QA:
   - textured full body:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\curioussniff-v02-112f\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\curioussniff-v02-112f\contact_sheet.png`
   - textured side close-up:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\curioussniff-v02-112f-sideclose\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\curioussniff-v02-112f-sideclose\contact_sheet.png`
 
 ## Sixth Animation Draft
 
@@ -213,9 +213,9 @@ Before asking for acceptance, each new animation must satisfy:
   - subtle tail and body follow-through
 - Visual QA:
   - textured full body:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\headtiltlisten-v01-96f\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\headtiltlisten-v01-96f\contact_sheet.png`
   - textured head close-up:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\headtiltlisten-v01-96f-closeup\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\headtiltlisten-v01-96f-closeup\contact_sheet.png`
 
 ## Seventh Animation Draft
 
@@ -237,9 +237,9 @@ Before asking for acceptance, each new animation must satisfy:
   - restrained tail counter motion so the silhouette stays stable
 - Visual QA:
   - textured full body:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\lookback-v02-112f\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\lookback-v02-112f\contact_sheet.png`
   - textured rear-side check:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\lookback-v02-112f-rearview\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\lookback-v02-112f-rearview\contact_sheet.png`
 
 ## Eighth Animation Draft
 
@@ -262,9 +262,9 @@ Before asking for acceptance, each new animation must satisfy:
   - small paired front/back leg response without isolated paw lifting
 - Visual QA:
   - textured full body:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\stretchyawn-v03-slow-264f\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\stretchyawn-v03-slow-264f\contact_sheet.png`
   - textured side check:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\stretchyawn-v03-slow-264f-side\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\stretchyawn-v03-slow-264f-side\contact_sheet.png`
 
 ## Ninth Animation Draft
 
@@ -286,11 +286,11 @@ Before asking for acceptance, each new animation must satisfy:
   - tense small tail flick through `tailstart`, `tail1`, `tail2`, `tail3`
 - Visual QA:
   - textured full body:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\eartwitchalert-v02-120f\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\eartwitchalert-v02-120f\contact_sheet.png`
   - textured side check:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\eartwitchalert-v02-120f-side\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\eartwitchalert-v02-120f-side\contact_sheet.png`
   - textured close-up:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\eartwitchalert-v02-120f-closeup\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\eartwitchalert-v02-120f-closeup\contact_sheet.png`
 
 ## Tenth Animation Draft
 
@@ -313,8 +313,8 @@ Before asking for acceptance, each new animation must satisfy:
   - small tail counter-swing through `tailstart`, `tail1`, `tail2`, `tail3`
 - Visual QA:
   - textured full body:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\headshakeno-v01-108f\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\headshakeno-v01-108f\contact_sheet.png`
   - textured side check:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\headshakeno-v01-108f-side\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\headshakeno-v01-108f-side\contact_sheet.png`
   - textured close-up:
-    `C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\blender-work\qa-frames\headshakeno-v01-108f-closeup\contact_sheet.png`
+    `D:\Agent\AIGC innovation\03-3d-models\blender-work\qa-frames\headshakeno-v01-108f-closeup\contact_sheet.png`

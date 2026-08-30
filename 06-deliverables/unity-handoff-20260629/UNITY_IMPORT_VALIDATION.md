@@ -8,7 +8,7 @@ This is the first execution step for the next phase: validate that the Unity han
 
 Local Unity validation workspace:
 
-`C:\Users\fujunye\Desktop\Agent\05-AIGC\work\unity-import-validation-20260629`
+`D:\Agent\AIGC innovation\work\unity-import-validation-20260629`
 
 This workspace was assembled from:
 
@@ -80,7 +80,7 @@ Use `cat_actions_manifest.json` as the source of truth:
 
 1. Open Unity Hub.
 2. Add project from:
-   `C:\Users\fujunye\Desktop\Agent\05-AIGC\work\unity-import-validation-20260629`
+   `D:\Agent\AIGC innovation\work\unity-import-validation-20260629`
 3. Open with Unity `6000.2.5f1`.
 4. Wait for import and compilation.
 5. Open `Assets/Art/Cat/Animations/CatLife_cat_10_actions_final_state.fbx`.

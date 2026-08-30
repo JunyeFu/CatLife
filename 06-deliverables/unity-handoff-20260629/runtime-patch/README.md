@@ -58,7 +58,7 @@ The original static `CatModel` was renamed to `CatModel_LegacyStatic` and disabl
 Validated in:
 
 ```text
-C:\Users\fujunye\Desktop\Agent\05-AIGC\work\unity-import-validation-20260629
+D:\Agent\AIGC innovation\work\unity-import-validation-20260629
 ```
 
 Unity MCP checks:

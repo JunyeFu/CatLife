@@ -52,9 +52,9 @@ D:\UnityEngine\6000.4.9f1\Editor\Unity.exe `
   -batchmode `
   -projectPath "C:\path\to\CatLifeUnityProject" `
   -executeMethod CatLife.Editor.CatLifeAndroidBuild.BuildApk `
-  -outputPath "C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\CatLife-MVP-android-dev.apk" `
+  -outputPath "D:\Agent\AIGC innovation\06-deliverables\final-submission\CatLife-MVP-android-dev.apk" `
   -quit `
-  -logFile "C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\android-build.log"
+  -logFile "D:\Agent\AIGC innovation\06-deliverables\final-submission\android-build.log"
 ```
 
 注意：
@@ -67,10 +67,10 @@ D:\UnityEngine\6000.4.9f1\Editor\Unity.exe `
 
 ```powershell
 adb devices
-adb install -r "C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\CatLife-MVP-android-dev.apk"
+adb install -r "D:\Agent\AIGC innovation\06-deliverables\final-submission\CatLife-MVP-android-dev.apk"
 adb logcat -c
 adb shell monkey -p com.catlife.mvp 1
-adb logcat -d > "C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\android-runtime-logcat.txt"
+adb logcat -d > "D:\Agent\AIGC innovation\06-deliverables\final-submission\android-runtime-logcat.txt"
 ```
 
 vivo 云真机路径：
@@ -86,13 +86,13 @@ vivo 云真机路径：
 
 ```powershell
 adb shell screenrecord --bit-rate 8000000 --time-limit 180 /sdcard/catlife-demo.mp4
-adb pull /sdcard/catlife-demo.mp4 "C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\catlife-demo-device.mp4"
+adb pull /sdcard/catlife-demo.mp4 "D:\Agent\AIGC innovation\06-deliverables\final-submission\catlife-demo-device.mp4"
 ```
 
 截图：
 
 ```powershell
-adb exec-out screencap -p > "C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\catlife-device-screenshot.png"
+adb exec-out screencap -p > "D:\Agent\AIGC innovation\06-deliverables\final-submission\catlife-device-screenshot.png"
 ```
 
 ## 6. 真机 QA 表

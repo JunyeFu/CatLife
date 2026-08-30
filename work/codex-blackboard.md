@@ -16,7 +16,7 @@ Enable a lightweight, project-local Codex SAPIEN-Lite workflow for CatLife witho
 
 ## Known Evidence
 
-- Current project root: `C:\Users\fujunye\Desktop\Agent\05-AIGC`.
+- Current project root: `D:\Agent\AIGC innovation`.
 - No project-local `AGENTS.md` was present before this workflow setup.
 - No project-local `work/` directory was present before this workflow setup.
 - Git working tree was clean before creating these workflow files.

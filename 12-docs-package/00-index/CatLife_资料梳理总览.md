@@ -1,8 +1,8 @@
 # CatLife 资料梳理总览
 
 整理日期：2026-07-01
-项目目录：`C:\Users\fujunye\Desktop\Agent\05-AIGC`
-资料包目录：`C:\Users\fujunye\Desktop\Agent\05-AIGC\12-docs-package`
+项目目录：`D:\Agent\AIGC innovation`
+资料包目录：`D:\Agent\AIGC innovation\12-docs-package`
 
 ## 1. 资料范围
 

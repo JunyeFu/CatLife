@@ -44,13 +44,13 @@ Unity 菜单：
 Batchmode 入口：
 
 ```powershell
-Unity.exe -batchmode -quit -projectPath "C:\Users\fujunye\Desktop\Agent\05-AIGC\work\CatLife_Unity_Main" -executeMethod CatLife.Editor.CatLifeBuildSizeReporter.ExportProjectSizeInventoryBatch
+Unity.exe -batchmode -quit -projectPath "D:\Agent\AIGC innovation\work\CatLife_Unity_Main" -executeMethod CatLife.Editor.CatLifeBuildSizeReporter.ExportProjectSizeInventoryBatch
 ```
 
 完整 Android DetailedBuildReport：
 
 ```powershell
-Unity.exe -batchmode -quit -projectPath "C:\Users\fujunye\Desktop\Agent\05-AIGC\work\CatLife_Unity_Main" -executeMethod CatLife.Editor.CatLifeBuildSizeReporter.BuildAndroidDetailedSizeReportBatch
+Unity.exe -batchmode -quit -projectPath "D:\Agent\AIGC innovation\work\CatLife_Unity_Main" -executeMethod CatLife.Editor.CatLifeBuildSizeReporter.BuildAndroidDetailedSizeReportBatch
 ```
 
 默认输出位置：

@@ -6,19 +6,19 @@ Date: 2026-06-29
 
 Use this safe visual-only Blender file for further scene work:
 
-`C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\catlife-town\current\catlife_v2_view_clean_no_merge.blend`
+`D:\Agent\AIGC innovation\03-3d-models\catlife-town\current\catlife_v2_view_clean_no_merge.blend`
 
 Original imported file preserved:
 
-`C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\catlife-town\archive\original\catlife_v2.blend`
+`D:\Agent\AIGC innovation\03-3d-models\catlife-town\archive\original\catlife_v2.blend`
 
 Intermediate viewport-only copy:
 
-`C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\catlife-town\archive\intermediate-visual-clean\catlife_v2_visual_clean.blend`
+`D:\Agent\AIGC innovation\03-3d-models\catlife-town\archive\intermediate-visual-clean\catlife_v2_visual_clean.blend`
 
 Deprecated mesh-merge copy, do not use:
 
-`C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\catlife-town\archive\deprecated-merge-attempts\catlife_v2_mesh_clean.blend`
+`D:\Agent\AIGC innovation\03-3d-models\catlife-town\archive\deprecated-merge-attempts\catlife_v2_mesh_clean.blend`
 
 ## Problem
 
@@ -59,15 +59,15 @@ Deprecated attempt:
 
 Viewport/object-outline cleanup:
 
-`C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\catlife-town\reports\qa-visual-clean\catlife_v2_visual_clean_viewport.png`
+`D:\Agent\AIGC innovation\03-3d-models\catlife-town\reports\qa-visual-clean\catlife_v2_visual_clean_viewport.png`
 
 Mesh cleanup with Studio lighting:
 
-`C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\catlife-town\reports\qa-visual-clean\catlife_v2_mesh_clean_viewport.png`
+`D:\Agent\AIGC innovation\03-3d-models\catlife-town\reports\qa-visual-clean\catlife_v2_mesh_clean_viewport.png`
 
 Diagnostic flat-lighting view:
 
-`C:\Users\fujunye\Desktop\Agent\05-AIGC\03-3d-models\catlife-town\reports\qa-visual-clean\catlife_v2_mesh_clean_flat_viewport.png`
+`D:\Agent\AIGC innovation\03-3d-models\catlife-town\reports\qa-visual-clean\catlife_v2_mesh_clean_flat_viewport.png`
 
 ## Notes
 
