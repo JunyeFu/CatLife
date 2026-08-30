@@ -1,0 +1,32 @@
+CatLife Android regression events, 2026-08-30
+
+INSTALL
+streamed install: Success
+
+COLD START
+Status: ok
+LaunchState: COLD
+Activity: com.catlife.mvp/com.unity3d.player.UnityPlayerGameActivity
+[CatLife] startup package=com.catlife.mvp scene=MainScene
+Fully drawn com.catlife.mvp/com.unity3d.player.UnityPlayerGameActivity: +33s287ms
+
+FOCUS CYCLE
+08-30 02:41:06.395 [CatLife] focus_start source=ui_or_auto
+08-30 02:42:37.500 [CatLife] focus_unlocked elapsed_seconds=91 interruptions=1 llm_source=local_template
+08-30 02:43:00.540 [CatLife] focus_start source=ui_or_auto
+
+HOME AND RESUME
+Status: ok
+LaunchState: HOT
+Activity: com.catlife.mvp/com.unity3d.player.UnityPlayerGameActivity
+TotalTime: 99 ms
+topResumedActivity=com.catlife.mvp/com.unity3d.player.UnityPlayerGameActivity
+
+FAILURE QUERY
+Patterns: FATAL EXCEPTION | ANR in | SuspendedAppActivity | Activity pause timeout | Activity destroy timeout
+Matches: 0
+
+VIVO CLOUD STRUCTURE PROBE
+HTTP: 200
+error.code: 400
+error.message: no model access permission

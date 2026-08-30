@@ -93,11 +93,11 @@ Select-String -Path "C:\Users\fujunye\Desktop\CatLife_release_logcat.txt" -Patte
 
 ## 7. 大模型与隐私说明
 
-真实 APK 可携带云真机演示所需私有配置；核心代码包不包含真实 AppKEY。运行时会优先使用可用的大模型路径：
+真实 APK 可携带云真机演示所需私有配置；核心代码包不包含真实 AppKEY。2026-08-30 的实际能力边界如下：
 
-1. 端侧 BlueLM：通过 Unity `BlueLmOnDeviceClient` 调用 Android `BlueLmUnityBridge`。
-2. vivo 云端 Demo：通过 `UnityWebRequest` 调用 `https://api-ai.vivo.com.cn/v1/chat/completions`。
-3. 本地模板回退：当 SDK、网络、凭据或输出安全校验不满足时启用。
+1. 本地模板：当前 APK 的可运行路径；本轮安装、专注、解锁和热恢复均已实测。
+2. vivo 云端 Demo：请求代码通过 `UnityWebRequest` 调用 `https://api-ai.vivo.com.cn/v1/chat/completions`；本轮接口返回 HTTP 200，但业务错误为 `400 no model access permission`，因此未声明当前云模型可用。
+3. 端侧 BlueLM：Unity `BlueLmOnDeviceClient` 与 Android `BlueLmUnityBridge` 源码已交付，但工程未包含官方 `llm-sdk-release.aar`，本轮也没有 vivo 真机，因此只声明桥接骨架，不声明端侧闭环。
 
 隐私边界：
 
@@ -112,7 +112,7 @@ Select-String -Path "C:\Users\fujunye\Desktop\CatLife_release_logcat.txt" -Patte
 在 Unity 中打开：
 
 ```text
-C:\Users\fujunye\Desktop\Agent\05-AIGC\work\CatLife_Unity_Main
+D:\Agent\AIGC innovation\work\CatLife_Unity_Main
 ```
 
 执行菜单：
@@ -134,6 +134,5 @@ CatLife > Build > Build Android Release APK
 也可以用 Unity MCP 或批处理调用 `CatLife.Editor.CatLifeAndroidBuild.BuildApk`，输出路径建议使用：
 
 ```text
-C:\Users\fujunye\Desktop\Agent\05-AIGC\06-deliverables\final-submission\CatLife_MVP_Android_v0.1.0_release_optimized.apk
+D:\Agent\AIGC innovation\06-deliverables\final-submission\CatLife_MVP_Android_v0.1.0_release_optimized.apk
 ```
-

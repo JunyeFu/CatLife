@@ -4,10 +4,18 @@ This folder is the current canonical CatLife competition deliverable folder afte
 
 ## Current Deliverables
 
+- `CatLife_final_submission_manifest_20260830.md`
+  - Authoritative five-file submission manifest and current capability boundary.
 - `CatLife_MVP_Android_v0.1.0_release_optimized.apk`
   - Final retained Android APK.
-  - Size: about 406 MB.
-  - SHA256 from the latest emulator retest: `DD9CCC25C432608642F3902BAD20D7BA1042764BCB9DE40C1D25E3F4D38395C9`.
+  - Size: 425,788,640 bytes.
+  - Clean-install, focus/unlock, second-focus, Home, and hot-resume regression passed on 2026-08-30.
+- `CatLife_作品演示视频_v1.mp4`
+  - Final 2:52.502 demonstration video.
+- `CatLife_作品介绍PPT_最终提交版.pptx`
+  - Final 23-slide presentation deck. The smaller `CatLife_作品介绍PPT_v1.pptx` is retained as an earlier local version.
+- `CatLife_作品海报_最终提交版.pdf`
+  - Final PDF poster. `CatLife_作品海报_v1.png` is retained as the image version.
 - `CatLife_core_code_package_20260706.zip`
   - Core code package without large scene/model assets.
   - Highlights BlueLM/API, Unity bridge, prompt, privacy, and local fallback implementation.
@@ -15,12 +23,15 @@ This folder is the current canonical CatLife competition deliverable folder afte
   - Code package explanation and large-model integration notes.
 - `CatLife_release_run_tutorial_20260706.md`
   - Installation and run tutorial.
-- `CatLife_作品介绍PPT_v1.pptx`
-  - Current presentation deck.
-- `CatLife_作品海报_v1.png`
-  - Current poster.
-- `evidence/android/08-current-apk-retest-20260706/`
-  - Latest retained emulator retest evidence for the optimized APK.
+- `evidence/android/09-current-regression-20260830/`
+  - Current emulator regression screenshots and event summary for the optimized APK.
+
+## Current Capability Boundary
+
+- The final APK currently runs the local template path when the vivo cloud model is unavailable.
+- The 2026-08-30 live cloud probe returned HTTP 200 with business error `400 no model access permission`.
+- The repository contains the Unity/Java BlueLM bridge skeleton, but no official BlueLM AAR is present and no vivo device was available for this regression. On-device BlueLM is therefore not claimed as a completed runtime path.
+- Historical 2026-07-05 evidence of vivo cloud status 200 remains under `evidence/android/08-current-apk-retest-20260706/`; it does not establish current model access.
 
 ## Cleanup Policy
 

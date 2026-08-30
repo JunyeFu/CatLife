@@ -67,6 +67,8 @@
 
 ### 4. 端侧 BlueLM 路径
 
+当前代码包交付的是 Unity/Java 桥接源码；未包含官方 `llm-sdk-release.aar`。截至 2026-08-30，本机也没有可用于验收的 vivo 真机，因此本节描述实现接口，不代表端侧模型已完成真机闭环。
+
 Unity 侧：
 
 - `Assets/Scripts/LLM/BlueLmOnDeviceClient.cs`
@@ -112,4 +114,3 @@ Android 侧：
 - `Assets/Scripts/Cat/CatAnimationController.cs`
 
 LLM 只提供行为建议，不直接移动猫咪。最终执行由本地状态机、NavMesh、禁走区、安全守卫和动画控制器决定，避免穿模、瞬移和隐私越界。
-
