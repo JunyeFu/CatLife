@@ -14,10 +14,10 @@ namespace CatLife.Editor
         private const string PackageName = "com.catlife.mvp";
         private const string ProductName = "CatLife";
         private const string CompanyName = "CatLifeTeam";
-        private const string VersionName = "0.1.0";
-        private const int VersionCode = 1;
-        private const string MainScenePath = "Assets/Scenes/MainScene.unity";
-        private const string PrivateCredentialAssetPath = "Assets/Resources/CatLifePrivate/vivo_cloud_credentials.json";
+        private const string VersionName = "0.3.0";
+        private const int VersionCode = 3;
+        private const string MainScenePath = "Assets/Scenes/CatLifeMobile.unity";
+        private const string PrivateCredentialAssetPath = "Assets/Resources/CatLifePrivate/generic_cloud_credentials.json";
 
         [MenuItem("CatLife/Build/Build Android APK")]
         public static void BuildApkFromMenu()
@@ -66,7 +66,7 @@ namespace CatLife.Editor
 
             try
             {
-                string validation = CatLifeRuntimeAssemblyValidator.ValidateCurrentSceneReport();
+                string validation = CatLifeMobileBuildValidator.ValidateReport();
                 WriteText(Path.Combine(evidenceRoot, "runtime-validator-before-build.txt"), validation);
                 if (!validation.StartsWith("PASS", StringComparison.Ordinal))
                 {
@@ -97,7 +97,7 @@ namespace CatLife.Editor
 
                 if (summary.result == BuildResult.Succeeded)
                 {
-                    WriteApkHash(evidenceRoot, outputPath);
+                    WriteApkIdentity(evidenceRoot, outputPath);
                     Complete(exitOnComplete, 0);
                     return;
                 }
@@ -175,9 +175,9 @@ namespace CatLife.Editor
 
         private static void WritePrivateCredentialEvidence(string evidenceRoot)
         {
-            string configPath = Path.GetFullPath(Path.Combine(Application.dataPath, "Resources/CatLifePrivate/vivo_cloud_credentials.json"));
+            string configPath = Path.GetFullPath(Path.Combine(Application.dataPath, "Resources/CatLifePrivate/generic_cloud_credentials.json"));
             bool exists = File.Exists(configPath);
-            TextAsset resourcesConfig = Resources.Load<TextAsset>("CatLifePrivate/vivo_cloud_credentials");
+            TextAsset resourcesConfig = Resources.Load<TextAsset>("CatLifePrivate/generic_cloud_credentials");
             bool resourcesLoadable = resourcesConfig != null;
             string[] lines =
             {
@@ -185,41 +185,32 @@ namespace CatLife.Editor
                 "Exists: " + exists,
                 "Unity Resources loadable: " + resourcesLoadable,
                 "Unity Resources bytes: " + (resourcesLoadable ? resourcesConfig.bytes.Length.ToString() : "missing"),
-                "AppID: 2026414599",
-                "AppKEY present: " + exists,
-                "AppKEY value: REDACTED"
+                "Provider: mimo",
+                "API key present: " + exists,
+                "API key value: REDACTED"
             };
 
             WriteText(Path.Combine(evidenceRoot, "private_config_presence_redacted.txt"), string.Join(Environment.NewLine, lines));
         }
 
-        private static void WriteApkHash(string evidenceRoot, string apkPath)
+        private static void WriteApkIdentity(string evidenceRoot, string apkPath)
         {
             if (!File.Exists(apkPath))
             {
-                WriteText(Path.Combine(evidenceRoot, "apk-sha256.txt"), "APK file: " + apkPath + Environment.NewLine + "Size bytes: missing" + Environment.NewLine + "SHA256: missing");
+                WriteText(Path.Combine(evidenceRoot, "apk-identity.txt"), "APK file: " + apkPath + Environment.NewLine + "Size bytes: missing");
                 return;
             }
 
             FileInfo file = new FileInfo(apkPath);
-            string hash = GetSha256(apkPath);
             string[] lines =
             {
                 "APK file: " + apkPath,
                 "Size bytes: " + file.Length,
-                "SHA256: " + hash
+                "Package name: " + PackageName,
+                "Version: " + VersionName,
+                "Version code: " + VersionCode
             };
-            WriteText(Path.Combine(evidenceRoot, "apk-sha256.txt"), string.Join(Environment.NewLine, lines));
-        }
-
-        private static string GetSha256(string path)
-        {
-            using (FileStream stream = File.OpenRead(path))
-            using (System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create())
-            {
-                byte[] hash = sha.ComputeHash(stream);
-                return BitConverter.ToString(hash).Replace("-", string.Empty);
-            }
+            WriteText(Path.Combine(evidenceRoot, "apk-identity.txt"), string.Join(Environment.NewLine, lines));
         }
 
         private static string ResolveEvidenceRoot(string outputDirectory)
@@ -236,7 +227,7 @@ namespace CatLife.Editor
 
         private static string GetDefaultOutputPath()
         {
-            return Path.GetFullPath(Path.Combine(GetProjectRoot(), "..", "..", "06-deliverables", "final-submission", "CatLife_MVP_Android_v0.1.0.apk"));
+            return Path.GetFullPath(Path.Combine(GetProjectRoot(), "build", "CatLife_Mobile_Android_v0.3.0.apk"));
         }
 
         private static string GetProjectRoot()

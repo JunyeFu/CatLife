@@ -159,6 +159,7 @@ namespace CatLife.UI
                 source == "llm_structured" ||
                 source == "llm_behavior" ||
                 source == "bluelm_on_device" ||
+                source == "mimo_cloud" ||
                 source == "vivo_cloud";
         }
     }

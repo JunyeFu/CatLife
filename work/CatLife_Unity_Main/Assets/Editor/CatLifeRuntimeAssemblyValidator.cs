@@ -163,12 +163,12 @@ namespace CatLife.EditorTools
             ValidateLlmRuntimeAdapters(issues);
             ValidateAndroidBlueLmPlugin(issues);
             ValidateBehaviorEventBridge(issues);
-            ValidateVivoCloudFallback(issues);
+            ValidateGenericCloudFallback(issues);
             ValidateSplashIntegration(issues);
 
             if (issues.Count == 0)
             {
-                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, Android behavior event bridge, BlueLM Unity adapter, Android BlueLM bridge skeleton, BlueLM JSON guards, BlueLM generate bridge, BlueLM local behavior bias/action bridge, vivo cloud private APK fallback boundary, splash screen integration, config schemas, UI binding, and 11 animator states are present.";
+                return "PASS CatLife runtime assembly validation: scene wiring, NavMesh runtime, cat behavior driver, recognition/LLM systems, Android behavior event bridge, BlueLM Unity adapter, Android BlueLM bridge skeleton, BlueLM JSON guards, BlueLM generate bridge, BlueLM local behavior bias/action bridge, generic MiMo cloud private APK fallback boundary, splash screen integration, config schemas, UI binding, and 11 animator states are present.";
             }
 
             return "FAIL CatLife runtime assembly validation:\n- " + string.Join("\n- ", issues.ToArray());
@@ -550,76 +550,76 @@ namespace CatLife.EditorTools
             }
         }
 
-        private static void ValidateVivoCloudFallback(List<string> issues)
+        private static void ValidateGenericCloudFallback(List<string> issues)
         {
-            VivoCloudDemoConfig placeholderConfig = new VivoCloudDemoConfig
+            GenericCloudConfig placeholderConfig = new GenericCloudConfig
             {
-                appId = "2026414599",
-                appKey = "DO_NOT_COMMIT_REAL_APP_KEY",
-                apiEndpoint = "https://api-ai.vivo.com.cn/v1/chat/completions",
-                model = "Doubao-Seed-2.0-mini",
+                provider = "mimo",
+                apiKey = "DO_NOT_COMMIT_REAL_API_KEY",
+                apiEndpoint = "https://api.xiaomimimo.com/v1/chat/completions",
+                model = "mimo-v2.5",
                 enableDirectCloudApi = true
             };
             if (placeholderConfig.HasUsableCloudCredentials)
             {
-                issues.Add("VivoCloudDemoConfig accepted the public placeholder AppKEY.");
+                issues.Add("GenericCloudConfig accepted the public placeholder API key.");
             }
 
-            VivoCloudDemoConfig insecureEndpointConfig = new VivoCloudDemoConfig
+            GenericCloudConfig insecureEndpointConfig = new GenericCloudConfig
             {
-                appId = "2026414599",
-                appKey = "local_private_key",
-                apiEndpoint = "http://api-ai.vivo.com.cn/v1/chat/completions",
-                model = "Doubao-Seed-2.0-mini",
+                provider = "mimo",
+                apiKey = "local_private_key",
+                apiEndpoint = "http://api.xiaomimimo.com/v1/chat/completions",
+                model = "mimo-v2.5",
                 enableDirectCloudApi = true
             };
             if (insecureEndpointConfig.HasUsableCloudCredentials)
             {
-                issues.Add("VivoCloudDemoConfig accepted a non-HTTPS cloud endpoint.");
+                issues.Add("GenericCloudConfig accepted a non-HTTPS cloud endpoint.");
             }
 
-            if (!VivoCloudDemoConfig.IsPlaceholderAppKey("DO_NOT_COMMIT_REAL_APP_KEY") ||
-                !VivoCloudDemoConfig.IsPlaceholderAppKey("REPLACE_WITH_LOCAL_PRIVATE_KEY") ||
-                VivoCloudDemoConfig.IsPlaceholderAppKey("local_private_key_for_runtime_only"))
+            if (!GenericCloudConfig.IsPlaceholderApiKey("DO_NOT_COMMIT_REAL_API_KEY") ||
+                !GenericCloudConfig.IsPlaceholderApiKey("REPLACE_WITH_LOCAL_PRIVATE_KEY") ||
+                GenericCloudConfig.IsPlaceholderApiKey("local_private_key_for_runtime_only"))
             {
-                issues.Add("VivoCloudDemoConfig placeholder AppKEY detection is not stable.");
+                issues.Add("GenericCloudConfig placeholder API key detection is not stable.");
             }
 
             ValidateProjectFileContains(
-                "Assets/Scripts/LLM/VivoCloudDemoConfig.cs",
+                "Assets/Scripts/LLM/GenericCloudConfig.cs",
                 issues,
-                "CatLifePrivate/vivo_cloud_credentials",
-                "RedactedAppId",
-                "IsPlaceholderAppKey",
+                "CatLifePrivate/generic_cloud_credentials",
+                "provider",
+                "IsPlaceholderApiKey",
                 "StartsWith",
                 "https://");
 
             ValidateProjectFileContains(
                 "Assets/Scripts/LLM/MockCatLLMClient.cs",
                 issues,
-                "preferVivoCloudWhenConfigured",
+                "preferGenericCloudWhenConfigured",
                 "LastSource",
                 "LastFailureReason",
                 "LastCloudRequestId",
                 "LastCloudStatusCode",
-                "LastCloudAppIdRedacted",
-                "vivo_cloud_pending",
-                "vivo_cloud");
+                "LastCloudProvider",
+                "mimo_cloud_pending",
+                "mimo_cloud");
 
             ValidateProjectFileContains(
                 "Assets/Scripts/Cat/CatBehaviorTelemetry.cs",
                 issues,
                 "MockCatLLMClient",
-                "vivo_app",
-                "vivo_status");
+                "cloud_provider",
+                "cloud_status");
 
             ValidateTextAssetContains(
-                "Assets/Configs/vivo_cloud_credentials.example.json",
+                "Assets/Configs/generic_cloud_credentials.example.json",
                 issues,
-                "2026414599",
-                "DO_NOT_COMMIT_REAL_APP_KEY",
-                "https://api-ai.vivo.com.cn/v1/chat/completions",
-                "Doubao-Seed-2.0-mini");
+                "mimo",
+                "DO_NOT_COMMIT_REAL_API_KEY",
+                "https://api.xiaomimimo.com/v1/chat/completions",
+                "mimo-v2.5");
 
             ValidateRepoFileContains(
                 ".gitignore",

@@ -79,7 +79,7 @@ namespace CatLife.LLM
             {
                 case LlmRuntimeMode.BlueLmOnDevice:
                     return blueLmOnDeviceClient;
-                case LlmRuntimeMode.MockOrVivoCloud:
+                case LlmRuntimeMode.MockOrGenericCloud:
                     return ResolveFallbackClient();
                 case LlmRuntimeMode.Auto:
                     if (blueLmOnDeviceClient != null && blueLmOnDeviceClient.Enabled)

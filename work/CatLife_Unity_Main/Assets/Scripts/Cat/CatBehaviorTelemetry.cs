@@ -181,8 +181,8 @@ namespace CatLife.Cat
                 {
                     builder.Append("; llm_source=").Append(mockClient.LastSource);
                     builder.Append("; llm_error=").Append(mockClient.LastFailureReason);
-                    builder.Append("; vivo_app=").Append(mockClient.LastCloudAppIdRedacted);
-                    builder.Append("; vivo_status=").Append(mockClient.LastCloudStatusCode);
+                    builder.Append("; cloud_provider=").Append(mockClient.LastCloudProvider);
+                    builder.Append("; cloud_status=").Append(mockClient.LastCloudStatusCode);
                 }
             }
             builder.Append("; mood=").Append(suggestion != null ? suggestion.moodBias : "calm");

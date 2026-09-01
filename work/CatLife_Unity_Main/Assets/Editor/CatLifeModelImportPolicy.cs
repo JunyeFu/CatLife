@@ -10,9 +10,8 @@ namespace CatLife.Editor
 {
     public static class CatLifeModelImportPolicy
     {
-        private const string TownBlendPath = "Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260630.blend";
-        private const string TownFbxPath = "Assets/Art/Town/Source/catlife_v2_island_grass_style_no_skybox_20260630.fbx";
-        private const string CatAnimationFbxPath = "Assets/Art/Cat/Animations/CatLife_cat_10_actions_final_state.fbx";
+        private const string TownFbxPath = "Assets/MobileRuntime/Art/Town/Source/CL_TWN_Runtime.fbx";
+        private const string CatAnimationFbxPath = "Assets/MobileRuntime/Art/Cat/Source/CL_CAT_Runtime.fbx";
 
         [MenuItem("CatLife/Optimization/Stage 5/Audit Model Import Policy")]
         public static void AuditModelImportPolicyFromMenu()
@@ -84,14 +83,28 @@ namespace CatLife.Editor
             int changedCount = 0;
             foreach (ModelPolicyRow row in CollectRows())
             {
-                if (!row.ApplyStaticTownPolicy)
+                ModelImporter importer = AssetImporter.GetAtPath(row.Path) as ModelImporter;
+                if (importer == null)
                 {
                     continue;
                 }
 
-                ModelImporter importer = AssetImporter.GetAtPath(row.Path) as ModelImporter;
-                if (importer == null)
+                if (!row.ApplyStaticTownPolicy)
                 {
+                    bool catChanged = false;
+                    if (importer.materialImportMode != ModelImporterMaterialImportMode.None)
+                    {
+                        importer.materialImportMode = ModelImporterMaterialImportMode.None;
+                        catChanged = true;
+                    }
+                    if (importer.animationType != ModelImporterAnimationType.Generic) { importer.animationType = ModelImporterAnimationType.Generic; catChanged = true; }
+                    if (!importer.importAnimation) { importer.importAnimation = true; catChanged = true; }
+                    if (importer.importCameras) { importer.importCameras = false; catChanged = true; }
+                    if (importer.importLights) { importer.importLights = false; catChanged = true; }
+                    if (importer.importBlendShapes) { importer.importBlendShapes = false; catChanged = true; }
+                    if (importer.importVisibility) { importer.importVisibility = false; catChanged = true; }
+                    if (importer.isReadable) { importer.isReadable = false; catChanged = true; }
+                    if (catChanged) { AssetDatabase.WriteImportSettingsIfDirty(row.Path); importer.SaveAndReimport(); changedCount++; }
                     continue;
                 }
 
@@ -105,6 +118,48 @@ namespace CatLife.Editor
                 if (importer.importBlendShapes)
                 {
                     importer.importBlendShapes = false;
+                    changed = true;
+                }
+
+                if (importer.importAnimation)
+                {
+                    importer.importAnimation = false;
+                    changed = true;
+                }
+
+                if (importer.importCameras)
+                {
+                    importer.importCameras = false;
+                    changed = true;
+                }
+
+                if (importer.importLights)
+                {
+                    importer.importLights = false;
+                    changed = true;
+                }
+
+                if (importer.importVisibility)
+                {
+                    importer.importVisibility = false;
+                    changed = true;
+                }
+
+                if (importer.isReadable)
+                {
+                    importer.isReadable = false;
+                    changed = true;
+                }
+
+                if (!importer.optimizeMeshPolygons)
+                {
+                    importer.optimizeMeshPolygons = true;
+                    changed = true;
+                }
+
+                if (!importer.optimizeMeshVertices)
+                {
+                    importer.optimizeMeshVertices = true;
                     changed = true;
                 }
 
@@ -126,7 +181,6 @@ namespace CatLife.Editor
         private static List<ModelPolicyRow> CollectRows()
         {
             List<ModelPolicyRow> rows = new List<ModelPolicyRow>();
-            rows.Add(BuildRow(TownBlendPath, applyStaticTownPolicy: true));
             rows.Add(BuildRow(TownFbxPath, applyStaticTownPolicy: true));
             rows.Add(BuildRow(CatAnimationFbxPath, applyStaticTownPolicy: false));
             return rows;
@@ -229,7 +283,7 @@ namespace CatLife.Editor
                 sb.Append(" | ");
                 sb.Append(row.ImportBlendShapes ? "on" : "off");
                 sb.Append(" | ");
-                sb.Append(row.ApplyStaticTownPolicy ? "Static town: Low mesh compression, no blendshapes" : "Protected cat animation/model importer");
+                sb.Append(row.ApplyStaticTownPolicy ? "Static town: Low compression, optimized meshes, no animation/camera/light/blendshape/read-write" : "Protected cat animation/model importer");
                 sb.AppendLine(" |");
             }
 

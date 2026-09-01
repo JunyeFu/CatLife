@@ -1,0 +1,84 @@
+{
+  "package": "CatLife cat animation final state",
+  "generated_date": "2026-06-29",
+  "coordinate_basis": "+Z up; head faces -Y; tail points +Y; X left/right",
+  "source_blend": "C:\\Users\\fujunye\\Desktop\\Agent\\05-AIGC\\03-3d-models\\blender-work\\CatLife_cat_animation_coordinate_corrected.blend",
+  "export_fbx": "C:\\Users\\fujunye\\Desktop\\Agent\\05-AIGC\\03-3d-models\\blender-work\\exports\\cat-animation-final-20260629\\CatLife_cat_10_actions_final_state.fbx",
+  "rig_objects": [
+    "CL_CAT_CORRECTED_Armature",
+    "CL_CAT_CORRECTED_Mesh"
+  ],
+  "final_actions": [
+    {
+      "index": 1,
+      "action": "CL_CAT_IdleBreath_v06_headsync_loop_108f",
+      "status": "accepted",
+      "intent": "slow idle breathing loop",
+      "frame_range": "1-109"
+    },
+    {
+      "index": 2,
+      "action": "CL_CAT_AlertLook_v01_loop_120f",
+      "status": "accepted",
+      "intent": "alert standing look-around loop",
+      "frame_range": "1-121"
+    },
+    {
+      "index": 3,
+      "action": "CL_CAT_PawWave_v01_loop_96f",
+      "status": "accepted",
+      "intent": "subtle standing front-paw wave",
+      "frame_range": "1-97"
+    },
+    {
+      "index": 4,
+      "action": "CL_CAT_TailWagHappy_v01_loop_96f",
+      "status": "accepted",
+      "intent": "happy standing tail wag loop",
+      "frame_range": "1-97"
+    },
+    {
+      "index": 5,
+      "action": "CL_CAT_CuriousSniff_v02_loop_112f",
+      "status": "accepted",
+      "intent": "curious look-down / light sniff loop",
+      "frame_range": "1-113"
+    },
+    {
+      "index": 6,
+      "action": "CL_CAT_HeadTiltListen_v01_loop_96f",
+      "status": "accepted",
+      "intent": "curious head-tilt / listening loop",
+      "frame_range": "1-97"
+    },
+    {
+      "index": 7,
+      "action": "CL_CAT_LookBack_v02_loop_112f",
+      "status": "accepted",
+      "intent": "over-shoulder / look-back loop",
+      "frame_range": "1-113"
+    },
+    {
+      "index": 8,
+      "action": "CL_CAT_StretchYawn_v03_slow_loop_264f",
+      "status": "accepted",
+      "intent": "standing stretch / sleepy body stretch loop, 0.5x speed",
+      "frame_range": "1-265"
+    },
+    {
+      "index": 9,
+      "action": "CL_CAT_EarTwitchAlert_v02_loop_120f",
+      "status": "accepted",
+      "intent": "grounded alert ear twitch / scanning loop",
+      "frame_range": "1-121"
+    },
+    {
+      "index": 10,
+      "action": "CL_CAT_HeadShakeNo_v01_loop_108f",
+      "status": "draft_ready_for_review",
+      "intent": "grounded head-shake / no reaction loop",
+      "frame_range": "1-109"
+    }
+  ],
+  "notes": "FBX was exported from selected final rig and mesh with animation baking enabled. Use manifest final_actions as the intended action list; older draft actions may still exist in the working blend for auditability."
+}

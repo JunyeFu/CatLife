@@ -5,6 +5,7 @@ using System.Text;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace CatLife.Editor
 {
@@ -13,8 +14,8 @@ namespace CatLife.Editor
         private const string PackageName = "com.catlife.mvp";
         private const string ProductName = "CatLife";
         private const string CompanyName = "CatLifeTeam";
-        private const string VersionName = "0.1.0";
-        private const int VersionCode = 1;
+        private const string VersionName = "0.3.0";
+        private const int VersionCode = 3;
         private const string SplashTexturePath = "Assets/Resources/CatLifeSplash/CatLifeSplashLogo.png";
 
         [MenuItem("CatLife/Optimization/Stage 6/Audit Android Release Settings")]
@@ -93,6 +94,8 @@ namespace CatLife.Editor
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, PackageName);
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
+            PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
             PlayerSettings.Android.minifyRelease = true;
             PlayerSettings.Android.minifyDebug = false;
             PlayerSettings.stripEngineCode = true;

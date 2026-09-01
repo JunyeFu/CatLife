@@ -10,7 +10,7 @@ namespace CatLife.LLM
     {
         [SerializeField] private bool enableClient = true;
         [SerializeField] private float simulatedLatencySeconds = 0.15f;
-        [SerializeField] private bool preferVivoCloudWhenConfigured = true;
+        [SerializeField] private bool preferGenericCloudWhenConfigured = true;
         [SerializeField] private int cloudTimeoutSeconds = 8;
 
         public bool Enabled { get { return enableClient; } }
@@ -19,7 +19,7 @@ namespace CatLife.LLM
         public string LastFailureReason { get; private set; } = "";
         public string LastCloudRequestId { get; private set; } = "";
         public long LastCloudStatusCode { get; private set; }
-        public string LastCloudAppIdRedacted { get; private set; } = "missing_app_id";
+        public string LastCloudProvider { get; private set; } = "not_configured";
         public bool LastCloudConfigUsable { get; private set; }
 
         public void RequestSuggestion(
@@ -55,25 +55,24 @@ namespace CatLife.LLM
         {
             IsBusy = true;
 
-            VivoCloudDemoConfig config = VivoCloudDemoConfig.Load();
-            LastCloudAppIdRedacted = config.RedactedAppId;
+            GenericCloudConfig config = GenericCloudConfig.Load();
+            LastCloudProvider = config.provider;
             LastCloudConfigUsable = config.HasUsableCloudCredentials;
             LastCloudStatusCode = 0;
             LastCloudRequestId = "";
             LastFailureReason = "";
-            LastSource = LastCloudConfigUsable ? "vivo_cloud_pending" : "local_template";
+            LastSource = LastCloudConfigUsable ? "mimo_cloud_pending" : "local_template";
             Debug.Log("[CatLife] llm_request llm_source=" + LastSource +
-                " app_id=" + LastCloudAppIdRedacted +
+                " provider=" + LastCloudProvider +
                 " cloud_config_usable=" + LastCloudConfigUsable);
-            if (preferVivoCloudWhenConfigured && config.HasUsableCloudCredentials)
+            if (preferGenericCloudWhenConfigured && config.HasUsableCloudCredentials)
             {
                 bool cloudCompleted = false;
                 LLMBehaviorSuggestion cloudSuggestion = null;
                 string cloudError = "";
-                yield return StartCoroutine(CoRequestVivoCloud(
+                yield return StartCoroutine(CoRequestGenericCloud(
                     config,
                     context,
-                    new CatPromptBuilder(),
                     suggestion =>
                     {
                         cloudSuggestion = suggestion;
@@ -88,9 +87,9 @@ namespace CatLife.LLM
                 if (cloudCompleted && cloudSuggestion != null)
                 {
                     IsBusy = false;
-                    LastSource = "vivo_cloud";
+                    LastSource = "mimo_cloud";
                     LastFailureReason = "";
-                    Debug.Log("[CatLife] llm_result llm_source=vivo_cloud status_code=" + LastCloudStatusCode +
+                    Debug.Log("[CatLife] llm_result llm_source=mimo_cloud status_code=" + LastCloudStatusCode +
                         " request_id=" + LastCloudRequestId);
                     if (onSuccess != null)
                     {
@@ -104,12 +103,12 @@ namespace CatLife.LLM
                 {
                     LastSource = "local_template";
                     LastFailureReason = cloudError;
-                    Debug.LogWarning("[CatLife] llm_result llm_source=local_template fallback=vivo_cloud_error llm_error=" + cloudError);
+                    Debug.LogWarning("[CatLife] llm_result llm_source=local_template fallback=generic_cloud_error llm_error=" + cloudError);
                 }
             }
-            else if (preferVivoCloudWhenConfigured)
+            else if (preferGenericCloudWhenConfigured)
             {
-                LastFailureReason = config.enableDirectCloudApi ? "vivo_cloud_credentials_missing_or_placeholder" : "vivo_cloud_disabled";
+                LastFailureReason = config.enableDirectCloudApi ? "generic_cloud_credentials_missing_or_placeholder" : "generic_cloud_disabled";
                 Debug.Log("[CatLife] llm_result llm_source=local_template fallback=" + LastFailureReason);
             }
 
@@ -160,7 +159,7 @@ namespace CatLife.LLM
             }
 
             IsBusy = false;
-            if (LastSource != "vivo_cloud")
+            if (LastSource != "mimo_cloud")
             {
                 LastSource = "local_template";
             }
@@ -174,19 +173,16 @@ namespace CatLife.LLM
             }
         }
 
-        private IEnumerator CoRequestVivoCloud(
-            VivoCloudDemoConfig config,
+        private IEnumerator CoRequestGenericCloud(
+            GenericCloudConfig config,
             CatPromptContext context,
-            CatPromptBuilder builder,
             Action<LLMBehaviorSuggestion> onSuccess,
             Action<string> onError)
         {
             string requestId = Guid.NewGuid().ToString("N");
             LastCloudRequestId = requestId;
             LastCloudStatusCode = 0;
-            LastCloudAppIdRedacted = config.RedactedAppId;
-            VivoChatRequest body = VivoChatRequest.Create(config.model, builder, context);
-            string bodyJson = JsonUtility.ToJson(body);
+            string bodyJson = BuildGenericCloudRequestJson(config.model, context);
 
             using (UnityWebRequest req = new UnityWebRequest(config.apiEndpoint, UnityWebRequest.kHttpVerbPOST))
             {
@@ -195,8 +191,7 @@ namespace CatLife.LLM
                 req.downloadHandler = new DownloadHandlerBuffer();
                 req.timeout = Mathf.Max(1, cloudTimeoutSeconds);
                 req.SetRequestHeader("Content-Type", "application/json");
-                req.SetRequestHeader("Authorization", "Bearer " + config.appKey);
-                req.SetRequestHeader("requestId", requestId);
+                req.SetRequestHeader("Authorization", "Bearer " + config.apiKey);
 
                 yield return req.SendWebRequest();
                 LastCloudStatusCode = req.responseCode;
@@ -205,49 +200,32 @@ namespace CatLife.LLM
                 {
                     if (onError != null)
                     {
-                        onError("vivo_cloud_network_" + req.responseCode + "_" + req.error);
+                        onError("generic_cloud_network_" + req.responseCode + "_" + req.error);
                     }
 
                     yield break;
                 }
 
-                VivoChatResponse response = null;
+                CloudChatResponse response = null;
                 try
                 {
-                    response = JsonUtility.FromJson<VivoChatResponse>(req.downloadHandler.text);
+                    response = JsonUtility.FromJson<CloudChatResponse>(req.downloadHandler.text);
                 }
                 catch (Exception ex)
                 {
                     if (onError != null)
                     {
-                        onError("vivo_cloud_response_parse_" + ex.GetType().Name);
+                        onError("generic_cloud_response_parse_" + ex.GetType().Name);
                     }
 
                     yield break;
                 }
 
-                string content = response != null ? response.FirstContent() : "";
-                string suggestionJson = ExtractJsonObject(content);
-                if (string.IsNullOrEmpty(suggestionJson))
+                if (response != null && response.HasBusinessError())
                 {
                     if (onError != null)
                     {
-                        onError("vivo_cloud_missing_suggestion_json");
-                    }
-
-                    yield break;
-                }
-
-                LLMBehaviorSuggestion suggestion = null;
-                try
-                {
-                    suggestion = JsonUtility.FromJson<LLMBehaviorSuggestion>(suggestionJson);
-                }
-                catch (Exception ex)
-                {
-                    if (onError != null)
-                    {
-                        onError("vivo_cloud_suggestion_parse_" + ex.GetType().Name);
+                        onError("generic_cloud_api_error_" + response.ErrorCode());
                     }
 
                     yield break;
@@ -255,11 +233,12 @@ namespace CatLife.LLM
 
                 LLMBehaviorSuggestion safeSuggestion;
                 string reason;
-                if (!LLMBehaviorSuggestion.TryBuildSafe(suggestion, out safeSuggestion, out reason))
+                string content = response != null ? response.FirstContent() : "";
+                if (!TryParseGenericCloudSuggestion(content, out safeSuggestion, out reason))
                 {
                     if (onError != null)
                     {
-                        onError("vivo_cloud_unsafe_output_" + reason);
+                        onError("generic_cloud_" + reason);
                     }
 
                     yield break;
@@ -270,6 +249,58 @@ namespace CatLife.LLM
                     onSuccess(safeSuggestion);
                 }
             }
+        }
+
+        public static bool TryParseGenericCloudSuggestion(
+            string content,
+            out LLMBehaviorSuggestion safeSuggestion,
+            out string reason)
+        {
+            safeSuggestion = null;
+            if (string.IsNullOrWhiteSpace(content))
+            {
+                reason = "missing_suggestion";
+                return false;
+            }
+
+            string suggestionJson = ExtractJsonObject(content);
+            LLMBehaviorSuggestion suggestion;
+            if (string.IsNullOrEmpty(suggestionJson))
+            {
+                suggestion = new LLMBehaviorSuggestion
+                {
+                    suggestedLine = content,
+                    moodBias = "calm",
+                    quietIdleWeightBias = 0.16f,
+                    recommendedLocalAction = "quiet_idle",
+                    showBubble = true
+                };
+            }
+            else
+            {
+                try
+                {
+                    suggestion = JsonUtility.FromJson<LLMBehaviorSuggestion>(suggestionJson);
+                }
+                catch (Exception ex)
+                {
+                    reason = "suggestion_parse_" + ex.GetType().Name;
+                    return false;
+                }
+            }
+
+            if (!LLMBehaviorSuggestion.TryBuildSafe(suggestion, out safeSuggestion, out reason))
+            {
+                reason = "unsafe_output_" + reason;
+                return false;
+            }
+
+            return true;
+        }
+
+        public static string BuildGenericCloudRequestJson(string model, CatPromptContext context)
+        {
+            return JsonUtility.ToJson(CloudChatRequest.Create(model, new CatPromptBuilder(), context));
         }
 
         private static string ExtractJsonObject(string text)
@@ -348,32 +379,36 @@ namespace CatLife.LLM
         }
 
         [Serializable]
-        private sealed class VivoChatRequest
+        private sealed class CloudChatRequest
         {
             public string model;
-            public VivoChatMessage[] messages;
+            public CloudChatMessage[] messages;
             public bool stream;
             public float temperature;
             public float top_p;
-            public int max_tokens;
+            public int max_completion_tokens;
+            public CloudResponseFormat response_format;
+            public CloudThinking thinking;
 
-            public static VivoChatRequest Create(string model, CatPromptBuilder builder, CatPromptContext context)
+            public static CloudChatRequest Create(string model, CatPromptBuilder builder, CatPromptContext context)
             {
-                return new VivoChatRequest
+                return new CloudChatRequest
                 {
                     model = model,
                     stream = false,
                     temperature = 0f,
                     top_p = 1f,
-                    max_tokens = 256,
+                    max_completion_tokens = 256,
+                    response_format = new CloudResponseFormat { type = "json_object" },
+                    thinking = new CloudThinking { type = "disabled" },
                     messages = new[]
                     {
-                        new VivoChatMessage
+                        new CloudChatMessage
                         {
                             role = "system",
                             content = builder.BuildSystemPrompt() + "\n" + builder.BuildDeveloperPrompt()
                         },
-                        new VivoChatMessage
+                        new CloudChatMessage
                         {
                             role = "user",
                             content = builder.BuildUserContextPrompt(context) + "\nReturn only JSON matching:\n" + builder.BuildOutputJsonSchemaPrompt()
@@ -384,16 +419,39 @@ namespace CatLife.LLM
         }
 
         [Serializable]
-        private sealed class VivoChatMessage
+        private sealed class CloudResponseFormat
+        {
+            public string type;
+        }
+
+        [Serializable]
+        private sealed class CloudThinking
+        {
+            public string type;
+        }
+
+        [Serializable]
+        private sealed class CloudChatMessage
         {
             public string role;
             public string content;
         }
 
         [Serializable]
-        private sealed class VivoChatResponse
+        private sealed class CloudChatResponse
         {
-            public VivoChatChoice[] choices;
+            public CloudApiError error;
+            public CloudChatChoice[] choices;
+
+            public bool HasBusinessError()
+            {
+                return (choices == null || choices.Length == 0) && error != null;
+            }
+
+            public string ErrorCode()
+            {
+                return error != null && !string.IsNullOrEmpty(error.code) ? error.code : "unknown";
+            }
 
             public string FirstContent()
             {
@@ -407,9 +465,17 @@ namespace CatLife.LLM
         }
 
         [Serializable]
-        private sealed class VivoChatChoice
+        private sealed class CloudApiError
         {
-            public VivoChatMessage message;
+            public string message;
+            public string type;
+            public string code;
+        }
+
+        [Serializable]
+        private sealed class CloudChatChoice
+        {
+            public CloudChatMessage message;
         }
     }
 }

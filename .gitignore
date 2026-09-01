@@ -50,6 +50,9 @@ _*.json
 _*.txt
 
 # Project-local 3D work caches and original source packages
+tools/.runtime/
+tools/art-pipeline/__pycache__/
+03-3d-models/catlife-town/pipeline/render/textures/
 03-3d-models/blender-work/qa-frames/
 03-3d-models/blender-work/exports/
 03-3d-models/source-cat-models/original-meshy-quadruped/
@@ -71,6 +74,7 @@ work/CatLife_Unity_Main/Reports/
 work/CatLife_Unity_Main/Assets/Resources.meta
 work/CatLife_Unity_Main/Assets/Resources/CatLifePrivate.meta
 work/CatLife_Unity_Main/Assets/Resources/CatLifePrivate/
+work/CatLife_Unity_Main/LocalPrivateArchive/
 work/CatLife_Unity_Main/Assets/Art/Town/Source/*.fbx.meta
 work/CatLife_Unity_Main/Assets/Art/Cat/Animations/*.fbx.meta
 work/CatLife_Unity_Main/Assets/Art/Town/Textures/Extracted/

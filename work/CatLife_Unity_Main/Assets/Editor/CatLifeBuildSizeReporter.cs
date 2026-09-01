@@ -15,7 +15,7 @@ namespace CatLife.Editor
 {
     public static class CatLifeBuildSizeReporter
     {
-        private const string MainScenePath = "Assets/Scenes/MainScene.unity";
+        private const string MainScenePath = "Assets/Scenes/CatLifeMobile.unity";
         private const string FinalSubmissionApk = "06-deliverables/final-submission/CatLife_MVP_Android_v0.1.0.apk";
 
         [MenuItem("CatLife/Optimization/Stage 0/Export Project Size Inventory")]

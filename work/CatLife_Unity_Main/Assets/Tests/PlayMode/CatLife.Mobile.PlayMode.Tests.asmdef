@@ -1,0 +1,5 @@
+{
+  "name": "CatLife.Mobile.PlayMode.Tests",
+  "references": ["CatLife.Mobile.Core"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

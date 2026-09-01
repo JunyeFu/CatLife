@@ -1,0 +1,13 @@
+{
+  "name": "CatLife.Mobile.Core.Tests",
+  "rootNamespace": "CatLife.Mobile.Tests",
+  "references": [
+    "CatLife.Mobile.Core"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ]
+}
