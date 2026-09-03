@@ -12,6 +12,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
+using CatLife.Recognition;
 
 public static class CatLifeMobileSceneBuilder
 {
@@ -132,8 +133,11 @@ public static class CatLifeMobileSceneBuilder
         GameObject ui = PrefabUtility.InstantiatePrefab(uiPrefab, scene) as GameObject;
         ui.name = "CatLifeMobileView";
         new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+        GameObject systems = new GameObject("CatLifeRuntimeSystems", typeof(RealtimeFeatureEngine), typeof(MockRecognitionProvider), typeof(CatLifeMobileRuntimeCoordinator));
+        CatLifeMobileRuntimeCoordinator runtime = systems.GetComponent<CatLifeMobileRuntimeCoordinator>();
+        runtime.Configure(systems.GetComponent<RealtimeFeatureEngine>(), systems.GetComponent<MockRecognitionProvider>(), cat);
         GameObject appObject = new GameObject("CatLifeMobileApp", typeof(CatLifeMobileApp), typeof(CatLife.LLM.MockCatLLMClient));
-        appObject.GetComponent<CatLifeMobileApp>().Configure(ui, director, cat);
+        appObject.GetComponent<CatLifeMobileApp>().Configure(ui, director, runtime);
         EditorSceneManager.SaveScene(scene, ScenePath);
         EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };
         AssetDatabase.SaveAssets();

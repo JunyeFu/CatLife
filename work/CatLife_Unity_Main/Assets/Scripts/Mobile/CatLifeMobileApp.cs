@@ -13,7 +13,7 @@ public sealed class CatLifeMobileApp : MonoBehaviour
     private const string DataKey = "CatLife.Mobile.Data.v1";
     [SerializeField] private GameObject viewRoot;
     [SerializeField] private CatLifeCameraDirector cameraDirector;
-    [SerializeField] private CatLifeMobileCatPresenter catPresenter;
+    [SerializeField] private CatLifeMobileRuntimeCoordinator runtimeCoordinator;
 
     private CatLifeAppData data;
     private CatLifeSessionController session;
@@ -49,7 +49,7 @@ public sealed class CatLifeMobileApp : MonoBehaviour
         session = new CatLifeSessionController(data);
         selectedMinutes = data.settings.defaultMinutes;
         llm = GetComponent<MockCatLLMClient>();
-        if (catPresenter == null) catPresenter = FindFirstObjectByType<CatLifeMobileCatPresenter>();
+        if (runtimeCoordinator == null) runtimeCoordinator = FindFirstObjectByType<CatLifeMobileRuntimeCoordinator>();
         if (cameraDirector == null) cameraDirector = FindFirstObjectByType<CatLifeCameraDirector>();
         BindView();
         if (session.Phase == CatLifeSessionPhase.Focus) ShowFocus(true);
@@ -68,9 +68,10 @@ public sealed class CatLifeMobileApp : MonoBehaviour
             if (Pointer.current != null && Pointer.current.press.wasPressedThisFrame)
             {
                 session.RecordTouch();
+                runtimeCoordinator?.RecordFocusTouch();
                 focusTouches.Enqueue(Time.unscaledTime);
                 while (focusTouches.Count > 0 && Time.unscaledTime - focusTouches.Peek() > 1f) focusTouches.Dequeue();
-                if (focusTouches.Count >= 4) { catPresenter?.Nudge(); ShowBubble("我在，慢慢来。"); focusTouches.Clear(); }
+                if (focusTouches.Count >= 4) { runtimeCoordinator?.NudgeCat(); ShowBubble("我在，慢慢来。"); focusTouches.Clear(); }
                 Save();
             }
             if (session.TryComplete(now, out CatLifeSessionRecord record)) Complete(record);
@@ -79,16 +80,17 @@ public sealed class CatLifeMobileApp : MonoBehaviour
 
     private void OnApplicationPause(bool paused)
     {
+        runtimeCoordinator?.RecordUiEvent(paused ? "app_pause" : "app_resume");
         if (session == null || session.Phase != CatLifeSessionPhase.Focus) return;
         if (paused) session.RecordBackground(Now()); else session.RecordForeground(Now());
         Save();
     }
 
-    public void Configure(GameObject root, CatLifeCameraDirector director, CatLifeMobileCatPresenter presenter)
+    public void Configure(GameObject root, CatLifeCameraDirector director, CatLifeMobileRuntimeCoordinator runtime)
     {
         viewRoot = root;
         cameraDirector = director;
-        catPresenter = presenter;
+        runtimeCoordinator = runtime;
     }
 
     private void BindView()
@@ -115,7 +117,7 @@ public sealed class CatLifeMobileApp : MonoBehaviour
         ShowOnly("HomeHudLayer");
         session.ReturnToTown();
         cameraDirector?.Show(CatLifeSessionPhase.Normal, immediate);
-        catPresenter?.ShowPhase(CatLifeSessionPhase.Normal);
+        runtimeCoordinator?.ApplyPhase(CatLifeSessionPhase.Normal);
         RefreshHome();
         if (data.records.Count == 0) ShowBubble("先不用急，我在这里。");
     }
@@ -124,7 +126,7 @@ public sealed class CatLifeMobileApp : MonoBehaviour
     {
         ShowOnly("SetupPanel");
         cameraDirector?.Show(CatLifeSessionPhase.Normal);
-        catPresenter?.ShowPhase(CatLifeSessionPhase.Normal);
+        runtimeCoordinator?.ApplyPhase(CatLifeSessionPhase.Normal);
         RefreshSetup();
     }
     private void BeginTransition()
@@ -132,27 +134,27 @@ public sealed class CatLifeMobileApp : MonoBehaviour
         data.settings.defaultMinutes = selectedMinutes;
         session.BeginTransition(selectedMinutes * 60, Now());
         Save(); ShowOnly("TransitionPanel"); transitionEndsAt = Time.unscaledTime + 2f;
-        cameraDirector?.Show(CatLifeSessionPhase.Transition); catPresenter?.ShowPhase(CatLifeSessionPhase.Transition);
+        cameraDirector?.Show(CatLifeSessionPhase.Transition); runtimeCoordinator?.ApplyPhase(CatLifeSessionPhase.Transition);
     }
     private void BeginReviewerMinute() { selectedMinutes = 1; views["DebugPanel"].SetActive(false); BeginTransition(); }
     private void EnterFocus() { session.EnterFocus(Now()); Save(); ShowFocus(false); }
     private void ShowFocus(bool immediate)
     {
         ShowOnly("FocusPanel"); timerText.text = FormatClock(session.RemainingSeconds(Now()));
-        cameraDirector?.Show(CatLifeSessionPhase.Focus, immediate); catPresenter?.ShowPhase(CatLifeSessionPhase.Focus);
+        cameraDirector?.Show(CatLifeSessionPhase.Focus, immediate); runtimeCoordinator?.ApplyPhase(CatLifeSessionPhase.Focus);
     }
     private void Complete(CatLifeSessionRecord record)
     {
         record.localInsight = CatLifeInsightEngine.Create(record); currentReward = record; Save(); ShowOnly("RewardPanel");
-        cameraDirector?.Show(CatLifeSessionPhase.Reward); catPresenter?.ShowPhase(CatLifeSessionPhase.Reward); RenderReward(record); RequestAiOnce(record);
+        cameraDirector?.Show(CatLifeSessionPhase.Reward); runtimeCoordinator?.ApplyPhase(CatLifeSessionPhase.Reward); RenderReward(record); RequestAiOnce(record);
         Invoke(nameof(PlayRewardCelebration), 1.2f);
     }
-    private void PlayRewardCelebration() { catPresenter?.CelebrateReward(); }
+    private void PlayRewardCelebration() { runtimeCoordinator?.CelebrateReward(); }
     private void ConfirmInterrupt()
     {
         CatLifeSessionRecord record = session.Interrupt(Now()); record.localInsight = CatLifeInsightEngine.Create(record); Save(); views["ExitConfirm"].SetActive(false); ShowHome();
     }
-    private void ReturnToTown() { catPresenter?.ReturnHome(); ShowHome(); }
+    private void ReturnToTown() { runtimeCoordinator?.ReturnCatHome(); ShowHome(); }
 
     private void ShowRecords()
     {
@@ -240,6 +242,7 @@ public sealed class CatLifeMobileApp : MonoBehaviour
     {
         foreach (string layer in new[] { "HomeHudLayer", "SetupPanel", "TransitionPanel", "FocusPanel", "RewardPanel", "RecordsPanel", "GrowthPanel", "SettingsPanel" }) views[layer].SetActive(layer == name);
         CurrentView = name;
+        runtimeCoordinator?.RecordUiEvent("page_enter_" + name);
     }
     private void Bind(string name, UnityEngine.Events.UnityAction action) { views[name].GetComponent<Button>().onClick.AddListener(action); }
     private Text TextOf(string name) { return views[name].GetComponent<Text>(); }
