@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using CatLife.Cat;
 using CatLife.Editor;
+using CatLife.Recognition;
+using Unity.AI.Navigation;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.AI;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
-using CatLife.Recognition;
 
 public static class CatLifeMobileSceneBuilder
 {
@@ -25,6 +28,7 @@ public static class CatLifeMobileSceneBuilder
     private const string ScenePath = "Assets/Scenes/CatLifeMobile.unity";
     private const string TownPrefabPath = "Assets/MobileRuntime/Art/Town/PF_CL_TWN_Town.prefab";
     private const string CatControllerPath = "Assets/MobileRuntime/Art/Cat/CL_CAT_Mobile.controller";
+    private const string NavMeshDataPath = "Assets/MobileRuntime/Navigation/CL_NAV_Mobile.asset";
 
     private sealed class ManifestRow
     {
@@ -74,6 +78,18 @@ public static class CatLifeMobileSceneBuilder
     public static void BuildBatch()
     {
         Build();
+        EditorApplication.Exit(0);
+    }
+
+    public static void AuditCatClipsBatch()
+    {
+        string[] names = AssetDatabase.LoadAllAssetsAtPath(CatSourcePath)
+            .OfType<AnimationClip>()
+            .Where(clip => !clip.name.StartsWith("__preview__", StringComparison.Ordinal))
+            .Select(clip => clip.name)
+            .OrderBy(name => name, StringComparer.Ordinal)
+            .ToArray();
+        Debug.Log("[CatLifeCatClipAudit] " + string.Join(" | ", names));
         EditorApplication.Exit(0);
     }
 
@@ -135,7 +151,8 @@ public static class CatLifeMobileSceneBuilder
         new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
         GameObject systems = new GameObject("CatLifeRuntimeSystems", typeof(RealtimeFeatureEngine), typeof(MockRecognitionProvider), typeof(CatLifeMobileRuntimeCoordinator));
         CatLifeMobileRuntimeCoordinator runtime = systems.GetComponent<CatLifeMobileRuntimeCoordinator>();
-        runtime.Configure(systems.GetComponent<RealtimeFeatureEngine>(), systems.GetComponent<MockRecognitionProvider>(), cat);
+        CatBehaviorDriver behavior = BuildMobileNavigation(systems.transform, cat.gameObject);
+        runtime.Configure(systems.GetComponent<RealtimeFeatureEngine>(), systems.GetComponent<MockRecognitionProvider>(), cat, behavior);
         GameObject appObject = new GameObject("CatLifeMobileApp", typeof(CatLifeMobileApp), typeof(CatLife.LLM.MockCatLLMClient));
         appObject.GetComponent<CatLifeMobileApp>().Configure(ui, director, runtime);
         EditorSceneManager.SaveScene(scene, ScenePath);
@@ -144,6 +161,134 @@ public static class CatLifeMobileSceneBuilder
         AssetDatabase.Refresh();
         WriteReport(triangles, materials.Count, manifest.Count);
         Debug.Log($"[CatLifeMobileSceneBuilder] Built standardized mobile scene triangles={triangles} materials={materials.Count} assets={manifest.Count}");
+    }
+
+    private static CatBehaviorDriver BuildMobileNavigation(Transform systemsRoot, GameObject cat)
+    {
+        GameObject navigation = new GameObject("CatLifeNavigation");
+        navigation.transform.SetParent(systemsRoot, false);
+        float groundY = cat.transform.position.y;
+
+        CreateWalkArea(navigation.transform, "Walk_MainPlaza", new Vector3(0f, groundY - .06f, -6.8f), new Vector3(7.4f, .12f, 4.5f));
+        CreateWalkArea(navigation.transform, "Walk_LeftGarden", new Vector3(-3.9f, groundY - .06f, -6.3f), new Vector3(2.8f, .12f, 3.6f));
+        CreateWalkArea(navigation.transform, "Walk_RightGarden", new Vector3(3.9f, groundY - .06f, -6.3f), new Vector3(2.8f, .12f, 3.6f));
+        CreateWalkArea(navigation.transform, "Walk_FrontPath", new Vector3(0f, groundY - .06f, -9.25f), new Vector3(6.6f, .12f, 2.2f));
+
+        Transform pointsRoot = new GameObject("CatInterestPoints").transform;
+        pointsRoot.SetParent(navigation.transform, false);
+        CatInterestPoint[] points =
+        {
+            CreateInterestPoint(pointsRoot, "Interest_HomeFront", "home_front", new Vector3(-.3f, groundY, -6.78f), new[] { "plaza", "quiet" }),
+            CreateInterestPoint(pointsRoot, "Interest_Left_Garden", "left_garden", new Vector3(-3.4f, groundY, -6.4f), new[] { "garden", "curious" }),
+            CreateInterestPoint(pointsRoot, "Interest_Right_Garden", "right_garden", new Vector3(3.4f, groundY, -6.4f), new[] { "garden", "curious" }),
+            CreateInterestPoint(pointsRoot, "Interest_Front_Path", "front_path", new Vector3(0f, groundY, -8.9f), new[] { "path", "quiet" })
+        };
+        CatInterestPointRegistry registry = navigation.AddComponent<CatInterestPointRegistry>();
+        registry.SetPoints(points);
+
+        NavMeshSurface surface = navigation.AddComponent<NavMeshSurface>();
+        surface.collectObjects = CollectObjects.Children;
+        surface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
+        surface.layerMask = ~0;
+        surface.BuildNavMesh();
+        if (AssetDatabase.LoadAssetAtPath<NavMeshData>(NavMeshDataPath) != null)
+            AssetDatabase.DeleteAsset(NavMeshDataPath);
+        AssetDatabase.CreateAsset(surface.navMeshData, NavMeshDataPath);
+
+        NavMeshAgent agent = cat.AddComponent<NavMeshAgent>();
+        agent.radius = .18f;
+        agent.height = .55f;
+        agent.baseOffset = 0f;
+        agent.speed = 1.15f;
+        agent.angularSpeed = 420f;
+        agent.acceleration = 6f;
+        agent.stoppingDistance = .16f;
+        agent.autoBraking = false;
+        agent.updateRotation = true;
+        CatNavigationAgent navigationAgent = cat.AddComponent<CatNavigationAgent>();
+        cat.AddComponent<CatNavMeshSafetyGuard>();
+        CatDestinationPlanner planner = cat.AddComponent<CatDestinationPlanner>();
+        CatAnimationController animation = cat.AddComponent<CatAnimationController>();
+        CatActionRouter actionRouter = cat.AddComponent<CatActionRouter>();
+        CatNeedModel needModel = cat.AddComponent<CatNeedModel>();
+        CatBehaviorMemory memory = cat.AddComponent<CatBehaviorMemory>();
+        CatBehaviorBrainScorer scorer = cat.AddComponent<CatBehaviorBrainScorer>();
+        CatBehaviorDriver behavior = cat.AddComponent<CatBehaviorDriver>();
+
+        SetObjectReference(animation, "animator", cat.GetComponentInChildren<Animator>());
+        SetString(animation, "idleStateName", "CL_CAT_SitIdle_v01_loop_96f");
+        SetObjectReference(planner, "planningCamera", Camera.main);
+        SetObjectReference(planner, "interestPointRegistry", registry);
+        SetObjectReference(planner, "needModel", needModel);
+        SetObjectReference(planner, "behaviorMemory", memory);
+        SetBool(planner, "preferCameraRangeWhenNonFocused", false);
+        SetBool(planner, "preferCameraRangeWhenFocused", false);
+        SetFloat(planner, "minMoveDistance", .6f);
+        SetFloat(planner, "navMeshProbeDistance", 1.2f);
+        SetInt(planner, "sampleAttempts", 32);
+        SetObjectReference(behavior, "recognitionProviderComponent", systemsRoot.GetComponent<MockRecognitionProvider>());
+        SetObjectReference(behavior, "navigationAgent", navigationAgent);
+        SetObjectReference(behavior, "animationController", animation);
+        SetObjectReference(behavior, "destinationPlanner", planner);
+        SetObjectReference(behavior, "actionRouter", actionRouter);
+        SetObjectReference(behavior, "featureEngine", systemsRoot.GetComponent<RealtimeFeatureEngine>());
+        SetObjectReference(behavior, "needModel", needModel);
+        SetObjectReference(behavior, "behaviorMemory", memory);
+        SetObjectReference(behavior, "behaviorScorer", scorer);
+        return behavior;
+    }
+
+    private static void SetObjectReference(UnityEngine.Object target, string propertyName, UnityEngine.Object value)
+    {
+        SerializedObject serialized = new SerializedObject(target);
+        serialized.FindProperty(propertyName).objectReferenceValue = value;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static void SetString(UnityEngine.Object target, string propertyName, string value)
+    {
+        SerializedObject serialized = new SerializedObject(target);
+        serialized.FindProperty(propertyName).stringValue = value;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static void SetBool(UnityEngine.Object target, string propertyName, bool value)
+    {
+        SerializedObject serialized = new SerializedObject(target);
+        serialized.FindProperty(propertyName).boolValue = value;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static void SetFloat(UnityEngine.Object target, string propertyName, float value)
+    {
+        SerializedObject serialized = new SerializedObject(target);
+        serialized.FindProperty(propertyName).floatValue = value;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static void SetInt(UnityEngine.Object target, string propertyName, int value)
+    {
+        SerializedObject serialized = new SerializedObject(target);
+        serialized.FindProperty(propertyName).intValue = value;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static void CreateWalkArea(Transform parent, string name, Vector3 position, Vector3 size)
+    {
+        GameObject area = new GameObject(name, typeof(BoxCollider));
+        area.transform.SetParent(parent, false);
+        area.transform.position = position;
+        area.GetComponent<BoxCollider>().size = size;
+    }
+
+    private static CatInterestPoint CreateInterestPoint(Transform parent, string name, string id, Vector3 position, string[] tags)
+    {
+        GameObject point = new GameObject(name, typeof(CatInterestPoint));
+        point.transform.SetParent(parent, false);
+        point.transform.position = position;
+        CatInterestPoint interest = point.GetComponent<CatInterestPoint>();
+        interest.Configure(id, tags, 1f, .25f, .45f, true);
+        return interest;
     }
 
     private static Dictionary<string, ManifestRow> LoadManifest()
@@ -294,9 +439,12 @@ public static class CatLifeMobileSceneBuilder
         AnimationClip[] clips = AssetDatabase.LoadAllAssetsAtPath(CatSourcePath).OfType<AnimationClip>().Where(clip => !clip.name.StartsWith("__preview__", StringComparison.Ordinal)).ToArray();
         string[] required =
         {
+            "CL_CAT_SRC_Walk_60fps",
+            "CL_CAT_AlertLook_v01_loop_120f", "CL_CAT_PawWave_v01_loop_96f", "CL_CAT_TailWagHappy_v01_loop_96f",
+            "CL_CAT_CuriousSniff_v02_loop_112f", "CL_CAT_HeadTiltListen_v01_loop_96f", "CL_CAT_LookBack_v02_loop_112f",
+            "CL_CAT_StretchYawn_v03_slow_loop_264f", "CL_CAT_EarTwitchAlert_v02_loop_120f", "CL_CAT_HeadShakeNo_v01_loop_108f",
             "CL_CAT_SitDownTransition_v01_72f", "CL_CAT_SitIdle_v01_loop_96f", "CL_CAT_LieDownTransition_v01_120f",
-            "CL_CAT_FocusRest_v01_loop_96f", "CL_CAT_FocusAttention_v01_48f", "CL_CAT_WakeUpTransition_v01_72f",
-            "CL_CAT_TailWagHappy_v01_loop_96f"
+            "CL_CAT_FocusRest_v01_loop_96f", "CL_CAT_FocusAttention_v01_48f", "CL_CAT_WakeUpTransition_v01_72f"
         };
         foreach (string name in required)
         {
@@ -314,7 +462,8 @@ public static class CatLifeMobileSceneBuilder
         foreach (string path in new[]
         {
             "Assets/MobileRuntime", Root, Root + "/Town", Root + "/Town/Source", Root + "/Town/Textures", Root + "/Town/Catalog",
-            Root + "/Cat", Root + "/Cat/Source", Root + "/Cat/Textures", Root + "/Cat/Catalog", Root + "/Materials"
+            Root + "/Cat", Root + "/Cat/Source", Root + "/Cat/Textures", Root + "/Cat/Catalog", Root + "/Materials",
+            "Assets/MobileRuntime/Navigation"
         })
         {
             if (AssetDatabase.IsValidFolder(path)) continue;

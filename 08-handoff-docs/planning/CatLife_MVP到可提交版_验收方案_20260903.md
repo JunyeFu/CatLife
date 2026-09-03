@@ -205,8 +205,8 @@ BLOCKED：
 
 | 硬门 | 状态 | 原因 |
 |---|---|---|
-| G1 | `NOT_STARTED` | 新移动架构尚未接入旧识别/行为系统 |
-| G2 | `NOT_STARTED` | 猫咪不可移动 |
+| G1 | `PASS` | 唯一运行系统根已接入；EditMode 10/10、PlayMode 7/7 |
+| G2 | `IN_PROGRESS` | NavMesh、自主漫游和 Walk 已恢复；IdleBreath、禁走区、连续巡游及模拟器录屏待完成 |
 | G3 | `NOT_STARTED` | 行为识别未装配 |
 | G4 | `NOT_STARTED` | 当前 UI 是功能骨架 |
 | G5 | `NOT_STARTED` | MiMo 已连通但未形成可感知动作闭环 |

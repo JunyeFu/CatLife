@@ -1,5 +1,6 @@
 using CatLife.Mobile;
 using CatLife.Recognition;
+using CatLife.Cat;
 using UnityEngine;
 
 [DisallowMultipleComponent]
@@ -8,6 +9,7 @@ public sealed class CatLifeMobileRuntimeCoordinator : MonoBehaviour
     [SerializeField] private RealtimeFeatureEngine featureEngine;
     [SerializeField] private MockRecognitionProvider recognitionProvider;
     [SerializeField] private CatLifeMobileCatPresenter catPresenter;
+    [SerializeField] private CatBehaviorDriver behaviorDriver;
 
     private bool hasAppliedPhase;
     private CatLifeSessionPhase appliedPhase;
@@ -19,16 +21,19 @@ public sealed class CatLifeMobileRuntimeCoordinator : MonoBehaviour
     public void Configure(
         RealtimeFeatureEngine features,
         MockRecognitionProvider recognition,
-        CatLifeMobileCatPresenter presenter)
+        CatLifeMobileCatPresenter presenter,
+        CatBehaviorDriver behavior)
     {
         featureEngine = features;
         recognitionProvider = recognition;
         catPresenter = presenter;
+        behaviorDriver = behavior;
     }
 
     private void Update()
     {
-        recognitionProvider?.Tick(Time.unscaledDeltaTime);
+        if (behaviorDriver == null || !behaviorDriver.enabled)
+            recognitionProvider?.Tick(Time.unscaledDeltaTime);
         catPresenter?.UpdateRecognition(LatestRecognition);
     }
 
@@ -45,7 +50,9 @@ public sealed class CatLifeMobileRuntimeCoordinator : MonoBehaviour
             hasAppliedPhase = true;
         }
 
-        catPresenter?.ShowPhase(phase, LatestRecognition);
+        bool behaviorOwnsAnimator = phase == CatLifeSessionPhase.Normal && behaviorDriver != null;
+        if (behaviorDriver != null) behaviorDriver.enabled = behaviorOwnsAnimator;
+        if (!behaviorOwnsAnimator) catPresenter?.ShowPhase(phase, LatestRecognition);
     }
 
     public void RecordUiEvent(string eventName) => featureEngine?.RecordUiEvent(eventName);

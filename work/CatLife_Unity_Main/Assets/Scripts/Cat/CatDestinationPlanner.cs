@@ -438,8 +438,14 @@ namespace CatLife.Cat
                 return false;
             }
 
+            NavMeshHit originHit;
+            if (!NavMesh.SamplePosition(origin, out originHit, navMeshProbeDistance, NavMesh.AllAreas))
+            {
+                return false;
+            }
+
             NavMeshPath path = new NavMeshPath();
-            if (!NavMesh.CalculatePath(origin, point, NavMesh.AllAreas, path))
+            if (!NavMesh.CalculatePath(originHit.position, point, NavMesh.AllAreas, path))
             {
                 return false;
             }

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using System.Reflection;
 using CatLife.Mobile;
 using NUnit.Framework;
@@ -113,6 +114,63 @@ public sealed class CatLifeMobileFlowTests
         coordinator.GetType().GetMethod("ApplyPhase").Invoke(coordinator, new object[] { CatLifeSessionPhase.Focus });
         object snapshot = features.GetType().GetProperty("Latest").GetValue(features);
         Assert.That((bool)snapshot.GetType().GetField("isFocusSessionActive").GetValue(snapshot), Is.True);
+    }
+
+    [UnityTest]
+    public IEnumerator MobileCatCanNavigateFromSpawnToApprovedInterestPoint()
+    {
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+
+        GameObject cat = GameObject.Find("CatLifeMobileCat");
+        Component navigation = cat.GetComponent("CatNavigationAgent");
+        Assert.That(navigation, Is.Not.Null);
+        Assert.That((bool)navigation.GetType().GetProperty("IsOnNavMesh").GetValue(navigation), Is.True);
+
+        GameObject destination = GameObject.Find("Interest_Left_Garden");
+        Assert.That(destination, Is.Not.Null);
+        Vector3 start = cat.transform.position;
+        bool accepted = (bool)navigation.GetType().GetMethod("TryMoveTo").Invoke(navigation, new object[] { destination.transform.position });
+        Assert.That(accepted, Is.True);
+
+        float deadline = Time.realtimeSinceStartup + 5f;
+        while (Time.realtimeSinceStartup < deadline && Vector3.Distance(start, cat.transform.position) < .2f)
+            yield return null;
+
+        Assert.That(Vector3.Distance(start, cat.transform.position), Is.GreaterThanOrEqualTo(.2f));
+    }
+
+    [UnityTest]
+    public IEnumerator MobileCatRoamsWithoutUserMoveCommandAndHasWalkAnimation()
+    {
+        PlayerPrefs.DeleteKey("CatLife.Mobile.Data.v1");
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+
+        GameObject cat = GameObject.Find("CatLifeMobileCat");
+        Component behavior = cat.GetComponent("CatBehaviorDriver");
+        Assert.That(behavior, Is.Not.Null);
+        Assert.That(((Behaviour)behavior).enabled, Is.True);
+        Animator animator = cat.GetComponentInChildren<Animator>();
+        Assert.That(animator.HasState(0, Animator.StringToHash("Base Layer.CL_CAT_SRC_Walk_60fps")), Is.True);
+
+        Component planner = cat.GetComponent("CatDestinationPlanner");
+        System.Type snapshotType = System.Type.GetType("CatLife.Recognition.RecognitionSnapshot, Assembly-CSharp");
+        object snapshot = snapshotType.GetMethod("CreateDefault", BindingFlags.Static | BindingFlags.Public).Invoke(null, null);
+        MethodInfo requestedPlan = planner.GetType().GetMethods().Single(method => method.Name == "TryPlanRequestedPoint");
+        object[] planArgs = { snapshot, GameObject.Find("Interest_Left_Garden").transform.position, cat.transform.position, Vector3.zero };
+        Assert.That((bool)requestedPlan.Invoke(planner, planArgs), Is.True, "Approved interest point was rejected by CatDestinationPlanner.");
+
+        Vector3 start = cat.transform.position;
+        float deadline = Time.realtimeSinceStartup + 12f;
+        while (Time.realtimeSinceStartup < deadline && Vector3.Distance(start, cat.transform.position) < .2f)
+            yield return null;
+
+        float moved = Vector3.Distance(start, cat.transform.position);
+        Component driver = cat.GetComponent("CatBehaviorDriver");
+        string state = driver.GetType().GetProperty("CurrentState").GetValue(driver).ToString();
+        string path = (string)cat.GetComponent("CatNavigationAgent").GetType().GetProperty("PathStatusText").GetValue(cat.GetComponent("CatNavigationAgent"));
+        Assert.That(moved, Is.GreaterThanOrEqualTo(.2f), $"state={state}; path={path}; moved={moved:F3}");
     }
 
     private static void Click(string name)
