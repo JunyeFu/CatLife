@@ -4,12 +4,152 @@ using System.Reflection;
 using CatLife.Mobile;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 
 public sealed class CatLifeMobileFlowTests
 {
+    [Test]
+    public void RecognitionSpectrumClassifiesDistractedTransitioningAndStableWithTrend()
+    {
+        System.Type spectrumType = System.Type.GetType("CatLife.Recognition.AttentionSpectrum, Assembly-CSharp");
+        Assert.That(spectrumType, Is.Not.Null);
+        MethodInfo evaluate = spectrumType.GetMethod("Evaluate", BindingFlags.Static | BindingFlags.Public);
+
+        object distracted = evaluate.Invoke(null, new object[] { .30f, .80f, .70f, .65f });
+        object transitioning = evaluate.Invoke(null, new object[] { .55f, .35f, .30f, .55f });
+        object stable = evaluate.Invoke(null, new object[] { .82f, .18f, .10f, .60f });
+
+        Assert.That(distracted.GetType().GetField("band").GetValue(distracted).ToString(), Is.EqualTo("Distracted"));
+        Assert.That(distracted.GetType().GetField("trend").GetValue(distracted).ToString(), Is.EqualTo("Falling"));
+        Assert.That(transitioning.GetType().GetField("band").GetValue(transitioning).ToString(), Is.EqualTo("Transitioning"));
+        Assert.That(transitioning.GetType().GetField("trend").GetValue(transitioning).ToString(), Is.EqualTo("Steady"));
+        Assert.That(stable.GetType().GetField("band").GetValue(stable).ToString(), Is.EqualTo("Stable"));
+        Assert.That(stable.GetType().GetField("trend").GetValue(stable).ToString(), Is.EqualTo("Rising"));
+    }
+
+    [UnityTest]
+    public IEnumerator StableRecognitionStartsCancelableAutoTransitionWithoutRetriggering()
+    {
+        PlayerPrefs.DeleteKey("CatLife.Mobile.Data.v1");
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+        Component app = GameObject.Find("CatLifeMobileApp").GetComponent("CatLifeMobileApp");
+        MethodInfo evaluate = app.GetType().GetMethod("EvaluateAutoFocus", BindingFlags.Instance | BindingFlags.Public);
+        Assert.That(evaluate, Is.Not.Null);
+        System.Type snapshotType = System.Type.GetType("CatLife.Recognition.RecognitionSnapshot, Assembly-CSharp");
+        object snapshot = snapshotType.GetMethod("CreateDefault", BindingFlags.Static | BindingFlags.Public).Invoke(null, null);
+        snapshotType.GetField("focusConfidence").SetValue(snapshot, .82f);
+        snapshotType.GetField("attentionBand").SetValue(snapshot, System.Enum.Parse(snapshotType.GetField("attentionBand").FieldType, "Stable"));
+
+        evaluate.Invoke(app, new object[] { snapshot, 15f });
+        Assert.That(Property<CatLifeSessionPhase>(app, "CurrentPhase"), Is.EqualTo(CatLifeSessionPhase.Transition));
+        Assert.That(Property<string>(app, "CurrentView"), Is.EqualTo("TransitionPanel"));
+        Assert.That(GameObject.Find("AutoFocusCancel"), Is.Not.Null);
+
+        Click("AutoFocusCancel");
+        Assert.That(Property<CatLifeSessionPhase>(app, "CurrentPhase"), Is.EqualTo(CatLifeSessionPhase.Normal));
+        Assert.That(Property<string>(app, "CurrentView"), Is.EqualTo("HomeHudLayer"));
+        evaluate.Invoke(app, new object[] { snapshot, 30f });
+        Assert.That(Property<CatLifeSessionPhase>(app, "CurrentPhase"), Is.EqualTo(CatLifeSessionPhase.Normal));
+    }
+
+    [UnityTest]
+    public IEnumerator StableRecognitionAutomaticallyEntersFocusAfterTransition()
+    {
+        PlayerPrefs.DeleteKey("CatLife.Mobile.Data.v1");
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+        Component app = GameObject.Find("CatLifeMobileApp").GetComponent("CatLifeMobileApp");
+        MethodInfo evaluate = app.GetType().GetMethod("EvaluateAutoFocus", BindingFlags.Instance | BindingFlags.Public);
+        System.Type snapshotType = System.Type.GetType("CatLife.Recognition.RecognitionSnapshot, Assembly-CSharp");
+        object snapshot = snapshotType.GetMethod("CreateDefault", BindingFlags.Static | BindingFlags.Public).Invoke(null, null);
+        snapshotType.GetField("focusConfidence").SetValue(snapshot, .82f);
+        snapshotType.GetField("attentionBand").SetValue(snapshot, System.Enum.Parse(snapshotType.GetField("attentionBand").FieldType, "Stable"));
+
+        evaluate.Invoke(app, new object[] { snapshot, 15f });
+        yield return new WaitForSecondsRealtime(2.1f);
+
+        Assert.That(Property<CatLifeSessionPhase>(app, "CurrentPhase"), Is.EqualTo(CatLifeSessionPhase.Focus));
+        Assert.That(Property<string>(app, "CurrentView"), Is.EqualTo("FocusPanel"));
+    }
+
+    [UnityTest]
+    public IEnumerator QuietDwellBecomesExplicitLocalAggregateEvent()
+    {
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+        Component features = GameObject.Find("CatLifeRuntimeSystems").GetComponent("RealtimeFeatureEngine");
+        features.GetType().GetMethod("RecordUiEvent").Invoke(features, new object[] { "page_enter_quiet_test" });
+        features.GetType().GetMethod("Tick").Invoke(features, new object[] { 6f });
+
+        Assert.That((string)features.GetType().GetProperty("LastAcceptedBehaviorEvent").GetValue(features), Is.EqualTo("quiet_dwell"));
+        object latest = features.GetType().GetProperty("Latest").GetValue(features);
+        string summary = (string)latest.GetType().GetField("localEventSummary").GetValue(latest);
+        Assert.That(summary, Does.Not.Contain("raw"));
+        Assert.That(summary, Does.Not.Contain("package"));
+    }
+
+    [UnityTest]
+    public IEnumerator MobileUiButtonsFeedTheAggregateTapRate()
+    {
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+        Component features = GameObject.Find("CatLifeRuntimeSystems").GetComponent("RealtimeFeatureEngine");
+
+        Click("TitleButton");
+        features.GetType().GetMethod("Tick").Invoke(features, new object[] { 0f });
+        yield return null;
+
+        object latest = features.GetType().GetProperty("Latest").GetValue(features);
+        Assert.That((float)latest.GetType().GetField("tapRate1s").GetValue(latest), Is.GreaterThan(0f));
+    }
+
+    [UnityTest]
+    public IEnumerator FocusSwipeProducesSanitizedAggregateEvent()
+    {
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+        Component features = GameObject.Find("CatLifeRuntimeSystems").GetComponent("RealtimeFeatureEngine");
+        Transform swipeTransform = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None).First(item => item.name == "SwipeTrack");
+        Component swipe = swipeTransform.GetComponent("CatLifeSwipeToEnd");
+        swipe.GetType().GetMethod("OnPointerUp").Invoke(swipe, new object[] { new PointerEventData(EventSystem.current) });
+
+        Assert.That((string)features.GetType().GetProperty("LastAcceptedBehaviorEvent").GetValue(features), Is.EqualTo("ui_scroll"));
+    }
+
+    [UnityTest]
+    public IEnumerator ReviewerPanelRendersCurrentRecognitionInsteadOfPresetValues()
+    {
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+        for (int i = 0; i < 5; i++) Click("TitleButton");
+        GameObject cat = GameObject.Find("CatLifeMobileCat");
+        for (int i = 0; i < 3; i++) cat.GetComponent("CatBehaviorDriver").GetType().GetMethod("NotifyCatTapped").Invoke(cat.GetComponent("CatBehaviorDriver"), null);
+        yield return new WaitForSecondsRealtime(.6f);
+
+        Component coordinator = GameObject.Find("CatLifeRuntimeSystems").GetComponent("CatLifeMobileRuntimeCoordinator");
+        object recognition = coordinator.GetType().GetProperty("LatestRecognition").GetValue(coordinator);
+        string band = recognition.GetType().GetField("attentionBand").GetValue(recognition).ToString();
+        string debug = Object.FindObjectsByType<Text>(FindObjectsInactive.Include, FindObjectsSortMode.None).First(item => item.name == "DebugText").text;
+        Assert.That(debug, Does.Contain("注意 " + band));
+        Assert.That(debug, Does.Contain("事件 features:"));
+        Assert.That(debug, Does.Not.Contain("演示"));
+    }
+
+    [Test]
+    public void BehaviorEventBoundaryRejectsRawTouchAndPackagePayloads()
+    {
+        System.Type sanitizer = System.Type.GetType("CatLife.Recognition.BehaviorEventSanitizer, Assembly-CSharp");
+        MethodInfo parse = sanitizer.GetMethod("TryParseAndSanitize", BindingFlags.Static | BindingFlags.Public);
+        object[] rawTouch = { "{\"eventType\":\"UiTap\",\"raw_touch_path\":\"secret\"}", null, null };
+        object[] package = { "{\"eventType\":\"UiTap\",\"package_name\":\"other.app\"}", null, null };
+        Assert.That((bool)parse.Invoke(null, rawTouch), Is.False);
+        Assert.That((bool)parse.Invoke(null, package), Is.False);
+    }
+
     [Test]
     public void CameraDirectorExposesApprovedFixedPresets()
     {

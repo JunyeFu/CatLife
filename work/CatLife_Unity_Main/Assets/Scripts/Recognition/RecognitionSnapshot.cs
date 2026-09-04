@@ -41,6 +41,8 @@ namespace CatLife.Recognition
         [Range(0f, 1f)] public float companionshipNeed;
         [Range(0f, 1f)] public float userArousal;
         [Range(0f, 1f)] public float interactionReadiness;
+        public AttentionBand attentionBand;
+        public AttentionTrend attentionTrend;
         public bool userPresent;
         public float secondsSinceCatTap;
         public float secondsSinceCatLongPress;
@@ -67,6 +69,8 @@ namespace CatLife.Recognition
                 companionshipNeed = 0.2f,
                 userArousal = 0.2f,
                 interactionReadiness = 0.2f,
+                attentionBand = AttentionBand.Transitioning,
+                attentionTrend = AttentionTrend.Steady,
                 userPresent = true,
                 secondsSinceCatTap = 999f,
                 secondsSinceCatLongPress = 999f,

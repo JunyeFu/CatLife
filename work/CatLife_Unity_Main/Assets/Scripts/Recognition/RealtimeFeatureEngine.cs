@@ -19,6 +19,8 @@ namespace CatLife.Recognition
         private float lastInteractionTime = -999f;
         private float focusSessionStartedAt = -999f;
         private string lastLocalEvent = "none";
+        private float quietDwellSeconds;
+        private bool quietDwellReported;
         private RealtimeFeatureSnapshot latest;
 
         public RealtimeFeatureSnapshot Latest
@@ -44,6 +46,12 @@ namespace CatLife.Recognition
             {
                 WriteTimestamp(pageSwitchTimes, ref pageSwitchIndex, Time.unscaledTime);
             }
+        }
+
+        public void RecordUiTap(string eventName)
+        {
+            RecordInteraction(string.IsNullOrEmpty(eventName) ? "ui_tap" : eventName);
+            WriteTimestamp(tapTimes, ref tapIndex, Time.unscaledTime);
         }
 
         public void RecordCatInteraction(string eventName)
@@ -112,13 +120,19 @@ namespace CatLife.Recognition
                     RecordUiEvent("app_resume");
                     break;
                 default:
-                    RecordUiEvent("ui_tap");
+                    RecordUiTap("ui_tap");
                     break;
             }
         }
 
         public void Tick(float unscaledDeltaTime)
         {
+            quietDwellSeconds += Mathf.Max(0f, unscaledDeltaTime);
+            if (!quietDwellReported && quietDwellSeconds >= 6f)
+            {
+                lastLocalEvent = "quiet_dwell";
+                quietDwellReported = true;
+            }
             float now = Time.unscaledTime;
             int tapCount1s = CountSince(tapTimes, now, 1f);
             int tapCount5s = CountSince(tapTimes, now, 5f);
@@ -132,7 +146,7 @@ namespace CatLife.Recognition
             float quietScore = Mathf.Clamp01(secondsSinceLastInteraction / 12f);
             float focusScore = focusSessionActive
                 ? Mathf.Clamp01(0.62f + quietScore * 0.34f - distraction * 0.5f)
-                : Mathf.Clamp01(0.28f + quietScore * 0.08f - distraction * 0.22f);
+                : Mathf.Clamp01(0.22f + quietScore * 0.62f - distraction * 0.45f);
 
             latest.realtimeSinceStartup = Time.realtimeSinceStartup;
             latest.isFocusSessionActive = focusSessionActive;
@@ -159,6 +173,8 @@ namespace CatLife.Recognition
             float now = Time.unscaledTime;
             lastInteractionTime = now;
             lastLocalEvent = eventName;
+            quietDwellSeconds = 0f;
+            quietDwellReported = false;
             WriteTimestamp(interactionTimes, ref interactionIndex, now);
             Tick(0f);
         }

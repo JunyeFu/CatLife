@@ -56,6 +56,7 @@ public sealed class CatLifeMobileRuntimeCoordinator : MonoBehaviour
     }
 
     public void RecordUiEvent(string eventName) => featureEngine?.RecordUiEvent(eventName);
+    public void RecordUiTap(string eventName) => featureEngine?.RecordUiTap(eventName);
     public void RecordFocusTouch() => featureEngine?.RecordUiEvent("focus_touch");
     public void NudgeCat() => catPresenter?.Nudge();
     public void CelebrateReward() => catPresenter?.CelebrateReward();

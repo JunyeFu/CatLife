@@ -205,12 +205,12 @@ BLOCKED：
 
 | 硬门 | 状态 | 原因 |
 |---|---|---|
-| G1 | `PASS` | 唯一运行系统根已接入；当前 EditMode 10/10、PlayMode 14/14 |
+| G1 | `PASS` | 唯一运行系统根已接入；当前完整回归 EditMode 11/11、PlayMode 22/22 |
 | G2 | `PASS` | 17 动作、NavMesh、语义禁走区、自主漫游、点击反馈、5:03 模拟器录屏及四状态主链通过 |
-| G3 | `NOT_STARTED` | 行为识别未装配 |
+| G3 | `PASS` | App 内聚合事件、三段注意状态谱、12 秒稳定适应、可取消自动过渡、主动路径、脱敏评审层和模拟器复现均通过；详见 G3 验收记录 |
 | G4 | `NOT_STARTED` | 当前 UI 是功能骨架 |
 | G5 | `NOT_STARTED` | MiMo 已连通但未形成可感知动作闭环 |
 | G6 | `NOT_STARTED` | onboarding、地标和完整轻锁定等仍缺 |
 | G7 | `NOT_STARTED` | 仅有 MVP 模拟器证据，提交 RC 尚不存在 |
 
-下一次验收执行 G3；必须先证明 App 内事件能稳定改变 RecognitionSnapshot，再验收自动专注与隐藏评审层。
+下一次验收执行 G4：先建立暖色圆角 UI Kit，再按 Home、Setup、Focus、Reward、Records、Growth/Cat、Settings 顺序逐页生成真实模拟器截图并由用户确认。

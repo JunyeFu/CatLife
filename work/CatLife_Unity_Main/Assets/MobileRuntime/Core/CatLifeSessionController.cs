@@ -29,6 +29,7 @@ namespace CatLife.Mobile
         public bool aiEnabled;
         public bool aiConsent;
         public bool localBehaviorStatsEnabled = true;
+        public int autoFocusAdaptationSeconds = 12;
     }
 
     [Serializable]
@@ -110,6 +111,17 @@ namespace CatLife.Mobile
             active.foreground = true;
             active.stateSequence = "Normal>Transition>Focus";
             phase = CatLifeSessionPhase.Focus;
+        }
+
+        public void CancelTransition()
+        {
+            if (phase != CatLifeSessionPhase.Transition)
+            {
+                return;
+            }
+
+            data.activeSession = null;
+            phase = CatLifeSessionPhase.Normal;
         }
 
         public int RemainingSeconds(long now)

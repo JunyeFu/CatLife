@@ -178,8 +178,24 @@ namespace CatLife.Mobile.Tests
         {
             CatLifeAppData data = new CatLifeAppData();
             data.settings.localBehaviorStatsEnabled = false;
+            data.settings.autoFocusAdaptationSeconds = 30;
             CatLifeAppData restored = CatLifeDataJson.Deserialize(CatLifeDataJson.Serialize(data));
             Assert.That(restored.settings.localBehaviorStatsEnabled, Is.False);
+            Assert.That(restored.settings.autoFocusAdaptationSeconds, Is.EqualTo(30));
+        }
+
+        [Test]
+        public void AutoFocusRequiresContinuousStableDwellAndTriggersOnlyOnce()
+        {
+            Type policyType = Type.GetType("CatLife.Mobile.CatLifeAutoFocusPolicy, CatLife.Mobile.Core");
+            Assert.That(policyType, Is.Not.Null);
+            object policy = Activator.CreateInstance(policyType, new object[] { 2f, .70f });
+            var shouldStart = policyType.GetMethod("ShouldStart");
+
+            Assert.That((bool)shouldStart.Invoke(policy, new object[] { CatLifeSessionPhase.Normal, true, .80f, 1f }), Is.False);
+            Assert.That((bool)shouldStart.Invoke(policy, new object[] { CatLifeSessionPhase.Normal, true, .80f, 1f }), Is.True);
+            Assert.That((bool)shouldStart.Invoke(policy, new object[] { CatLifeSessionPhase.Normal, true, .80f, 10f }), Is.False);
+            Assert.That((bool)shouldStart.Invoke(policy, new object[] { CatLifeSessionPhase.Transition, true, .80f, 10f }), Is.False);
         }
     }
 }

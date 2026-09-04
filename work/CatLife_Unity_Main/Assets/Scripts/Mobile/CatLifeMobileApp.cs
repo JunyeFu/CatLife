@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CatLife.LLM;
 using CatLife.Mobile;
+using CatLife.Recognition;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -37,6 +38,8 @@ public sealed class CatLifeMobileApp : MonoBehaviour
     private float titleTapWindow;
     private bool clearArmed;
     private CatLifeSessionRecord currentReward;
+    private CatLifeAutoFocusPolicy autoFocusPolicy;
+    private bool autoTransition;
 
     public string CurrentView { get; private set; }
     public CatLifeSessionPhase CurrentPhase => session.Phase;
@@ -48,6 +51,7 @@ public sealed class CatLifeMobileApp : MonoBehaviour
         data = PlayerPrefs.HasKey(DataKey) ? CatLifeDataJson.Deserialize(PlayerPrefs.GetString(DataKey)) : new CatLifeAppData();
         session = new CatLifeSessionController(data);
         selectedMinutes = data.settings.defaultMinutes;
+        autoFocusPolicy = new CatLifeAutoFocusPolicy(Mathf.Max(1, data.settings.autoFocusAdaptationSeconds), .68f);
         llm = GetComponent<MockCatLLMClient>();
         if (runtimeCoordinator == null) runtimeCoordinator = FindFirstObjectByType<CatLifeMobileRuntimeCoordinator>();
         if (cameraDirector == null) cameraDirector = FindFirstObjectByType<CatLifeCameraDirector>();
@@ -60,6 +64,9 @@ public sealed class CatLifeMobileApp : MonoBehaviour
     private void Update()
     {
         long now = Now();
+        if (session.Phase == CatLifeSessionPhase.Normal && data.settings.localBehaviorStatsEnabled && data.settings.autoFocusAdaptationSeconds > 0)
+            EvaluateAutoFocus(runtimeCoordinator != null ? runtimeCoordinator.LatestRecognition : RecognitionSnapshot.CreateDefault(), Time.unscaledDeltaTime);
+        if (views.TryGetValue("DebugPanel", out GameObject debugPanel) && debugPanel.activeSelf) RefreshDebug();
         if (bubbleText != null && bubbleText.transform.parent.gameObject.activeSelf && Time.unscaledTime >= bubbleUntil) bubbleText.transform.parent.gameObject.SetActive(false);
         if (session.Phase == CatLifeSessionPhase.Transition && Time.unscaledTime >= transitionEndsAt) EnterFocus();
         else if (session.Phase == CatLifeSessionPhase.Focus)
@@ -109,7 +116,10 @@ public sealed class CatLifeMobileApp : MonoBehaviour
         Bind("RecordsBack", ShowHome); Bind("GrowthBack", ShowHome); Bind("SettingsBack", ShowHome);
         Bind("SettingsDuration", CycleDefaultDuration); Bind("SettingsReminder", ToggleReminder); Bind("SettingsBehavior", ToggleBehaviorStats); Bind("SettingsAi", ToggleAi); Bind("SettingsClear", ClearData);
         Bind("AiConsentAccept", AcceptAiConsent); Bind("AiConsentCancel", CancelAiConsent); Bind("DebugClose", () => views["DebugPanel"].SetActive(false)); Bind("ReviewerMinute", BeginReviewerMinute);
-        views["SwipeTrack"].GetComponent<CatLifeSwipeToEnd>().ConfirmRequested += () => views["ExitConfirm"].SetActive(true);
+        Bind("AutoFocusCancel", CancelAutoFocus); Bind("SettingsAutoFocus", CycleAutoFocusAdaptation);
+        CatLifeSwipeToEnd swipe = views["SwipeTrack"].GetComponent<CatLifeSwipeToEnd>();
+        swipe.ConfirmRequested += () => views["ExitConfirm"].SetActive(true);
+        swipe.InteractionRecorded += () => runtimeCoordinator?.RecordUiEvent("ui_scroll");
     }
 
     private void ShowHome(bool immediate = false)
@@ -131,13 +141,42 @@ public sealed class CatLifeMobileApp : MonoBehaviour
     }
     private void BeginTransition()
     {
+        autoTransition = false;
+        StartTransition();
+    }
+    private void StartTransition()
+    {
         data.settings.defaultMinutes = selectedMinutes;
         session.BeginTransition(selectedMinutes * 60, Now());
         Save(); ShowOnly("TransitionPanel"); transitionEndsAt = Time.unscaledTime + 2f;
+        views["AutoFocusCancel"].SetActive(autoTransition);
+        TextOf("TransitionText").text = autoTransition ? "检测到你逐渐安静，准备进入专注……" : "慢慢趴好，准备开始……";
         cameraDirector?.Show(CatLifeSessionPhase.Transition); runtimeCoordinator?.ApplyPhase(CatLifeSessionPhase.Transition);
     }
     private void BeginReviewerMinute() { selectedMinutes = 1; views["DebugPanel"].SetActive(false); BeginTransition(); }
-    private void EnterFocus() { session.EnterFocus(Now()); Save(); ShowFocus(false); }
+    private void EnterFocus()
+    {
+        string source = autoTransition ? "auto" : "manual";
+        session.EnterFocus(Now()); Save(); ShowFocus(false);
+        Debug.Log($"[CatLifeRecognition] focus_enter source={source}");
+        autoTransition = false;
+    }
+    public void EvaluateAutoFocus(RecognitionSnapshot recognition, float deltaSeconds)
+    {
+        if (autoFocusPolicy == null || !autoFocusPolicy.ShouldStart(session.Phase, recognition.attentionBand == AttentionBand.Stable, recognition.focusConfidence, deltaSeconds)) return;
+        autoTransition = true;
+        selectedMinutes = data.settings.defaultMinutes;
+        Debug.Log($"[CatLifeRecognition] auto_transition band={recognition.attentionBand} confidence={recognition.focusConfidence:F2}");
+        StartTransition();
+    }
+    private void CancelAutoFocus()
+    {
+        if (!autoTransition || session.Phase != CatLifeSessionPhase.Transition) return;
+        autoTransition = false;
+        session.CancelTransition();
+        Debug.Log("[CatLifeRecognition] auto_transition_cancelled");
+        Save(); ShowHome();
+    }
     private void ShowFocus(bool immediate)
     {
         ShowOnly("FocusPanel"); timerText.text = FormatClock(session.RemainingSeconds(Now()));
@@ -175,6 +214,13 @@ public sealed class CatLifeMobileApp : MonoBehaviour
     private void CycleDefaultDuration() { data.settings.defaultMinutes = data.settings.defaultMinutes == 15 ? 25 : data.settings.defaultMinutes == 25 ? 45 : 15; selectedMinutes = data.settings.defaultMinutes; Save(); RefreshSettings(); }
     private void ToggleReminder() { data.settings.reminderMode = data.settings.reminderMode == "quiet" ? "gentle" : "quiet"; Save(); RefreshSetup(); RefreshSettings(); }
     private void ToggleBehaviorStats() { data.settings.localBehaviorStatsEnabled = !data.settings.localBehaviorStatsEnabled; Save(); RefreshSettings(); }
+    private void CycleAutoFocusAdaptation()
+    {
+        int current = data.settings.autoFocusAdaptationSeconds;
+        data.settings.autoFocusAdaptationSeconds = current == 0 ? 12 : current == 12 ? 30 : current == 30 ? 60 : 0;
+        autoFocusPolicy = new CatLifeAutoFocusPolicy(Mathf.Max(1, data.settings.autoFocusAdaptationSeconds), .68f);
+        Save(); RefreshSettings();
+    }
     private void ToggleAi()
     {
         if (!data.settings.aiEnabled && !data.settings.aiConsent) { views["AiConsentPanel"].SetActive(true); return; }
@@ -193,8 +239,14 @@ public sealed class CatLifeMobileApp : MonoBehaviour
         titleTapWindow = Time.unscaledTime + 2f;
         if (++titleTapCount < 5) return;
         titleTapCount = 0; CatLifeDerivedStats stats = CatLifeStats.Derive(data, Now());
-        debugText.text = $"状态 {session.Phase}\n今日 {stats.TodayMinutes}m / 完成 {stats.TodayCompletedCount}\nAI {LatestAiSource()}\n构建 0.3.0 (3)";
+        RefreshDebug();
         views["DebugPanel"].SetActive(true);
+    }
+    private void RefreshDebug()
+    {
+        RecognitionSnapshot recognition = runtimeCoordinator != null ? runtimeCoordinator.LatestRecognition : RecognitionSnapshot.CreateDefault();
+        CatLifeDerivedStats stats = CatLifeStats.Derive(data, Now());
+        debugText.text = $"会话 {session.Phase}\n注意 {recognition.attentionBand} / {recognition.attentionTrend}\n专注 {recognition.focusConfidence:0.00}  唤醒 {recognition.userArousal:0.00}\n风险 {recognition.interruptionRisk}\n事件 {recognition.safeLocalSummary}\n今日 {stats.TodayMinutes}m / 完成 {stats.TodayCompletedCount}\nAI {LatestAiSource()}\n构建 0.3.0 (3)";
     }
 
     private void RequestAiOnce(CatLifeSessionRecord record)
@@ -219,7 +271,8 @@ public sealed class CatLifeMobileApp : MonoBehaviour
     }
     private void RefreshSettings()
     {
-        settingsText.text = $"默认时长  {data.settings.defaultMinutes} 分钟\n提醒模式  {(data.settings.reminderMode == "quiet" ? "安静陪伴" : "轻提醒")}\n本地行为统计  {(data.settings.localBehaviorStatsEnabled ? "开启" : "关闭")}\nAI 会后建议  {(data.settings.aiEnabled ? "开启" : "关闭")}\n\n仅保存时长、触控次数、后台次数和稳定时长；AI 开启后只发送会话聚合值。";
+        string autoFocus = data.settings.autoFocusAdaptationSeconds > 0 ? data.settings.autoFocusAdaptationSeconds + " 秒" : "关闭";
+        settingsText.text = $"默认时长  {data.settings.defaultMinutes} 分钟\n提醒模式  {(data.settings.reminderMode == "quiet" ? "安静陪伴" : "轻提醒")}\n本地行为统计  {(data.settings.localBehaviorStatsEnabled ? "开启" : "关闭")}\n自动专注适应  {autoFocus}\nAI 会后建议  {(data.settings.aiEnabled ? "开启" : "关闭")}\n\n仅使用 App 内聚合事件；不采集文字、触点、屏幕内容或其他应用。";
         TextOf("SettingsClearText").text = clearArmed ? "再次点击确认清除" : "清除本地数据";
     }
     private void RenderReward(CatLifeSessionRecord record)
@@ -244,7 +297,12 @@ public sealed class CatLifeMobileApp : MonoBehaviour
         CurrentView = name;
         runtimeCoordinator?.RecordUiEvent("page_enter_" + name);
     }
-    private void Bind(string name, UnityEngine.Events.UnityAction action) { views[name].GetComponent<Button>().onClick.AddListener(action); }
+    private void Bind(string name, UnityEngine.Events.UnityAction action)
+    {
+        Button button = views[name].GetComponent<Button>();
+        button.onClick.AddListener(() => runtimeCoordinator?.RecordUiTap("tap_" + name));
+        button.onClick.AddListener(action);
+    }
     private Text TextOf(string name) { return views[name].GetComponent<Text>(); }
     private void Save() { PlayerPrefs.SetString(DataKey, CatLifeDataJson.Serialize(data)); PlayerPrefs.Save(); }
     private static long Now() { return DateTimeOffset.UtcNow.ToUnixTimeSeconds(); }

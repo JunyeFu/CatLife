@@ -51,6 +51,7 @@ public static class CatLifeMobileUiPrefabBuilder
 
         GameObject transition = Panel("TransitionPanel", session.transform, new Color(.08f, .16f, .14f, .20f));
         TextAt("TransitionText", "慢慢趴好，准备开始……", transition.transform, new Vector2(.12f, .74f), new Vector2(.88f, .82f), 38, TextAnchor.MiddleCenter, Color.white);
+        ButtonAt("AutoFocusCancel", "暂不进入", transition.transform, new Vector2(.30f, .08f), new Vector2(.70f, .14f), Green, 28);
         GameObject focus = Panel("FocusPanel", session.transform, new Color(.04f, .12f, .13f, .20f));
         TextAt("FocusTitle", "专注中", focus.transform, new Vector2(.20f, .88f), new Vector2(.80f, .94f), 38, TextAnchor.MiddleCenter, Color.white);
         TextAt("TimerText", "25:00", focus.transform, new Vector2(.12f, .75f), new Vector2(.88f, .88f), 106, TextAnchor.MiddleCenter, Color.white);
@@ -77,7 +78,8 @@ public static class CatLifeMobileUiPrefabBuilder
         ButtonAt("SettingsReminder", "切换提醒", settings.transform, new Vector2(.52f, .28f), new Vector2(.92f, .34f), Sky, 25);
         ButtonAt("SettingsBehavior", "行为统计开关", settings.transform, new Vector2(.08f, .20f), new Vector2(.48f, .26f), Green, 25);
         ButtonAt("SettingsAi", "AI 开关", settings.transform, new Vector2(.52f, .20f), new Vector2(.92f, .26f), Orange, 25);
-        ButtonAt("SettingsClear", "清除本地数据", settings.transform, new Vector2(.25f, .12f), new Vector2(.75f, .18f), Alert, 25, "SettingsClearText");
+        ButtonAt("SettingsAutoFocus", "自动专注时长", settings.transform, new Vector2(.08f, .12f), new Vector2(.48f, .18f), Sky, 23);
+        ButtonAt("SettingsClear", "清除本地数据", settings.transform, new Vector2(.52f, .12f), new Vector2(.92f, .18f), Alert, 23, "SettingsClearText");
 
         GameObject transient = Panel("TransientLayer", root, Color.clear);
         ConfirmPanel(transient.transform, "ExitConfirm", "确认结束本次专注？\n中断会保留记录，但成长和爪印为 0。", "InterruptConfirm", "确认结束", "InterruptCancel", "继续专注");

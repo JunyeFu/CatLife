@@ -10,12 +10,13 @@ public sealed class CatLifeSwipeToEnd : MonoBehaviour, IPointerDownHandler, IDra
     private RectTransform track;
     private float progress;
     public event Action ConfirmRequested;
+    public event Action InteractionRecorded;
     public float Progress => progress;
     private void Awake() { track = (RectTransform)transform; ResetTrack(); }
     public void Configure(RectTransform sliderHandle, Image sliderFill) { handle = sliderHandle; fill = sliderFill; }
     public void OnPointerDown(PointerEventData eventData) { UpdateProgress(eventData); }
     public void OnDrag(PointerEventData eventData) { UpdateProgress(eventData); }
-    public void OnPointerUp(PointerEventData eventData) { if (progress >= .65f) ConfirmRequested?.Invoke(); ResetTrack(); }
+    public void OnPointerUp(PointerEventData eventData) { InteractionRecorded?.Invoke(); if (progress >= .65f) ConfirmRequested?.Invoke(); ResetTrack(); }
     private void UpdateProgress(PointerEventData eventData)
     {
         if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(track, eventData.position, eventData.pressEventCamera, out Vector2 point)) return;

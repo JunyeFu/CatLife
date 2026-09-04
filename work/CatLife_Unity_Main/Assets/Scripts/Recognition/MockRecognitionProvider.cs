@@ -20,6 +20,7 @@ namespace CatLife.Recognition
         private float elapsedSincePoll;
         private float lastTapTime = -999f;
         private float lastLongPressTime = -999f;
+        private float previousFocusConfidence = .5f;
 
         public bool IsReady { get; private set; }
         public float PollIntervalSeconds { get { return pollIntervalSeconds; } }
@@ -122,15 +123,28 @@ namespace CatLife.Recognition
 
         private void ApplyRealtimeFeatures(RealtimeFeatureSnapshot features)
         {
+            AttentionBand previousBand = latest.attentionBand;
+            AttentionSpectrumResult spectrum = AttentionSpectrum.Evaluate(
+                features.focusScore01,
+                features.arousal01,
+                features.distraction01,
+                previousFocusConfidence);
             latest.focusState = ResolveFocusState(features);
             latest.userIntent = ResolveUserIntent(features);
             latest.interruptionRisk = ResolveInterruptionRisk(features);
             latest.focusConfidence = features.focusScore01;
             latest.userArousal = features.arousal01;
             latest.interactionReadiness = Mathf.Clamp01(0.25f + features.arousal01 * 0.55f + features.distraction01 * 0.2f);
+            latest.attentionBand = spectrum.band;
+            latest.attentionTrend = spectrum.trend;
             latest.companionshipNeed = latest.userIntent == UserIntent.NeedsComfort ? 0.8f :
                 latest.userIntent == UserIntent.WantsInteraction ? 0.55f : 0.25f;
             latest.safeLocalSummary = "features: " + features.localEventSummary;
+            previousFocusConfidence = features.focusScore01;
+            if (spectrum.band != previousBand)
+            {
+                Debug.Log($"[CatLifeRecognition] band={spectrum.band} trend={spectrum.trend} focus={features.focusScore01:F2} arousal={features.arousal01:F2} distraction={features.distraction01:F2}");
+            }
         }
 
         private static FocusState ResolveFocusState(RealtimeFeatureSnapshot features)
