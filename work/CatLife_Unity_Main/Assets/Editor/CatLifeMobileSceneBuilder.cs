@@ -152,6 +152,17 @@ public static class CatLifeMobileSceneBuilder
         GameObject systems = new GameObject("CatLifeRuntimeSystems", typeof(RealtimeFeatureEngine), typeof(MockRecognitionProvider), typeof(CatLifeMobileRuntimeCoordinator));
         CatLifeMobileRuntimeCoordinator runtime = systems.GetComponent<CatLifeMobileRuntimeCoordinator>();
         CatBehaviorDriver behavior = BuildMobileNavigation(systems.transform, cat.gameObject);
+        Canvas canvas = ui.GetComponentInChildren<Canvas>(true);
+        if (canvas == null) throw new InvalidDataException("Mobile UI prefab is missing its Canvas.");
+        CatLife.UI.CatBubblePresenter catBubble = canvas.gameObject.AddComponent<CatLife.UI.CatBubblePresenter>();
+        SetObjectReference(behavior, "bubblePresenter", catBubble);
+        GameObject safeArea = GameObject.Find("SafeArea");
+        if (safeArea == null) throw new InvalidDataException("Mobile UI prefab is missing SafeArea.");
+        UnityEngine.UI.Image safeAreaImage = safeArea.GetComponent<UnityEngine.UI.Image>();
+        safeAreaImage.raycastTarget = true;
+        PrefabUtility.RecordPrefabInstancePropertyModifications(safeAreaImage);
+        CatUiInteractionBridge uiCatInteraction = safeArea.AddComponent<CatUiInteractionBridge>();
+        uiCatInteraction.Configure(behavior, Camera.main, cat.transform);
         runtime.Configure(systems.GetComponent<RealtimeFeatureEngine>(), systems.GetComponent<MockRecognitionProvider>(), cat, behavior);
         GameObject appObject = new GameObject("CatLifeMobileApp", typeof(CatLifeMobileApp), typeof(CatLife.LLM.MockCatLLMClient));
         appObject.GetComponent<CatLifeMobileApp>().Configure(ui, director, runtime);
@@ -179,9 +190,9 @@ public static class CatLifeMobileSceneBuilder
         CatInterestPoint[] points =
         {
             CreateInterestPoint(pointsRoot, "Interest_HomeFront", "home_front", new Vector3(-.3f, groundY, -6.78f), new[] { "plaza", "quiet" }),
-            CreateInterestPoint(pointsRoot, "Interest_Left_Garden", "left_garden", new Vector3(-3.4f, groundY, -6.4f), new[] { "garden", "curious" }),
-            CreateInterestPoint(pointsRoot, "Interest_Right_Garden", "right_garden", new Vector3(3.4f, groundY, -6.4f), new[] { "garden", "curious" }),
-            CreateInterestPoint(pointsRoot, "Interest_Front_Path", "front_path", new Vector3(0f, groundY, -8.9f), new[] { "path", "quiet" })
+            CreateInterestPoint(pointsRoot, "Interest_Left_Garden", "left_garden", new Vector3(-1.55f, groundY, -6.55f), new[] { "garden", "curious" }),
+            CreateInterestPoint(pointsRoot, "Interest_Right_Garden", "right_garden", new Vector3(1.35f, groundY, -6.55f), new[] { "garden", "curious" }),
+            CreateInterestPoint(pointsRoot, "Interest_Front_Path", "front_path", new Vector3(0f, groundY, -8.35f), new[] { "path", "quiet" })
         };
         CatInterestPointRegistry registry = navigation.AddComponent<CatInterestPointRegistry>();
         registry.SetPoints(points);
@@ -194,6 +205,8 @@ public static class CatLifeMobileSceneBuilder
         if (AssetDatabase.LoadAssetAtPath<NavMeshData>(NavMeshDataPath) != null)
             AssetDatabase.DeleteAsset(NavMeshDataPath);
         AssetDatabase.CreateAsset(surface.navMeshData, NavMeshDataPath);
+
+        CatForbiddenZone[] forbiddenZones = BuildSemanticForbiddenZones(navigation.transform, groundY);
 
         NavMeshAgent agent = cat.AddComponent<NavMeshAgent>();
         agent.radius = .18f;
@@ -221,8 +234,10 @@ public static class CatLifeMobileSceneBuilder
         SetObjectReference(planner, "interestPointRegistry", registry);
         SetObjectReference(planner, "needModel", needModel);
         SetObjectReference(planner, "behaviorMemory", memory);
-        SetBool(planner, "preferCameraRangeWhenNonFocused", false);
+        SetObjectArray(planner, "forbiddenZones", forbiddenZones);
+        SetBool(planner, "preferCameraRangeWhenNonFocused", true);
         SetBool(planner, "preferCameraRangeWhenFocused", false);
+        SetFloat(planner, "nonFocusSampleRadius", 2.25f);
         SetFloat(planner, "minMoveDistance", .6f);
         SetFloat(planner, "navMeshProbeDistance", 1.2f);
         SetInt(planner, "sampleAttempts", 32);
@@ -235,13 +250,77 @@ public static class CatLifeMobileSceneBuilder
         SetObjectReference(behavior, "needModel", needModel);
         SetObjectReference(behavior, "behaviorMemory", memory);
         SetObjectReference(behavior, "behaviorScorer", scorer);
+        ConfigureCatInteraction(cat, behavior);
         return behavior;
+    }
+
+    private static void ConfigureCatInteraction(GameObject cat, CatBehaviorDriver behavior)
+    {
+        Renderer[] renderers = cat.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0) throw new InvalidDataException("Mobile cat has no renderer for interaction bounds.");
+        Bounds bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
+
+        BoxCollider collider = cat.AddComponent<BoxCollider>();
+        collider.center = cat.transform.InverseTransformPoint(bounds.center);
+        Vector3 scale = cat.transform.lossyScale;
+        collider.size = new Vector3(
+            bounds.size.x / Mathf.Max(.0001f, Mathf.Abs(scale.x)),
+            bounds.size.y / Mathf.Max(.0001f, Mathf.Abs(scale.y)),
+            bounds.size.z / Mathf.Max(.0001f, Mathf.Abs(scale.z)));
+        collider.isTrigger = true;
+
+        CatInteractionMapper interaction = cat.AddComponent<CatInteractionMapper>();
+        interaction.Configure(behavior, Camera.main, cat.transform);
+    }
+
+    private static CatForbiddenZone[] BuildSemanticForbiddenZones(Transform navigationRoot, float groundY)
+    {
+        Transform zonesRoot = new GameObject("CatForbiddenZones").transform;
+        zonesRoot.SetParent(navigationRoot, false);
+        string[] sourceNames =
+        {
+            "CL_BLD_FocusHouse_01", "CL_BLD_TomatoClockTower_01", "CL_BLD_CatHouse_01",
+            "CL_BLD_FishShop_01", "CL_BLD_TownGate_01", "CL_ENV_RewardTree_01"
+        };
+        List<CatForbiddenZone> zones = new List<CatForbiddenZone>();
+        foreach (string sourceName in sourceNames)
+        {
+            GameObject source = GameObject.Find(sourceName);
+            if (source == null) throw new InvalidDataException("Forbidden-zone source is missing: " + sourceName);
+            Renderer[] renderers = source.GetComponentsInChildren<Renderer>(true);
+            if (renderers.Length == 0) throw new InvalidDataException("Forbidden-zone source has no renderer: " + sourceName);
+            Bounds bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
+
+            GameObject zoneObject = new GameObject("Forbidden_" + sourceName, typeof(CatForbiddenZone));
+            zoneObject.transform.SetParent(zonesRoot, false);
+            CatForbiddenZone zone = zoneObject.GetComponent<CatForbiddenZone>();
+            zone.Configure(
+                sourceName,
+                CatForbiddenZone.ZoneSourceKind.RendererBounds,
+                1.05f,
+                new Vector3(bounds.center.x, groundY, bounds.center.z),
+                new Vector3(Mathf.Max(.4f, bounds.size.x * 1.05f), .8f, Mathf.Max(.4f, bounds.size.z * 1.05f)));
+            zoneObject.GetComponent<BoxCollider>().isTrigger = true;
+            zones.Add(zone);
+        }
+        return zones.ToArray();
     }
 
     private static void SetObjectReference(UnityEngine.Object target, string propertyName, UnityEngine.Object value)
     {
         SerializedObject serialized = new SerializedObject(target);
         serialized.FindProperty(propertyName).objectReferenceValue = value;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static void SetObjectArray(UnityEngine.Object target, string propertyName, UnityEngine.Object[] values)
+    {
+        SerializedObject serialized = new SerializedObject(target);
+        SerializedProperty property = serialized.FindProperty(propertyName);
+        property.arraySize = values.Length;
+        for (int i = 0; i < values.Length; i++) property.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
         serialized.ApplyModifiedPropertiesWithoutUndo();
     }
 
@@ -423,7 +502,11 @@ public static class CatLifeMobileSceneBuilder
         material.SetFloat("_BumpScale", .55f);
         material.SetFloat("_Smoothness", .25f);
         material.EnableKeyword("_NORMALMAP");
-        foreach (SkinnedMeshRenderer renderer in cat.GetComponentsInChildren<SkinnedMeshRenderer>(true)) renderer.sharedMaterial = material;
+        foreach (SkinnedMeshRenderer renderer in cat.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+        {
+            renderer.sharedMaterial = material;
+            renderer.updateWhenOffscreen = true;
+        }
         Animator animator = cat.GetComponentInChildren<Animator>();
         if (animator == null) animator = cat.AddComponent<Animator>();
         animator.runtimeAnimatorController = BuildCatAnimator();
@@ -439,7 +522,7 @@ public static class CatLifeMobileSceneBuilder
         AnimationClip[] clips = AssetDatabase.LoadAllAssetsAtPath(CatSourcePath).OfType<AnimationClip>().Where(clip => !clip.name.StartsWith("__preview__", StringComparison.Ordinal)).ToArray();
         string[] required =
         {
-            "CL_CAT_SRC_Walk_60fps",
+            "CL_CAT_SRC_Walk_60fps", "CL_CAT_IdleBreath_v06_headsync_loop_108f",
             "CL_CAT_AlertLook_v01_loop_120f", "CL_CAT_PawWave_v01_loop_96f", "CL_CAT_TailWagHappy_v01_loop_96f",
             "CL_CAT_CuriousSniff_v02_loop_112f", "CL_CAT_HeadTiltListen_v01_loop_96f", "CL_CAT_LookBack_v02_loop_112f",
             "CL_CAT_StretchYawn_v03_slow_loop_264f", "CL_CAT_EarTwitchAlert_v02_loop_120f", "CL_CAT_HeadShakeNo_v01_loop_108f",

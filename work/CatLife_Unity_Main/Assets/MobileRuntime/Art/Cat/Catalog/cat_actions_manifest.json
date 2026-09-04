@@ -1,9 +1,10 @@
 {
-  "package": "CatLife cat animation final state",
-  "generated_date": "2026-06-29",
+  "package": "CatLife mobile runtime cat animation set",
+  "generated_date": "2026-09-03",
   "coordinate_basis": "+Z up; head faces -Y; tail points +Y; X left/right",
-  "source_blend": "C:\\Users\\fujunye\\Desktop\\Agent\\05-AIGC\\03-3d-models\\blender-work\\CatLife_cat_animation_coordinate_corrected.blend",
-  "export_fbx": "C:\\Users\\fujunye\\Desktop\\Agent\\05-AIGC\\03-3d-models\\blender-work\\exports\\cat-animation-final-20260629\\CatLife_cat_10_actions_final_state.fbx",
+  "source_fbx": "06-deliverables/cat-animation-final-package-20260629/CatLife_cat_10_actions_final_state.fbx",
+  "derived_master": "03-3d-models/catlife-town/pipeline/master/CatLife_cat_runtime_v03.blend",
+  "export_fbx": "work/CatLife_Unity_Main/Assets/MobileRuntime/Art/Cat/Source/CL_CAT_Runtime.fbx",
   "rig_objects": [
     "CL_CAT_CORRECTED_Armature",
     "CL_CAT_CORRECTED_Mesh"
@@ -78,7 +79,56 @@
       "status": "draft_ready_for_review",
       "intent": "grounded head-shake / no reaction loop",
       "frame_range": "1-109"
+    },
+    {
+      "index": 11,
+      "action": "CL_CAT_SRC_Walk_60fps",
+      "status": "accepted",
+      "intent": "grounded town traversal",
+      "frame_range": "1-61"
+    },
+    {
+      "index": 12,
+      "action": "CL_CAT_SitDownTransition_v01_72f",
+      "status": "accepted",
+      "intent": "standing to seated transition",
+      "frame_range": "1-72"
+    },
+    {
+      "index": 13,
+      "action": "CL_CAT_SitIdle_v01_loop_96f",
+      "status": "accepted",
+      "intent": "seated home idle loop",
+      "frame_range": "1-96"
+    },
+    {
+      "index": 14,
+      "action": "CL_CAT_LieDownTransition_v01_120f",
+      "status": "accepted",
+      "intent": "seated sniff to focus rest transition",
+      "frame_range": "1-120"
+    },
+    {
+      "index": 15,
+      "action": "CL_CAT_FocusRest_v01_loop_96f",
+      "status": "accepted",
+      "intent": "focus rest breathing loop",
+      "frame_range": "1-96"
+    },
+    {
+      "index": 16,
+      "action": "CL_CAT_FocusAttention_v01_48f",
+      "status": "accepted",
+      "intent": "brief focus attention reaction",
+      "frame_range": "1-48"
+    },
+    {
+      "index": 17,
+      "action": "CL_CAT_WakeUpTransition_v01_72f",
+      "status": "accepted",
+      "intent": "focus rest to seated reward transition",
+      "frame_range": "1-72"
     }
   ],
-  "notes": "FBX was exported from selected final rig and mesh with animation baking enabled. Use manifest final_actions as the intended action list; older draft actions may still exist in the working blend for auditability."
+  "notes": "The runtime FBX contains only the selected rig and mesh plus these 17 accepted actions. The original FBX remains unchanged."
 }

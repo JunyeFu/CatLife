@@ -67,10 +67,10 @@ namespace CatLife.UI
             GameObject root = new GameObject("CatFeedbackBubble", typeof(RectTransform), typeof(Image));
             root.transform.SetParent(canvasRect, false);
             bubbleRoot = root.GetComponent<RectTransform>();
-            bubbleRoot.anchorMin = new Vector2(0.5f, 0f);
-            bubbleRoot.anchorMax = new Vector2(0.5f, 0f);
-            bubbleRoot.pivot = new Vector2(0.5f, 0f);
-            bubbleRoot.anchoredPosition = new Vector2(0f, 216f);
+            bubbleRoot.anchorMin = new Vector2(0.5f, 0.5f);
+            bubbleRoot.anchorMax = new Vector2(0.5f, 0.5f);
+            bubbleRoot.pivot = new Vector2(0.5f, 0.5f);
+            bubbleRoot.anchoredPosition = new Vector2(0f, -360f);
             bubbleRoot.sizeDelta = new Vector2(720f, 104f);
 
             bubbleBackground = root.GetComponent<Image>();

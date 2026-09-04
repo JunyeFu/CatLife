@@ -272,8 +272,14 @@ namespace CatLife.Cat
 
         public void NotifyCatTapped()
         {
+            Debug.Log("[CatLifeCatInteraction] tap");
             AndroidBehaviorEventBridge.RecordUnityEvent("CatTap", "cat");
             PushRecentEvent("cat_tap");
+            ResolveBubblePresenter();
+            if (bubblePresenter != null)
+            {
+                bubblePresenter.Show("我在这里，陪你慢慢来。", "local_interaction");
+            }
             if (behaviorMemory != null)
             {
                 behaviorMemory.RecordUserInteraction();

@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
@@ -15,6 +17,7 @@ namespace CatLife.Cat
         [SerializeField] private Transform catRoot;
         [SerializeField] private LayerMask raycastMask = ~0;
         [SerializeField] private float maxRayDistance = 200f;
+        [SerializeField] private float catScreenHitRadius = 140f;
         [SerializeField] private float longPressSeconds = 0.6f;
         [SerializeField] private bool enableMouseInput = true;
         [SerializeField] private bool enableTouchInput = true;
@@ -152,7 +155,7 @@ namespace CatLife.Cat
 
         private void BeginPress(int pointerId, Vector2 screenPosition)
         {
-            if (IsPointerOverUi(pointerId))
+            if (IsPointerOverInteractiveUi(screenPosition))
             {
                 pressActive = false;
                 return;
@@ -162,7 +165,8 @@ namespace CatLife.Cat
             activePointerId = pointerId;
             pressStartedAt = Time.unscaledTime;
             pressScreenPosition = screenPosition;
-            pressStartedOnCat = TryRaycast(screenPosition, out RaycastHit hit) && IsCatHit(hit);
+            pressStartedOnCat = IsWithinCatScreenHitArea(screenPosition) ||
+                (TryRaycast(screenPosition, out RaycastHit hit) && IsCatHit(hit));
         }
 
         private void EndPress(int pointerId, Vector2 screenPosition)
@@ -173,7 +177,7 @@ namespace CatLife.Cat
             }
 
             pressActive = false;
-            if (IsPointerOverUi(pointerId))
+            if (IsPointerOverInteractiveUi(screenPosition))
             {
                 return;
             }
@@ -187,7 +191,8 @@ namespace CatLife.Cat
 
             RaycastHit hit;
             bool hasHit = TryRaycast(screenPosition, out hit);
-            if (pressStartedOnCat && hasHit && IsCatHit(hit))
+            bool endedOnCat = IsWithinCatScreenHitArea(screenPosition) || (hasHit && IsCatHit(hit));
+            if (pressStartedOnCat && endedOnCat)
             {
                 if (pressSeconds >= Mathf.Max(0.1f, longPressSeconds))
                 {
@@ -269,16 +274,40 @@ namespace CatLife.Cat
             return false;
         }
 
-        private static bool IsPointerOverUi(int pointerId)
+        private bool IsWithinCatScreenHitArea(Vector2 screenPosition)
+        {
+            if (catRoot == null || inputCamera == null) return false;
+            Renderer[] renderers = catRoot.GetComponentsInChildren<Renderer>(true);
+            if (renderers.Length == 0) return false;
+            Bounds bounds = renderers[0].bounds;
+            for (int i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
+            Vector3 projected = inputCamera.WorldToScreenPoint(bounds.center);
+            if (projected.z <= 0f) return false;
+            return Vector2.Distance(screenPosition, new Vector2(projected.x, projected.y)) <= Mathf.Max(48f, catScreenHitRadius);
+        }
+
+        private static bool IsPointerOverInteractiveUi(Vector2 screenPosition)
         {
             if (EventSystem.current == null)
             {
                 return false;
             }
 
-            return pointerId >= 0
-                ? EventSystem.current.IsPointerOverGameObject(pointerId)
-                : EventSystem.current.IsPointerOverGameObject();
+            PointerEventData eventData = new PointerEventData(EventSystem.current) { position = screenPosition };
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(eventData, results);
+            foreach (RaycastResult result in results)
+            {
+                if (result.gameObject.GetComponentInParent<Selectable>() != null)
+                    return true;
+                Transform current = result.gameObject.transform;
+                while (current != null)
+                {
+                    if (current.name == "SwipeTrack") return true;
+                    current = current.parent;
+                }
+            }
+            return false;
         }
     }
 }

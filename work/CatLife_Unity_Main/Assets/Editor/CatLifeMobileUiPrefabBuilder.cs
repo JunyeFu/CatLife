@@ -55,6 +55,7 @@ public static class CatLifeMobileUiPrefabBuilder
         TextAt("FocusTitle", "专注中", focus.transform, new Vector2(.20f, .88f), new Vector2(.80f, .94f), 38, TextAnchor.MiddleCenter, Color.white);
         TextAt("TimerText", "25:00", focus.transform, new Vector2(.12f, .75f), new Vector2(.88f, .88f), 106, TextAnchor.MiddleCenter, Color.white);
         GameObject swipe = PanelAt("SwipeTrack", focus.transform, new Vector2(.12f, .05f), new Vector2(.88f, .11f), new Color(.25f, .20f, .13f, .88f));
+        swipe.GetComponent<Image>().raycastTarget = true;
         CatLifeSwipeToEnd swipeControl = swipe.AddComponent<CatLifeSwipeToEnd>();
         Image fill = Panel("SwipeFill", swipe.transform, Orange).GetComponent<Image>(); fill.type = Image.Type.Filled; fill.fillMethod = Image.FillMethod.Horizontal; fill.fillAmount = 0;
         RectTransform handle = PanelAt("SwipeHandle", swipe.transform, new Vector2(0, .05f), new Vector2(.12f, .95f), Cream).GetComponent<RectTransform>();
@@ -115,7 +116,7 @@ public static class CatLifeMobileUiPrefabBuilder
     private static GameObject PanelAt(string name, Transform parent, Vector2 min, Vector2 max, Color color)
     {
         GameObject go = new GameObject(name, typeof(RectTransform), typeof(Image)); go.transform.SetParent(parent, false); RectTransform rect = (RectTransform)go.transform; rect.anchorMin = min; rect.anchorMax = max; rect.offsetMin = rect.offsetMax = Vector2.zero;
-        Image image = go.GetComponent<Image>(); image.color = color; image.sprite = sprite; image.type = Image.Type.Sliced; if (color.a == 0) image.raycastTarget = false; return go;
+        Image image = go.GetComponent<Image>(); image.color = color; image.sprite = sprite; image.type = Image.Type.Sliced; image.raycastTarget = false; return go;
     }
     private static Text TextAt(string name, string value, Transform parent, Vector2 min, Vector2 max, int size, TextAnchor anchor, Color color, Color? background = null)
     {
@@ -126,11 +127,11 @@ public static class CatLifeMobileUiPrefabBuilder
     }
     private static Button ButtonAt(string name, string value, Transform parent, Vector2 min, Vector2 max, Color color, int size, string textName = null)
     {
-        GameObject go = PanelAt(name, parent, min, max, color); Button button = go.AddComponent<Button>(); TextAt(textName ?? name + "Text", value, go.transform, Vector2.zero, Vector2.one, size, TextAnchor.MiddleCenter, Color.white); return button;
+        GameObject go = PanelAt(name, parent, min, max, color); go.GetComponent<Image>().raycastTarget = true; Button button = go.AddComponent<Button>(); TextAt(textName ?? name + "Text", value, go.transform, Vector2.zero, Vector2.one, size, TextAnchor.MiddleCenter, Color.white); return button;
     }
     private static InputField InputAt(string name, string placeholder, Transform parent, Vector2 min, Vector2 max)
     {
-        GameObject go = PanelAt(name, parent, min, max, Color.white); InputField input = go.AddComponent<InputField>(); Text text = TextAt(name + "Text", "", go.transform, new Vector2(.05f, 0), new Vector2(.95f, 1), 28, TextAnchor.MiddleLeft, Ink); Text hint = TextAt(name + "Placeholder", placeholder, go.transform, new Vector2(.05f, 0), new Vector2(.95f, 1), 28, TextAnchor.MiddleLeft, new Color(.3f, .3f, .3f, .6f)); input.textComponent = text; input.placeholder = hint; input.contentType = InputField.ContentType.IntegerNumber; return input;
+        GameObject go = PanelAt(name, parent, min, max, Color.white); go.GetComponent<Image>().raycastTarget = true; InputField input = go.AddComponent<InputField>(); Text text = TextAt(name + "Text", "", go.transform, new Vector2(.05f, 0), new Vector2(.95f, 1), 28, TextAnchor.MiddleLeft, Ink); Text hint = TextAt(name + "Placeholder", placeholder, go.transform, new Vector2(.05f, 0), new Vector2(.95f, 1), 28, TextAnchor.MiddleLeft, new Color(.3f, .3f, .3f, .6f)); input.textComponent = text; input.placeholder = hint; input.contentType = InputField.ContentType.IntegerNumber; return input;
     }
     private static void EnsureFolder(string path)
     {

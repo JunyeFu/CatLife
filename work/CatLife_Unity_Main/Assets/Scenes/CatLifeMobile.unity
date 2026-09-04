@@ -119,7 +119,7 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &22737062
+--- !u!1 &227708168
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,511 +127,68 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 22737063}
-  - component: {fileID: 22737064}
+  - component: {fileID: 227708169}
+  - component: {fileID: 227708170}
+  - component: {fileID: 227708171}
   m_Layer: 0
-  m_Name: Interest_HomeFront
+  m_Name: Forbidden_CL_BLD_FishShop_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &22737063
+--- !u!4 &227708169
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 22737062}
+  m_GameObject: {fileID: 227708168}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.3, y: 0.02, z: -6.78}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 12.691121, y: 0.02, z: 3.7311025}
+  m_LocalScale: {x: 6.7474337, y: 0.8, z: 7.2176337}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2046764975}
+  m_Father: {fileID: 827310050}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &22737064
-MonoBehaviour:
+--- !u!65 &227708170
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 22737062}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5409fa43fb581e47b5bda94097edf73, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatInterestPoint
-  interestId: home_front
-  tags:
-  - plaza
-  - quiet
-  nonFocusWeight: 1
-  focusWeight: 0.25
-  sampleRadius: 0.45
-  allowedInFocus: 1
---- !u!1 &121538823
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 121538824}
-  - component: {fileID: 121538825}
-  m_Layer: 0
-  m_Name: Interest_Left_Garden
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &121538824
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 121538823}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.4, y: 0.02, z: -6.4}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2046764975}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &121538825
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 121538823}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5409fa43fb581e47b5bda94097edf73, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatInterestPoint
-  interestId: left_garden
-  tags:
-  - garden
-  - curious
-  nonFocusWeight: 1
-  focusWeight: 0.25
-  sampleRadius: 0.45
-  allowedInFocus: 1
---- !u!1001 &269073587
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.0275
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.0275
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.0275
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.02
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -6.78
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: m_Name
-      value: CatLifeMobileCat
-      objectReference: {fileID: 0}
-    - target: {fileID: 5842350356123325942, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value:
-      objectReference: {fileID: 2100000, guid: db11c466e65da3249969755d034f8176, type: 2}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 269073596}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 269073599}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 269073598}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 269073597}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 269073600}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 269073594}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 269073595}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 269073593}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 269073592}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 269073591}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 269073590}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 269073589}
-  m_SourcePrefab: {fileID: 100100000, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
---- !u!1 &269073588 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
-  m_PrefabInstance: {fileID: 269073587}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &269073589
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269073588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 169d44503ab9569478813104f874bbd8, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatBehaviorDriver
-  recognitionProviderComponent: {fileID: 332038630}
-  llmClientComponent: {fileID: 0}
-  navigationAgent: {fileID: 269073597}
-  animationController: {fileID: 269073595}
-  destinationPlanner: {fileID: 269073594}
-  actionRouter: {fileID: 269073593}
-  featureEngine: {fileID: 332038631}
-  privacyGateway: {fileID: 0}
-  needModel: {fileID: 269073592}
-  behaviorMemory: {fileID: 269073591}
-  behaviorScorer: {fileID: 269073590}
-  focusLookAtTarget: {fileID: 0}
-  bubblePresenter: {fileID: 0}
-  sceneInteractionMapper: {fileID: 0}
-  sceneInteractionRegistry: {fileID: 0}
-  sceneInteractionMemory:
-    lastPointId:
-    lastAnimationTag:
-    lastSceneClickTime: -999
-    lastBubbleTime: -999
-    lastFocusQuietBubbleTime: -999
-    lastRewardBubbleTime: -999
-    lastPointArrivalTime: -999
-    repeatedPointCount: 0
-  faceCameraWhenFocusedIdle: 1
-  focusFaceCameraDegreesPerSecond: 360
-  decisionInterval: 0.5
-  llmRefreshInterval: 15
-  llmLocalActionCooldownSeconds: 8
-  llmBubbleCooldownSeconds: 12
-  shortActionSeconds: 0.9
-  mediumActionSeconds: 1.4
-  longActionSeconds: 2.1
-  nonFocusRoamWeight: 70
-  nonFocusSniffWeight: 10
-  nonFocusLookBackWeight: 8
-  nonFocusTailWagWeight: 7
-  nonFocusStretchWeight: 5
-  focusRoamWeight: 35
-  focusIdleWeight: 35
-  focusEarTwitchWeight: 18
-  focusAlertLookWeight: 8
-  focusTailWagWeight: 4
---- !u!114 &269073590
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269073588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6766356b8ccf3624ea4b57f12bcb9b57, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatBehaviorBrainScorer
-  cooldownPenaltyWeight: 999
-  repeatPenaltyWeight: 28
-  randomnessJitter: 0.08
---- !u!114 &269073591
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269073588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5654d6a29fac8f744a95b49fba55f2db, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatBehaviorMemory
-  lastState: 0
-  lastStateEnteredAt: 0
-  holdUntilTime: 0
-  lastUserInteractionTime: -999
-  lastInterestPointId:
---- !u!114 &269073592
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269073588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf93da2a136ce1b4aa085c2020acf5d3, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatNeedModel
-  current:
-    curiosity01: 0.52
-    sleepiness01: 0.2
-    affection01: 0.35
-    safety01: 0.78
-    interruptionSensitivity01: 0.28
-    focusCompanionship01: 0.35
-  adaptationSpeed: 0.65
-  focusCompanionshipBuildRate: 0.08
-  affectionBuildOnInteraction: 0.08
---- !u!114 &269073593
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269073588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2478b3d7d8e878143b4171c22e6b3d9f, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatActionRouter
-  ambientCooldownSeconds: 6
-  userCooldownSeconds: 8
-  uiCooldownSeconds: 10
-  sessionCooldownSeconds: 8
-  recognitionCooldownSeconds: 12
-  defaultMaxDelaySeconds: 2
---- !u!114 &269073594
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269073588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25062dfca8bb554489f05c84558edcc0, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatDestinationPlanner
-  userAnchor: {fileID: 0}
-  planningCamera: {fileID: 1602629244}
-  interestPointRegistry: {fileID: 1624201805}
-  needModel: {fileID: 269073592}
-  behaviorMemory: {fileID: 269073591}
-  anchors: []
-  nonFocusSampleRadius: 8
-  focusSampleRadius: 3.5
-  minMoveDistance: 0.6
-  minDistanceFromUserAnchorWhenFocused: 3
-  sampleAttempts: 32
-  preferCameraRangeWhenNonFocused: 0
-  preferCameraRangeWhenFocused: 0
-  viewportSafeMargin: 0.08
-  viewportProbeHeight: 0.28
-  cameraVisibleBiasWeight: 4
-  cameraReturnBiasWeight: 10
-  nonFocusNearCameraBiasWeight: 2.5
-  focusFarCameraBiasWeight: 3.5
-  blockerMask:
+  m_GameObject: {fileID: 227708168}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
-  blockerCheckRadius: 0.3
-  navMeshProbeDistance: 1.2
-  forbiddenZones: []
-  forbiddenPathSampleStep: 0.25
---- !u!114 &269073595
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &227708171
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269073588}
+  m_GameObject: {fileID: 227708168}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1dc92ef3d6e964c47bcb16eab3f942ff, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatAnimationController
-  animator: {fileID: 269073596}
-  locomotionFade: 0.12
-  actionFade: 0.1
-  minLocomotionPlaybackMultiplier: 0.1
-  maxLocomotionPlaybackMultiplier: 3
-  moveSpeed01Parameter: MoveSpeed01
-  isMovingParameter: IsMoving
-  inFocusModeParameter: InFocusMode
-  arousal01Parameter: Arousal01
-  legacyIsWalkingParameter: IsWalking
-  idleStateName: CL_CAT_SitIdle_v01_loop_96f
-  walkStateName: CL_CAT_SRC_Walk_60fps
-  alertLookStateName: CL_CAT_AlertLook_v01_loop_120f
-  curiousSniffStateName: CL_CAT_CuriousSniff_v02_loop_112f
-  earTwitchAlertStateName: CL_CAT_EarTwitchAlert_v02_loop_120f
-  headShakeNoStateName: CL_CAT_HeadShakeNo_v01_loop_108f
-  headTiltListenStateName: CL_CAT_HeadTiltListen_v01_loop_96f
-  tailWagHappyStateName: CL_CAT_TailWagHappy_v01_loop_96f
-  stretchYawnStateName: CL_CAT_StretchYawn_v03_slow_loop_264f
-  pawWaveStateName: CL_CAT_PawWave_v01_loop_96f
-  lookBackStateName: CL_CAT_LookBack_v02_loop_112f
---- !u!95 &269073596
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269073588}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: ffc1049890e5d3e4eb40a11fb55fcb35, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage:
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!114 &269073597
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269073588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16c20553cf114e449b0991459a74f3fe, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatNavigationAgent
-  agent: {fileID: 269073598}
-  freeRoamSpeed: 1.15
-  focusedRoamSpeed: 1.15
-  freeAcceleration: 6
-  focusedAcceleration: 3
-  freeStoppingDistance: 0.14
-  focusedStoppingDistance: 0.22
-  preserveSceneHeightInPlayMode: 1
-  drawDebugPath: 1
---- !u!195 &269073598
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269073588}
-  m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.18
-  m_Speed: 1.15
-  m_Acceleration: 6
-  avoidancePriority: 50
-  m_AngularSpeed: 420
-  m_StoppingDistance: 0.16
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 0
-  m_AutoRepath: 1
-  m_Height: 0.55
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
---- !u!114 &269073599
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269073588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca0760c282f8d3f45a4334bf3122555c, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLifeMobileCatPresenter
---- !u!114 &269073600
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 269073588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a8c85e2d6764f6f8b6b6a9c84de7b41, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatNavMeshSafetyGuard
-  agent: {fileID: 269073598}
-  navigationAgent: {fileID: 269073597}
-  autoRecover: 1
-  navMeshProbeDistance: 0.9
-  maxSurfaceDrift: 0.35
-  stuckSeconds: 2.5
-  minProgressSpeed: 0.02
---- !u!1 &332038627
+  m_Script: {fileID: 11500000, guid: d7cca2fc6ce562c439721dac58356a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatForbiddenZone
+  sourceObjectName: CL_BLD_FishShop_01
+  sourceKind: 1
+  projectionScale: 1.05
+--- !u!1 &404925332
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -639,82 +196,34 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 332038629}
-  - component: {fileID: 332038631}
-  - component: {fileID: 332038630}
-  - component: {fileID: 332038628}
+  - component: {fileID: 404925333}
   m_Layer: 0
-  m_Name: CatLifeRuntimeSystems
+  m_Name: CatInterestPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &332038628
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 332038627}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50dd7578966b48c49b8af8610cc7f4fa, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLifeMobileRuntimeCoordinator
-  featureEngine: {fileID: 332038631}
-  recognitionProvider: {fileID: 332038630}
-  catPresenter: {fileID: 269073599}
-  behaviorDriver: {fileID: 269073589}
---- !u!4 &332038629
+--- !u!4 &404925333
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 332038627}
+  m_GameObject: {fileID: 404925332}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1624201806}
-  m_Father: {fileID: 0}
+  - {fileID: 562458081}
+  - {fileID: 1516831682}
+  - {fileID: 530272423}
+  - {fileID: 824248220}
+  m_Father: {fileID: 1137472845}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &332038630
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 332038627}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2487145ae57b2dc4bbc68c14d82091eb, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Recognition.MockRecognitionProvider
-  pollIntervalSeconds: 0.5
-  featureEngine: {fileID: 0}
-  useRealtimeFeatures: 1
-  cycleFocusStates: 0
-  cycleDurationSeconds: 18
-  startupFocusState: 1
-  startupUserIntent: 0
-  startupInterruptionRisk: 0
---- !u!114 &332038631
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 332038627}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 333991b6c31fb9447a9035cbe9f77112, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Recognition.RealtimeFeatureEngine
---- !u!1 &384953094
+--- !u!1 &459016461
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -722,103 +231,68 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 384953095}
-  - component: {fileID: 384953096}
+  - component: {fileID: 459016464}
+  - component: {fileID: 459016463}
+  - component: {fileID: 459016462}
   m_Layer: 0
-  m_Name: Interest_Right_Garden
+  m_Name: Forbidden_CL_ENV_RewardTree_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &384953095
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 384953094}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.4, y: 0.02, z: -6.4}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2046764975}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &384953096
+--- !u!114 &459016462
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 384953094}
+  m_GameObject: {fileID: 459016461}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5409fa43fb581e47b5bda94097edf73, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatInterestPoint
-  interestId: right_garden
-  tags:
-  - garden
-  - curious
-  nonFocusWeight: 1
-  focusWeight: 0.25
-  sampleRadius: 0.45
-  allowedInFocus: 1
---- !u!1 &800722621
-GameObject:
+  m_Script: {fileID: 11500000, guid: d7cca2fc6ce562c439721dac58356a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatForbiddenZone
+  sourceObjectName: CL_ENV_RewardTree_01
+  sourceKind: 1
+  projectionScale: 1.05
+--- !u!65 &459016463
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 800722623}
-  - component: {fileID: 800722622}
-  m_Layer: 0
-  m_Name: Interest_Front_Path
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &800722622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 800722621}
+  m_GameObject: {fileID: 459016461}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5409fa43fb581e47b5bda94097edf73, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatInterestPoint
-  interestId: front_path
-  tags:
-  - path
-  - quiet
-  nonFocusWeight: 1
-  focusWeight: 0.25
-  sampleRadius: 0.45
-  allowedInFocus: 1
---- !u!4 &800722623
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &459016464
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 800722621}
+  m_GameObject: {fileID: 459016461}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.02, z: -8.9}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -13.479042, y: 0.02, z: 3.941925}
+  m_LocalScale: {x: 7.8843217, y: 0.8, z: 5.352757}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2046764975}
+  m_Father: {fileID: 827310050}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &953303886
+--- !u!1001 &499573287
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -826,345 +300,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
-      propertyPath: m_LocalRotation.w
+    - target: {fileID: 314310160837620, guid: 45e571d0a3069cd478ade0388108fa2c, type: 3}
+      propertyPath: m_RaycastTarget
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4262964242936312370, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
-      propertyPath: m_Name
-      value: CatLifeMobileTown
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
---- !u!1 &986206905
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 986206906}
-  - component: {fileID: 986206907}
-  m_Layer: 0
-  m_Name: Walk_MainPlaza
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &986206906
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 986206905}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.04, z: -6.8}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1624201806}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &986206907
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 986206905}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 7.4, y: 0.12, z: 4.5}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &1157693869
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1157693871}
-  - component: {fileID: 1157693870}
-  m_Layer: 0
-  m_Name: Warm Sun
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!108 &1157693870
-Light:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1157693869}
-  m_Enabled: 1
-  serializedVersion: 13
-  m_Type: 1
-  m_Color: {r: 1, g: 0.91, b: 0.74, a: 1}
-  m_Intensity: 0.9
-  m_Range: 10
-  m_SpotAngle: 30
-  m_InnerSpotAngle: 21.80208
-  m_CookieSize2D: {x: 0.5, y: 0.5}
-  m_Shadows:
-    m_Type: 2
-    m_Resolution: -1
-    m_CustomResolution: -1
-    m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
-    m_NearPlane: 0.2
-    m_CullingMatrixOverride:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_UseCullingMatrixOverride: 0
-  m_Cookie: {fileID: 0}
-  m_DrawHalo: 0
-  m_Flare: {fileID: 0}
-  m_RenderMode: 0
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RenderingLayerMask: 1
-  m_Lightmapping: 4
-  m_LightShadowCasterMode: 0
-  m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
-  m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
-  m_UseBoundingSphereOverride: 0
-  m_UseViewFrustumForShadowCasterCull: 1
-  m_ForceVisible: 0
-  m_ShapeRadius: 0.025
-  m_ShadowAngle: 0
-  m_LightUnit: 1
-  m_LuxAtDistance: 1
-  m_EnableSpotReflector: 1
---- !u!4 &1157693871
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1157693869}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0.39631203, y: -0.20550302, z: 0.09149584, w: 0.89013135}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1162054908
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1162054911}
-  - component: {fileID: 1162054910}
-  - component: {fileID: 1162054909}
-  m_Layer: 0
-  m_Name: EventSystem
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1162054909
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1162054908}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.UI.InputSystemUIInputModule
-  m_SendPointerHoverToParent: 1
-  m_MoveRepeatDelay: 0.5
-  m_MoveRepeatRate: 0.1
-  m_XRTrackingOrigin: {fileID: 0}
-  m_ActionsAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_PointAction: {fileID: -1654692200621890270, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_MoveAction: {fileID: -8784545083839296357, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_SubmitAction: {fileID: 392368643174621059, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_CancelAction: {fileID: 7727032971491509709, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_LeftClickAction: {fileID: 3001919216989983466, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_MiddleClickAction: {fileID: -2185481485913320682, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_RightClickAction: {fileID: -4090225696740746782, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_ScrollWheelAction: {fileID: 6240969308177333660, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_TrackedDevicePositionAction: {fileID: 6564999863303420839, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
-  m_DeselectOnBackgroundClick: 1
-  m_PointerBehavior: 0
-  m_CursorLockBehavior: 0
-  m_ScrollDeltaPerTick: 6
---- !u!114 &1162054910
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1162054908}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
-  m_FirstSelected: {fileID: 0}
-  m_sendNavigationEvents: 1
-  m_DragThreshold: 10
---- !u!4 &1162054911
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1162054908}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1165517645
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1165517646}
-  - component: {fileID: 1165517647}
-  m_Layer: 0
-  m_Name: Walk_LeftGarden
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1165517646
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1165517645}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.9, y: -0.04, z: -6.3}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1624201806}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &1165517647
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1165517645}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 2.8, y: 0.12, z: 3.6}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!1001 &1468261824
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
     - target: {fileID: 707347042777975265, guid: 45e571d0a3069cd478ade0388108fa2c, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1260,14 +399,57 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4121661226717944518, guid: 45e571d0a3069cd478ade0388108fa2c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 499573290}
+    - targetCorrespondingSourceObject: {fileID: 8001820651143280262, guid: 45e571d0a3069cd478ade0388108fa2c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 499573291}
   m_SourcePrefab: {fileID: 100100000, guid: 45e571d0a3069cd478ade0388108fa2c, type: 3}
---- !u!1 &1468261825 stripped
+--- !u!1 &499573288 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4121661226717944518, guid: 45e571d0a3069cd478ade0388108fa2c, type: 3}
-  m_PrefabInstance: {fileID: 1468261824}
+  m_PrefabInstance: {fileID: 499573287}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1491678945
+--- !u!1 &499573289 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8001820651143280262, guid: 45e571d0a3069cd478ade0388108fa2c, type: 3}
+  m_PrefabInstance: {fileID: 499573287}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &499573290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 499573288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 776ebfc2a3444824c906d7060a7becbe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.UI.CatBubblePresenter
+  bubbleRoot: {fileID: 0}
+  bubbleText: {fileID: 0}
+  bubbleBackground: {fileID: 0}
+  defaultVisibleSeconds: 4
+--- !u!114 &499573291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 499573289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d8f6a56b5bb4bc69417ee8e4d6d9935, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatUiInteractionBridge
+  behaviorDriver: {fileID: 754101119}
+  inputCamera: {fileID: 579473087}
+  catRoot: {fileID: 754101117}
+  hitRadiusPixels: 160
+--- !u!1 &530272422
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1275,52 +457,51 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1491678946}
-  - component: {fileID: 1491678947}
+  - component: {fileID: 530272423}
+  - component: {fileID: 530272424}
   m_Layer: 0
-  m_Name: Walk_RightGarden
+  m_Name: Interest_Right_Garden
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1491678946
+--- !u!4 &530272423
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1491678945}
+  m_GameObject: {fileID: 530272422}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.9, y: -0.04, z: -6.3}
+  m_LocalPosition: {x: 1.35, y: 0.02, z: -6.55}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1624201806}
+  m_Father: {fileID: 404925333}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &1491678947
-BoxCollider:
+--- !u!114 &530272424
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1491678945}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
+  m_GameObject: {fileID: 530272422}
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 2.8, y: 0.12, z: 3.6}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &1602629243
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5409fa43fb581e47b5bda94097edf73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatInterestPoint
+  interestId: right_garden
+  tags:
+  - garden
+  - curious
+  nonFocusWeight: 1
+  focusWeight: 0.25
+  sampleRadius: 0.45
+  allowedInFocus: 1
+--- !u!1 &562458080
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1328,10 +509,62 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1602629247}
-  - component: {fileID: 1602629244}
-  - component: {fileID: 1602629246}
-  - component: {fileID: 1602629245}
+  - component: {fileID: 562458081}
+  - component: {fileID: 562458082}
+  m_Layer: 0
+  m_Name: Interest_HomeFront
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &562458081
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 562458080}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.3, y: 0.02, z: -6.78}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 404925333}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &562458082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 562458080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5409fa43fb581e47b5bda94097edf73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatInterestPoint
+  interestId: home_front
+  tags:
+  - plaza
+  - quiet
+  nonFocusWeight: 1
+  focusWeight: 0.25
+  sampleRadius: 0.45
+  allowedInFocus: 1
+--- !u!1 &579473086
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 579473090}
+  - component: {fileID: 579473087}
+  - component: {fileID: 579473089}
+  - component: {fileID: 579473088}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1339,13 +572,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!20 &1602629244
+--- !u!20 &579473087
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1602629243}
+  m_GameObject: {fileID: 579473086}
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
@@ -1390,34 +623,34 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!114 &1602629245
+--- !u!114 &579473088
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1602629243}
+  m_GameObject: {fileID: 579473086}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 27cfe68953bc98f4c874c65695bd1bfd, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CatLifeCameraDirector
-  targetCamera: {fileID: 1602629244}
---- !u!81 &1602629246
+  targetCamera: {fileID: 579473087}
+--- !u!81 &579473089
 AudioListener:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1602629243}
+  m_GameObject: {fileID: 579473086}
   m_Enabled: 1
---- !u!4 &1602629247
+--- !u!4 &579473090
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1602629243}
+  m_GameObject: {fileID: 579473086}
   serializedVersion: 2
   m_LocalRotation: {x: 0.0018357586, y: 0.99805665, z: -0.058090817, w: -0.022474369}
   m_LocalPosition: {x: 0.1, y: 1.9, z: 1.2}
@@ -1426,7 +659,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1624201804
+--- !u!1 &583855971
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1434,9 +667,783 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1624201806}
-  - component: {fileID: 1624201805}
-  - component: {fileID: 1624201807}
+  - component: {fileID: 583855974}
+  - component: {fileID: 583855973}
+  - component: {fileID: 583855972}
+  m_Layer: 0
+  m_Name: CatLifeMobileApp
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &583855972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 583855971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b555d8681c7309e43b0d66bcbfa441a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.LLM.MockCatLLMClient
+  enableClient: 1
+  simulatedLatencySeconds: 0.15
+  preferGenericCloudWhenConfigured: 1
+  cloudTimeoutSeconds: 8
+--- !u!114 &583855973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 583855971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7c222177ce9a3f479dd16ef3dc2e4f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLifeMobileApp
+  viewRoot: {fileID: 499573288}
+  cameraDirector: {fileID: 579473088}
+  runtimeCoordinator: {fileID: 2007309496}
+--- !u!4 &583855974
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 583855971}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &587186381
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 587186384}
+  - component: {fileID: 587186383}
+  - component: {fileID: 587186382}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &587186382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 587186381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.UI.InputSystemUIInputModule
+  m_SendPointerHoverToParent: 1
+  m_MoveRepeatDelay: 0.5
+  m_MoveRepeatRate: 0.1
+  m_XRTrackingOrigin: {fileID: 0}
+  m_ActionsAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_PointAction: {fileID: -1654692200621890270, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_MoveAction: {fileID: -8784545083839296357, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_SubmitAction: {fileID: 392368643174621059, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_CancelAction: {fileID: 7727032971491509709, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_LeftClickAction: {fileID: 3001919216989983466, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_MiddleClickAction: {fileID: -2185481485913320682, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_RightClickAction: {fileID: -4090225696740746782, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_ScrollWheelAction: {fileID: 6240969308177333660, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_TrackedDevicePositionAction: {fileID: 6564999863303420839, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
+  m_DeselectOnBackgroundClick: 1
+  m_PointerBehavior: 0
+  m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
+--- !u!114 &587186383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 587186381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
+--- !u!4 &587186384
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 587186381}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &674008353
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 674008354}
+  - component: {fileID: 674008355}
+  - component: {fileID: 674008356}
+  m_Layer: 0
+  m_Name: Forbidden_CL_BLD_FocusHouse_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &674008354
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 674008353}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -8.553277, y: 0.02, z: -8.793349}
+  m_LocalScale: {x: 5.7606874, y: 0.8, z: 5.807754}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 827310050}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &674008355
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 674008353}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &674008356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 674008353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7cca2fc6ce562c439721dac58356a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatForbiddenZone
+  sourceObjectName: CL_BLD_FocusHouse_01
+  sourceKind: 1
+  projectionScale: 1.05
+--- !u!1001 &754101116
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.0275
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.0275
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.0275
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -6.78
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_Name
+      value: CatLifeMobileCat
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842350356123325942, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: m_UpdateWhenOffscreen
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5842350356123325942, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: db11c466e65da3249969755d034f8176, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101126}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101129}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101128}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101127}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101132}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101124}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101125}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101123}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101122}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101121}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101120}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101119}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101131}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 754101130}
+  m_SourcePrefab: {fileID: 100100000, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+--- !u!4 &754101117 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+  m_PrefabInstance: {fileID: 754101116}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &754101118 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 98fa37edb0f473d4da586f3aa22ba861, type: 3}
+  m_PrefabInstance: {fileID: 754101116}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &754101119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 169d44503ab9569478813104f874bbd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatBehaviorDriver
+  recognitionProviderComponent: {fileID: 2007309498}
+  llmClientComponent: {fileID: 0}
+  navigationAgent: {fileID: 754101127}
+  animationController: {fileID: 754101125}
+  destinationPlanner: {fileID: 754101124}
+  actionRouter: {fileID: 754101123}
+  featureEngine: {fileID: 2007309499}
+  privacyGateway: {fileID: 0}
+  needModel: {fileID: 754101122}
+  behaviorMemory: {fileID: 754101121}
+  behaviorScorer: {fileID: 754101120}
+  focusLookAtTarget: {fileID: 0}
+  bubblePresenter: {fileID: 499573290}
+  sceneInteractionMapper: {fileID: 0}
+  sceneInteractionRegistry: {fileID: 0}
+  sceneInteractionMemory:
+    lastPointId: 
+    lastAnimationTag: 
+    lastSceneClickTime: -999
+    lastBubbleTime: -999
+    lastFocusQuietBubbleTime: -999
+    lastRewardBubbleTime: -999
+    lastPointArrivalTime: -999
+    repeatedPointCount: 0
+  faceCameraWhenFocusedIdle: 1
+  focusFaceCameraDegreesPerSecond: 360
+  decisionInterval: 0.5
+  llmRefreshInterval: 15
+  llmLocalActionCooldownSeconds: 8
+  llmBubbleCooldownSeconds: 12
+  shortActionSeconds: 0.9
+  mediumActionSeconds: 1.4
+  longActionSeconds: 2.1
+  nonFocusRoamWeight: 70
+  nonFocusSniffWeight: 10
+  nonFocusLookBackWeight: 8
+  nonFocusTailWagWeight: 7
+  nonFocusStretchWeight: 5
+  focusRoamWeight: 35
+  focusIdleWeight: 35
+  focusEarTwitchWeight: 18
+  focusAlertLookWeight: 8
+  focusTailWagWeight: 4
+--- !u!114 &754101120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6766356b8ccf3624ea4b57f12bcb9b57, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatBehaviorBrainScorer
+  cooldownPenaltyWeight: 999
+  repeatPenaltyWeight: 28
+  randomnessJitter: 0.08
+--- !u!114 &754101121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5654d6a29fac8f744a95b49fba55f2db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatBehaviorMemory
+  lastState: 0
+  lastStateEnteredAt: 0
+  holdUntilTime: 0
+  lastUserInteractionTime: -999
+  lastInterestPointId: 
+--- !u!114 &754101122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf93da2a136ce1b4aa085c2020acf5d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatNeedModel
+  current:
+    curiosity01: 0.52
+    sleepiness01: 0.2
+    affection01: 0.35
+    safety01: 0.78
+    interruptionSensitivity01: 0.28
+    focusCompanionship01: 0.35
+  adaptationSpeed: 0.65
+  focusCompanionshipBuildRate: 0.08
+  affectionBuildOnInteraction: 0.08
+--- !u!114 &754101123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2478b3d7d8e878143b4171c22e6b3d9f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatActionRouter
+  ambientCooldownSeconds: 6
+  userCooldownSeconds: 8
+  uiCooldownSeconds: 10
+  sessionCooldownSeconds: 8
+  recognitionCooldownSeconds: 12
+  defaultMaxDelaySeconds: 2
+--- !u!114 &754101124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25062dfca8bb554489f05c84558edcc0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatDestinationPlanner
+  userAnchor: {fileID: 0}
+  planningCamera: {fileID: 579473087}
+  interestPointRegistry: {fileID: 1137472847}
+  needModel: {fileID: 754101122}
+  behaviorMemory: {fileID: 754101121}
+  anchors: []
+  nonFocusSampleRadius: 2.25
+  focusSampleRadius: 3.5
+  minMoveDistance: 0.6
+  minDistanceFromUserAnchorWhenFocused: 3
+  sampleAttempts: 32
+  preferCameraRangeWhenNonFocused: 1
+  preferCameraRangeWhenFocused: 0
+  viewportSafeMargin: 0.08
+  viewportProbeHeight: 0.28
+  cameraVisibleBiasWeight: 4
+  cameraReturnBiasWeight: 10
+  nonFocusNearCameraBiasWeight: 2.5
+  focusFarCameraBiasWeight: 3.5
+  blockerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  blockerCheckRadius: 0.3
+  navMeshProbeDistance: 1.2
+  forbiddenZones:
+  - {fileID: 674008356}
+  - {fileID: 1596020166}
+  - {fileID: 2145855849}
+  - {fileID: 227708171}
+  - {fileID: 1777582402}
+  - {fileID: 459016462}
+  forbiddenPathSampleStep: 0.25
+--- !u!114 &754101125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dc92ef3d6e964c47bcb16eab3f942ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatAnimationController
+  animator: {fileID: 754101126}
+  locomotionFade: 0.12
+  actionFade: 0.1
+  minLocomotionPlaybackMultiplier: 0.1
+  maxLocomotionPlaybackMultiplier: 3
+  moveSpeed01Parameter: MoveSpeed01
+  isMovingParameter: IsMoving
+  inFocusModeParameter: InFocusMode
+  arousal01Parameter: Arousal01
+  legacyIsWalkingParameter: IsWalking
+  idleStateName: CL_CAT_SitIdle_v01_loop_96f
+  walkStateName: CL_CAT_SRC_Walk_60fps
+  alertLookStateName: CL_CAT_AlertLook_v01_loop_120f
+  curiousSniffStateName: CL_CAT_CuriousSniff_v02_loop_112f
+  earTwitchAlertStateName: CL_CAT_EarTwitchAlert_v02_loop_120f
+  headShakeNoStateName: CL_CAT_HeadShakeNo_v01_loop_108f
+  headTiltListenStateName: CL_CAT_HeadTiltListen_v01_loop_96f
+  tailWagHappyStateName: CL_CAT_TailWagHappy_v01_loop_96f
+  stretchYawnStateName: CL_CAT_StretchYawn_v03_slow_loop_264f
+  pawWaveStateName: CL_CAT_PawWave_v01_loop_96f
+  lookBackStateName: CL_CAT_LookBack_v02_loop_112f
+--- !u!95 &754101126
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: ffc1049890e5d3e4eb40a11fb55fcb35, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &754101127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16c20553cf114e449b0991459a74f3fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatNavigationAgent
+  agent: {fileID: 754101128}
+  freeRoamSpeed: 1.15
+  focusedRoamSpeed: 1.15
+  freeAcceleration: 6
+  focusedAcceleration: 3
+  freeStoppingDistance: 0.14
+  focusedStoppingDistance: 0.22
+  preserveSceneHeightInPlayMode: 1
+  drawDebugPath: 1
+--- !u!195 &754101128
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.18
+  m_Speed: 1.15
+  m_Acceleration: 6
+  avoidancePriority: 50
+  m_AngularSpeed: 420
+  m_StoppingDistance: 0.16
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 0
+  m_AutoRepath: 1
+  m_Height: 0.55
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &754101129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca0760c282f8d3f45a4334bf3122555c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLifeMobileCatPresenter
+--- !u!114 &754101130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2695859f5b217644292bcd3acdbcde7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatInteractionMapper
+  behaviorDriver: {fileID: 754101119}
+  inputCamera: {fileID: 579473087}
+  catRoot: {fileID: 754101117}
+  raycastMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  maxRayDistance: 200
+  catScreenHitRadius: 140
+  longPressSeconds: 0.6
+  enableMouseInput: 1
+  enableTouchInput: 1
+--- !u!65 &754101131
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 34.772682, y: 40.175575, z: 44.19183}
+  m_Center: {x: -0.04860271, y: 20.408508, z: 1.5140014}
+--- !u!114 &754101132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754101118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a8c85e2d6764f6f8b6b6a9c84de7b41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatNavMeshSafetyGuard
+  agent: {fileID: 754101128}
+  navigationAgent: {fileID: 754101127}
+  autoRecover: 1
+  navMeshProbeDistance: 0.9
+  maxSurfaceDrift: 0.35
+  stuckSeconds: 2.5
+  minProgressSpeed: 0.02
+--- !u!1 &824248219
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 824248220}
+  - component: {fileID: 824248221}
+  m_Layer: 0
+  m_Name: Interest_Front_Path
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &824248220
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 824248219}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.02, z: -8.35}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 404925333}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &824248221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 824248219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5409fa43fb581e47b5bda94097edf73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatInterestPoint
+  interestId: front_path
+  tags:
+  - path
+  - quiet
+  nonFocusWeight: 1
+  focusWeight: 0.25
+  sampleRadius: 0.45
+  allowedInFocus: 1
+--- !u!1 &827310049
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 827310050}
+  m_Layer: 0
+  m_Name: CatForbiddenZones
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &827310050
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 827310049}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 674008354}
+  - {fileID: 1596020164}
+  - {fileID: 2145855847}
+  - {fileID: 227708169}
+  - {fileID: 1777582400}
+  - {fileID: 459016464}
+  m_Father: {fileID: 1137472845}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1137472844
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1137472845}
+  - component: {fileID: 1137472847}
+  - component: {fileID: 1137472846}
   m_Layer: 0
   m_Name: CatLifeNavigation
   m_TagString: Untagged
@@ -1444,57 +1451,38 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1624201805
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1624201804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9ec9f7b193a3a24ab468fc9e6fab90a, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatInterestPointRegistry
-  interestPoints:
-  - {fileID: 22737064}
-  - {fileID: 121538825}
-  - {fileID: 384953096}
-  - {fileID: 800722622}
-  tagMatchWeight: 1.6
-  distancePreferenceWeight: 0.35
-  repeatPenaltyWeight: 2.5
---- !u!4 &1624201806
+--- !u!4 &1137472845
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1624201804}
+  m_GameObject: {fileID: 1137472844}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 986206906}
-  - {fileID: 1165517646}
-  - {fileID: 1491678946}
-  - {fileID: 1913377758}
-  - {fileID: 2046764975}
-  m_Father: {fileID: 332038629}
+  - {fileID: 1351897727}
+  - {fileID: 1567042638}
+  - {fileID: 1335664948}
+  - {fileID: 1568261719}
+  - {fileID: 404925333}
+  - {fileID: 827310050}
+  m_Father: {fileID: 2007309497}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1624201807
+--- !u!114 &1137472846
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1624201804}
+  m_GameObject: {fileID: 1137472844}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshSurface
   m_SerializedVersion: 0
   m_AgentTypeID: 0
@@ -1516,7 +1504,27 @@ MonoBehaviour:
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: 7820b1843d3455c4a88d852952014131, type: 2}
   m_BuildHeightMesh: 0
---- !u!1 &1734302323
+--- !u!114 &1137472847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1137472844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9ec9f7b193a3a24ab468fc9e6fab90a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatInterestPointRegistry
+  interestPoints:
+  - {fileID: 562458082}
+  - {fileID: 1516831683}
+  - {fileID: 530272424}
+  - {fileID: 824248221}
+  tagMatchWeight: 1.6
+  distancePreferenceWeight: 0.35
+  repeatPenaltyWeight: 2.5
+--- !u!1 &1335664947
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1524,63 +1532,52 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1734302326}
-  - component: {fileID: 1734302325}
-  - component: {fileID: 1734302324}
+  - component: {fileID: 1335664948}
+  - component: {fileID: 1335664949}
   m_Layer: 0
-  m_Name: CatLifeMobileApp
+  m_Name: Walk_RightGarden
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1734302324
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1734302323}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b555d8681c7309e43b0d66bcbfa441a4, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLife.LLM.MockCatLLMClient
-  enableClient: 1
-  simulatedLatencySeconds: 0.15
-  preferGenericCloudWhenConfigured: 1
-  cloudTimeoutSeconds: 8
---- !u!114 &1734302325
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1734302323}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d7c222177ce9a3f479dd16ef3dc2e4f6, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::CatLifeMobileApp
-  viewRoot: {fileID: 1468261825}
-  cameraDirector: {fileID: 1602629245}
-  runtimeCoordinator: {fileID: 332038628}
---- !u!4 &1734302326
+--- !u!4 &1335664948
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1734302323}
+  m_GameObject: {fileID: 1335664947}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 3.9, y: -0.04, z: -6.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1137472845}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1913377757
+--- !u!65 &1335664949
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1335664947}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.8, y: 0.12, z: 3.6}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1351897726
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1588,8 +1585,166 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1913377758}
-  - component: {fileID: 1913377759}
+  - component: {fileID: 1351897727}
+  - component: {fileID: 1351897728}
+  m_Layer: 0
+  m_Name: Walk_MainPlaza
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1351897727
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1351897726}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.04, z: -6.8}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1137472845}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1351897728
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1351897726}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 7.4, y: 0.12, z: 4.5}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1516831681
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1516831682}
+  - component: {fileID: 1516831683}
+  m_Layer: 0
+  m_Name: Interest_Left_Garden
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1516831682
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1516831681}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.55, y: 0.02, z: -6.55}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 404925333}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1516831683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1516831681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5409fa43fb581e47b5bda94097edf73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatInterestPoint
+  interestId: left_garden
+  tags:
+  - garden
+  - curious
+  nonFocusWeight: 1
+  focusWeight: 0.25
+  sampleRadius: 0.45
+  allowedInFocus: 1
+--- !u!1 &1567042637
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1567042638}
+  - component: {fileID: 1567042639}
+  m_Layer: 0
+  m_Name: Walk_LeftGarden
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1567042638
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1567042637}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.9, y: -0.04, z: -6.3}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1137472845}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1567042639
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1567042637}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.8, y: 0.12, z: 3.6}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1568261718
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1568261719}
+  - component: {fileID: 1568261720}
   m_Layer: 0
   m_Name: Walk_FrontPath
   m_TagString: Untagged
@@ -1597,28 +1752,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1913377758
+--- !u!4 &1568261719
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1913377757}
+  m_GameObject: {fileID: 1568261718}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.04, z: -9.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1624201806}
+  m_Father: {fileID: 1137472845}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &1913377759
+--- !u!65 &1568261720
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1913377757}
+  m_GameObject: {fileID: 1568261718}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -1633,7 +1788,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 6.6, y: 0.12, z: 2.2}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &2046764974
+--- !u!1 &1596020163
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1641,42 +1796,451 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 2046764975}
+  - component: {fileID: 1596020164}
+  - component: {fileID: 1596020165}
+  - component: {fileID: 1596020166}
   m_Layer: 0
-  m_Name: CatInterestPoints
+  m_Name: Forbidden_CL_BLD_TomatoClockTower_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &2046764975
+--- !u!4 &1596020164
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2046764974}
+  m_GameObject: {fileID: 1596020163}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 10.645114, y: 0.02, z: -6.330852}
+  m_LocalScale: {x: 4.84565, y: 0.8, z: 4.969717}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 827310050}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1596020165
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1596020163}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1596020166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1596020163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7cca2fc6ce562c439721dac58356a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatForbiddenZone
+  sourceObjectName: CL_BLD_TomatoClockTower_01
+  sourceKind: 1
+  projectionScale: 1.05
+--- !u!1 &1777582399
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1777582400}
+  - component: {fileID: 1777582401}
+  - component: {fileID: 1777582402}
+  m_Layer: 0
+  m_Name: Forbidden_CL_BLD_TownGate_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1777582400
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1777582399}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.9054981, y: 0.02, z: 14.405502}
+  m_LocalScale: {x: 13.613858, y: 0.8, z: 3.7308426}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 827310050}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1777582401
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1777582399}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1777582402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1777582399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7cca2fc6ce562c439721dac58356a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatForbiddenZone
+  sourceObjectName: CL_BLD_TownGate_01
+  sourceKind: 1
+  projectionScale: 1.05
+--- !u!1 &1861616694
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1861616696}
+  - component: {fileID: 1861616695}
+  m_Layer: 0
+  m_Name: Warm Sun
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!108 &1861616695
+Light:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1861616694}
+  m_Enabled: 1
+  serializedVersion: 13
+  m_Type: 1
+  m_Color: {r: 1, g: 0.91, b: 0.74, a: 1}
+  m_Intensity: 0.9
+  m_Range: 10
+  m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
+  m_CookieSize2D: {x: 0.5, y: 0.5}
+  m_Shadows:
+    m_Type: 2
+    m_Resolution: -1
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 4
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
+  m_ForceVisible: 0
+  m_ShapeRadius: 0.025
+  m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
+--- !u!4 &1861616696
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1861616694}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.39631203, y: -0.20550302, z: 0.09149584, w: 0.89013135}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2007309495
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2007309497}
+  - component: {fileID: 2007309499}
+  - component: {fileID: 2007309498}
+  - component: {fileID: 2007309496}
+  m_Layer: 0
+  m_Name: CatLifeRuntimeSystems
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2007309496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2007309495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50dd7578966b48c49b8af8610cc7f4fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLifeMobileRuntimeCoordinator
+  featureEngine: {fileID: 2007309499}
+  recognitionProvider: {fileID: 2007309498}
+  catPresenter: {fileID: 754101129}
+  behaviorDriver: {fileID: 754101119}
+--- !u!4 &2007309497
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2007309495}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 22737063}
-  - {fileID: 121538824}
-  - {fileID: 384953095}
-  - {fileID: 800722623}
-  m_Father: {fileID: 1624201806}
+  - {fileID: 1137472845}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2007309498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2007309495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2487145ae57b2dc4bbc68c14d82091eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Recognition.MockRecognitionProvider
+  pollIntervalSeconds: 0.5
+  featureEngine: {fileID: 0}
+  useRealtimeFeatures: 1
+  cycleFocusStates: 0
+  cycleDurationSeconds: 18
+  startupFocusState: 1
+  startupUserIntent: 0
+  startupInterruptionRisk: 0
+--- !u!114 &2007309499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2007309495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 333991b6c31fb9447a9035cbe9f77112, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Recognition.RealtimeFeatureEngine
+--- !u!1001 &2067445196
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3486568723695364232, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4262964242936312370, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
+      propertyPath: m_Name
+      value: CatLifeMobileTown
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: b3a3e7900591a6d4d9439d8d267623cf, type: 3}
+--- !u!1 &2145855846
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2145855847}
+  - component: {fileID: 2145855848}
+  - component: {fileID: 2145855849}
+  m_Layer: 0
+  m_Name: Forbidden_CL_BLD_CatHouse_01
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2145855847
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2145855846}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.51479375, y: 0.02, z: -11.625716}
+  m_LocalScale: {x: 7.89751, y: 0.8, z: 5.048619}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 827310050}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &2145855848
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2145855846}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2145855849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2145855846}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7cca2fc6ce562c439721dac58356a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatLife.Cat.CatForbiddenZone
+  sourceObjectName: CL_BLD_CatHouse_01
+  sourceKind: 1
+  projectionScale: 1.05
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 953303886}
-  - {fileID: 1602629247}
-  - {fileID: 1157693871}
-  - {fileID: 269073587}
-  - {fileID: 1468261824}
-  - {fileID: 1162054911}
-  - {fileID: 332038629}
-  - {fileID: 1734302326}
+  - {fileID: 2067445196}
+  - {fileID: 579473090}
+  - {fileID: 1861616696}
+  - {fileID: 754101116}
+  - {fileID: 499573287}
+  - {fileID: 587186384}
+  - {fileID: 2007309497}
+  - {fileID: 583855974}

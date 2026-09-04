@@ -35,11 +35,22 @@ chest = bone_by("chest", "spine")
 head = bone_by("head")
 front_l = armature.pose.bones.get("frontleg")
 front_r = armature.pose.bones.get("R_frontleg")
+front_l0 = armature.pose.bones.get("frontleg0")
+front_r0 = armature.pose.bones.get("R_frontleg0")
+front_l1 = armature.pose.bones.get("frontleg1")
+front_r1 = armature.pose.bones.get("R_frontleg1")
 back_l = armature.pose.bones.get("backleg")
 back_r = armature.pose.bones.get("R_backleg")
+back_l0 = armature.pose.bones.get("backleg0")
+back_r0 = armature.pose.bones.get("R_backleg0")
+back_l1 = armature.pose.bones.get("backleg1")
+back_r1 = armature.pose.bones.get("R_backleg1")
 tail = bone_by("tail1", "tail_01", "tail")
-controls = [bone for bone in (hips, chest, head, front_l, front_r, back_l, back_r, tail) if bone]
-if not hips or not head or len(controls) < 4:
+controls = [bone for bone in (
+    hips, chest, head, front_l, front_r, front_l0, front_r0, front_l1, front_r1,
+    back_l, back_r, back_l0, back_r0, back_l1, back_r1, tail
+) if bone]
+if not hips or not head or len(controls) < 16:
     raise RuntimeError("Required cat pose bones could not be resolved: " + ", ".join(b.name for b in controls))
 
 for bone in controls:
@@ -61,13 +72,21 @@ def key(bone, frame, rotation=(0, 0, 0), location=(0, 0, 0)):
     bone.keyframe_insert("location", frame=frame, group=bone.name)
 
 def pose(frame, sit=0.0, lie=0.0, breath=0.0, attention=0.0):
-    key(hips, frame, (-12 * sit - 28 * lie + breath * 40, 0, 0))
-    key(chest, frame, (8 * sit + 18 * lie + attention * -8, 0, 0))
-    key(head, frame, (6 * sit + 16 * lie + attention * -18, attention * 8, attention * 5))
-    key(front_l, frame, (18 * sit + 68 * lie, 0, -5 * lie))
-    key(front_r, frame, (18 * sit + 68 * lie, 0, 5 * lie))
-    key(back_l, frame, (-58 * sit - 38 * lie, 0, -10 * sit))
-    key(back_r, frame, (-58 * sit - 38 * lie, 0, 10 * sit))
+    key(hips, frame, (-12 * sit + 15 * lie + breath * 20, 0, 0))
+    key(chest, frame, (8 * sit - 10 * lie + attention * -8, 0, 0))
+    key(head, frame, (6 * sit - 25 * lie + attention * -18, attention * 8, attention * 5))
+    key(front_l, frame, (18 * sit + 35 * lie, 0, -5 * lie))
+    key(front_r, frame, (18 * sit + 35 * lie, 0, 5 * lie))
+    key(front_l0, frame, (70 * lie, 0, 0))
+    key(front_r0, frame, (70 * lie, 0, 0))
+    key(front_l1, frame, (-90 * lie, 0, 0))
+    key(front_r1, frame, (-90 * lie, 0, 0))
+    key(back_l, frame, (-58 * sit - 70 * lie, 0, -10 * sit))
+    key(back_r, frame, (-58 * sit - 70 * lie, 0, 10 * sit))
+    key(back_l0, frame, (60 * lie, 0, 0))
+    key(back_r0, frame, (60 * lie, 0, 0))
+    key(back_l1, frame, (-80 * lie, 0, 0))
+    key(back_r1, frame, (-80 * lie, 0, 0))
     key(tail, frame, (0, 8 * sit, 12 * attention))
 
 def action(name, frames, samples, loop=False):
@@ -82,7 +101,30 @@ def action(name, frames, samples, loop=False):
     act.use_fake_user = True
     return act
 
+def walk_action():
+    name = "CL_CAT_SRC_Walk_60fps"
+    existing = bpy.data.actions.get(name)
+    if existing is not None:
+        bpy.data.actions.remove(existing)
+    reset_pose()
+    act = bpy.data.actions.new(name)
+    armature.animation_data_create()
+    armature.animation_data.action = act
+    for frame, phase in ((1, 1), (16, 0), (31, -1), (46, 0), (61, 1)):
+        key(hips, frame, (phase * 2, 0, 0), (0, 0, .35 if phase == 0 else 0))
+        key(chest, frame, (-phase * 2, 0, 0))
+        key(head, frame, (phase, 0, 0))
+        key(front_l, frame, (phase * 22, 0, 0))
+        key(front_r, frame, (-phase * 22, 0, 0))
+        key(back_l, frame, (-phase * 18, 0, 0))
+        key(back_r, frame, (phase * 18, 0, 0))
+        key(tail, frame, (0, phase * 7, -phase * 9))
+    act.frame_start, act.frame_end = (1, 61)
+    act.use_fake_user = True
+    return act
+
 created = [
+    walk_action(),
     action("CL_CAT_SitDownTransition_v01_72f", (1, 72), [(1, {}), (36, {"sit": .65}), (72, {"sit": 1})]),
     action("CL_CAT_SitIdle_v01_loop_96f", (1, 96), [(1, {"sit": 1}), (48, {"sit": 1, "breath": .018}), (96, {"sit": 1})], True),
     action("CL_CAT_LieDownTransition_v01_120f", (1, 120), [(1, {"sit": 1}), (36, {"sit": 1, "attention": .65}), (64, {"sit": 1, "attention": 1}), (88, {"sit": .55, "lie": .65}), (120, {"lie": 1})]),
@@ -98,6 +140,9 @@ approved_existing = {
     "CL_CAT_StretchYawn_v03_slow_loop_264f", "CL_CAT_TailWagHappy_v01_loop_96f"
 }
 for existing in list(bpy.data.actions):
+    if "IdleBreath_v06" in existing.name:
+        existing.name = "CL_CAT_IdleBreath_v06_headsync_loop_108f"
+        continue
     for approved_name in approved_existing:
         if existing.name.endswith(approved_name):
             existing.name = approved_name
@@ -132,6 +177,7 @@ camera.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
 camera.data.lens = 58
 
 report = ["source=" + SOURCE, "armature=" + armature.name, "mesh_count=" + str(len(meshes)), "bones=" + ",".join(b.name for b in controls)]
+report.append("runtime_actions=" + ",".join(sorted(action.name for action in bpy.data.actions)))
 for act in created:
     armature.animation_data.action = act
     report.append(f"{act.name},frames={int(act.frame_start)}-{int(act.frame_end)},keyframed_bones={len(controls)}")

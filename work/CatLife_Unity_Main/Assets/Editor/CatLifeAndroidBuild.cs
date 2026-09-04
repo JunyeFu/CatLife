@@ -60,6 +60,11 @@ namespace CatLife.Editor
             }
 
             Directory.CreateDirectory(outputDirectory);
+            if (File.Exists(outputPath))
+            {
+                File.Delete(outputPath);
+            }
+
             string evidenceRoot = ResolveEvidenceRoot(outputDirectory);
             Directory.CreateDirectory(evidenceRoot);
             WritePrivateCredentialEvidence(evidenceRoot);

@@ -205,12 +205,12 @@ BLOCKED：
 
 | 硬门 | 状态 | 原因 |
 |---|---|---|
-| G1 | `PASS` | 唯一运行系统根已接入；EditMode 10/10、PlayMode 7/7 |
-| G2 | `IN_PROGRESS` | NavMesh、自主漫游和 Walk 已恢复；IdleBreath、禁走区、连续巡游及模拟器录屏待完成 |
+| G1 | `PASS` | 唯一运行系统根已接入；当前 EditMode 10/10、PlayMode 14/14 |
+| G2 | `PASS` | 17 动作、NavMesh、语义禁走区、自主漫游、点击反馈、5:03 模拟器录屏及四状态主链通过 |
 | G3 | `NOT_STARTED` | 行为识别未装配 |
 | G4 | `NOT_STARTED` | 当前 UI 是功能骨架 |
 | G5 | `NOT_STARTED` | MiMo 已连通但未形成可感知动作闭环 |
 | G6 | `NOT_STARTED` | onboarding、地标和完整轻锁定等仍缺 |
 | G7 | `NOT_STARTED` | 仅有 MVP 模拟器证据，提交 RC 尚不存在 |
 
-下一次验收只允许执行 G1；G1 未通过时，不签署 G2。
+下一次验收执行 G3；必须先证明 App 内事件能稳定改变 RecognitionSnapshot，再验收自动专注与隐藏评审层。

@@ -91,6 +91,8 @@ public sealed class CatLifeMobileFlowTests
         Assert.That(GameObject.Find("CL_BLD_CatHouse_01").GetComponent("CatLifeLandmark"), Is.Not.Null);
         Animator animator = GameObject.Find("CatLifeMobileCat").GetComponentInChildren<Animator>();
         Assert.That(animator.applyRootMotion, Is.False);
+        Assert.That(GameObject.Find("CatLifeMobileCat").GetComponentsInChildren<SkinnedMeshRenderer>().Single().updateWhenOffscreen, Is.True);
+        Assert.That(animator.HasState(0, Animator.StringToHash("Base Layer.CL_CAT_IdleBreath_v06_headsync_loop_108f")), Is.True);
         Assert.That(animator.HasState(0, Animator.StringToHash("Base Layer.CL_CAT_FocusRest_v01_loop_96f")), Is.True);
     }
 
@@ -141,6 +143,55 @@ public sealed class CatLifeMobileFlowTests
     }
 
     [UnityTest]
+    public IEnumerator MobileNavigationDefinesSemanticBuildingForbiddenZones()
+    {
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+
+        GameObject root = GameObject.Find("CatForbiddenZones");
+        Assert.That(root, Is.Not.Null);
+        Component[] zones = root.GetComponentsInChildren(System.Type.GetType("CatLife.Cat.CatForbiddenZone, Assembly-CSharp"));
+        Assert.That(zones.Length, Is.GreaterThanOrEqualTo(5));
+        Assert.That(zones.Any(zone => ((string)zone.GetType().GetProperty("SourceObjectName").GetValue(zone)).Contains("FocusHouse")), Is.True);
+
+        Component focusZone = zones.First(zone => ((string)zone.GetType().GetProperty("SourceObjectName").GetValue(zone)).Contains("FocusHouse"));
+        bool containsCenter = (bool)focusZone.GetType().GetMethod("ContainsProjectedPoint").Invoke(
+            focusZone,
+            new object[] { focusZone.transform.position, 0f });
+        Assert.That(containsCenter, Is.True);
+    }
+
+    [UnityTest]
+    public IEnumerator MobileCatTraversesThreeApprovedInterestPointsContinuously()
+    {
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+
+        GameObject cat = GameObject.Find("CatLifeMobileCat");
+        Behaviour behavior = (Behaviour)cat.GetComponent("CatBehaviorDriver");
+        behavior.enabled = false;
+        Component navigation = cat.GetComponent("CatNavigationAgent");
+        Component planner = cat.GetComponent("CatDestinationPlanner");
+        System.Type snapshotType = System.Type.GetType("CatLife.Recognition.RecognitionSnapshot, Assembly-CSharp");
+        object snapshot = snapshotType.GetMethod("CreateDefault", BindingFlags.Static | BindingFlags.Public).Invoke(null, null);
+        MethodInfo requestedPlan = planner.GetType().GetMethods().Single(method => method.Name == "TryPlanRequestedPoint");
+
+        foreach (string pointName in new[] { "Interest_Left_Garden", "Interest_Front_Path", "Interest_Right_Garden" })
+        {
+            Vector3 requested = GameObject.Find(pointName).transform.position;
+            object[] planArgs = { snapshot, requested, cat.transform.position, Vector3.zero };
+            Assert.That((bool)requestedPlan.Invoke(planner, planArgs), Is.True, pointName + " was rejected by the planner.");
+            Assert.That((bool)navigation.GetType().GetMethod("TryMoveTo").Invoke(navigation, new[] { planArgs[3] }), Is.True);
+            yield return null;
+
+            float deadline = Time.realtimeSinceStartup + 9f;
+            while (Time.realtimeSinceStartup < deadline && !(bool)navigation.GetType().GetMethod("HasArrived").Invoke(navigation, null))
+                yield return null;
+            Assert.That((bool)navigation.GetType().GetMethod("HasArrived").Invoke(navigation, null), Is.True, pointName + " was not reached.");
+        }
+    }
+
+    [UnityTest]
     public IEnumerator MobileCatRoamsWithoutUserMoveCommandAndHasWalkAnimation()
     {
         PlayerPrefs.DeleteKey("CatLife.Mobile.Data.v1");
@@ -171,6 +222,74 @@ public sealed class CatLifeMobileFlowTests
         string state = driver.GetType().GetProperty("CurrentState").GetValue(driver).ToString();
         string path = (string)cat.GetComponent("CatNavigationAgent").GetType().GetProperty("PathStatusText").GetValue(cat.GetComponent("CatNavigationAgent"));
         Assert.That(moved, Is.GreaterThanOrEqualTo(.2f), $"state={state}; path={path}; moved={moved:F3}");
+    }
+
+    [UnityTest]
+    public IEnumerator MobileCatTapProducesVisibleLowDistractionFeedback()
+    {
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+
+        System.Type presenterType = System.Type.GetType("CatLife.UI.CatBubblePresenter, Assembly-CSharp");
+        Component presenter = Object.FindAnyObjectByType(presenterType) as Component;
+        Assert.That(presenter, Is.Not.Null, "The mobile scene must provide a visible cat feedback presenter.");
+        GameObject cat = GameObject.Find("CatLifeMobileCat");
+        Component mapper = cat.GetComponent("CatInteractionMapper");
+        Assert.That(mapper, Is.Not.Null, "The mobile cat must map real pointer input.");
+        Assert.That(cat.GetComponent<BoxCollider>(), Is.Not.Null, "The mobile cat must expose a raycast collider.");
+        GameObject safeArea = GameObject.Find("SafeArea");
+        Assert.That(safeArea.GetComponent("CatUiInteractionBridge"), Is.Not.Null, "uGUI must bridge Android pointer clicks to the moving cat.");
+        Assert.That(safeArea.GetComponent<Image>().raycastTarget, Is.True, "The serialized SafeArea must receive Android pointer clicks.");
+        Vector3 center = cat.GetComponentsInChildren<Renderer>().Aggregate(
+            new Bounds(cat.GetComponentsInChildren<Renderer>()[0].bounds.center, Vector3.zero),
+            (bounds, renderer) => { bounds.Encapsulate(renderer.bounds); return bounds; }).center;
+        Vector3 screenCenter = Camera.main.WorldToScreenPoint(center);
+        MethodInfo screenHit = mapper.GetType().GetMethod("IsWithinCatScreenHitArea", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That((bool)screenHit.Invoke(mapper, new object[] { new Vector2(screenCenter.x, screenCenter.y) }), Is.True);
+        Component driver = cat.GetComponent("CatBehaviorDriver");
+        driver.GetType().GetMethod("NotifyCatTapped").Invoke(driver, null);
+        yield return null;
+
+        GameObject bubble = GameObject.Find("CatFeedbackBubble");
+        Assert.That(bubble, Is.Not.Null);
+        Assert.That(bubble.activeInHierarchy, Is.True);
+        Assert.That(bubble.GetComponentInChildren<Text>().text, Is.Not.Empty);
+    }
+
+    [UnityTest]
+    public IEnumerator MobileUiBackgroundsDoNotBlockWorldInteractionRaycasts()
+    {
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+
+        foreach (Image image in Object.FindObjectsByType<Image>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (image.GetComponent<Selectable>() == null && image.GetComponent("CatLifeSwipeToEnd") == null && image.GetComponent("CatUiInteractionBridge") == null)
+                Assert.That(image.raycastTarget, Is.False, image.name + " blocks world interaction without being selectable.");
+        }
+    }
+
+    [UnityTest]
+    public IEnumerator NormalRoamingPrefersTheApprovedFixedCameraRange()
+    {
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+        Component planner = GameObject.Find("CatLifeMobileCat").GetComponent("CatDestinationPlanner");
+        FieldInfo preference = planner.GetType().GetField("preferCameraRangeWhenNonFocused", BindingFlags.Instance | BindingFlags.NonPublic);
+        FieldInfo radius = planner.GetType().GetField("nonFocusSampleRadius", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.That((bool)preference.GetValue(planner), Is.True);
+        Assert.That((float)radius.GetValue(planner), Is.LessThanOrEqualTo(2.5f));
+
+        Vector3 home = GameObject.Find("Interest_HomeFront").transform.position;
+        foreach (string pointName in new[] { "Interest_Left_Garden", "Interest_Front_Path", "Interest_Right_Garden" })
+        {
+            Vector3 point = GameObject.Find(pointName).transform.position;
+            Assert.That(Vector3.Distance(home, point), Is.LessThanOrEqualTo(2.25f));
+            Assert.That((bool)planner.GetType().GetMethod("IsPointInPreferredCameraRange").Invoke(planner, new object[] { point }), Is.True, pointName + " is outside the fixed camera safe range.");
+            Vector3 viewport = Camera.main.WorldToViewportPoint(point + Vector3.up * .28f);
+            Assert.That(viewport.x, Is.InRange(.15f, .75f), pointName + " is outside the visible horizontal activity band.");
+            Assert.That(viewport.y, Is.InRange(.25f, .7f), pointName + " is outside the visible vertical activity band.");
+        }
     }
 
     private static void Click(string name)
