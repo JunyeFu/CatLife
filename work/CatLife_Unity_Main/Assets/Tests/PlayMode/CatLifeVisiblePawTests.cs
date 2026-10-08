@@ -29,6 +29,40 @@ public sealed class CatLifeVisiblePawTests
         if (baked != null) UnityEngine.Object.Destroy(baked);
     }
 
+    [UnityTest] public IEnumerator FullRewardCardKeepsWavingPawAboveItsTopEdge()
+    {
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var data = new CatLifeAppData();
+        data.settings.catAdopted = true;
+        data.settings.aiEnabled = false;
+        var session = new CatLifeSessionController(data);
+        session.BeginTransition(60, now - 59);
+        session.EnterFocus(now - 59);
+        PlayerPrefs.SetString(Key, CatLifeDataJson.Serialize(data));
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return new WaitForSeconds(5);
+        var card = GameObject.Find("RewardCard").GetComponent<RectTransform>();
+        Assert.That(card.gameObject.activeInHierarchy, Is.True);
+        var camera = Camera.main;
+        var cat = GameObject.Find("CatLifeMobileCat");
+        var skin = cat.GetComponentInChildren<SkinnedMeshRenderer>();
+        var paw = Array.Find(skin.bones, bone => bone.name == "frontleg2");
+        var coordinator = GameObject.Find("CatLifeRuntimeSystems").GetComponent("CatLifeMobileRuntimeCoordinator");
+        Assert.That((bool)coordinator.GetType().GetMethod("PlayAiReaction").Invoke(coordinator, new object[] { "paw_wave" }), Is.True);
+        for (int frame = 0; frame < 7; frame++)
+        {
+            yield return new WaitForSeconds(.4f);
+            var corners = new Vector3[4];
+            card.GetWorldCorners(corners);
+            float cardTop = corners[1].y / Screen.height;
+            Vector3 pawViewport = camera.WorldToViewportPoint(paw.position);
+            float pawScreenY = camera.rect.y + pawViewport.y * camera.rect.height;
+            Debug.Log($"REWARD_CLEARANCE frame={frame}; pawY={pawScreenY:F4}; cardTop={cardTop:F4}");
+            Assert.That(pawScreenY, Is.GreaterThan(cardTop), "The full result card covers the waving paw.");
+        }
+    }
+
+
     [UnityTest] public IEnumerator RewardWaveMovesSkinnedPawInCameraSpace()
     {
         PlayerPrefs.DeleteKey(Key);
@@ -89,7 +123,7 @@ public sealed class CatLifeVisiblePawTests
         }
         Debug.Log($"VISIBLE_PAW vertices={points.Count}; world={maxWorld:F5}; viewport={maxScreen:F5}");
         Assert.That(maxWorld, Is.GreaterThan(.10f), "The skinned paw, not only its bone, must move 10cm.");
-        Assert.That(maxScreen, Is.GreaterThan(.02f), "Paw movement must span at least 2% of the viewport.");
+        Assert.That(maxScreen, Is.GreaterThan(.04f), "Reward close-up must show at least 4% viewport paw movement (previous wide framing: 2.85%).");
     }
 
     Vector3 PawCenter(SkinnedMeshRenderer skin, List<int> points)
