@@ -225,6 +225,45 @@ public sealed class CatLifeVisiblePawTests
         Assert.That(maxScreen, Is.GreaterThan(.04f), "Reward close-up must show at least 4% viewport paw movement (previous wide framing: 2.85%).");
     }
 
+    [UnityTest] public IEnumerator FixedAiResponsesCompleteAndProduceReviewFrames()
+    {
+        var data = new CatLifeAppData();
+        data.settings.catAdopted = true;
+        data.settings.aiEnabled = false;
+        PlayerPrefs.SetString(Key, CatLifeDataJson.Serialize(data));
+        SceneManager.LoadScene("CatLifeMobile");
+        yield return null;
+        var cat = GameObject.Find("CatLifeMobileCat");
+        var coordinator = GameObject.Find("CatLifeRuntimeSystems").GetComponent("CatLifeMobileRuntimeCoordinator");
+        var presenter = cat.GetComponent("CatLifeMobileCatPresenter");
+        var camera = Camera.main;
+        coordinator.GetType().GetMethod("ApplyPhase").Invoke(coordinator, new object[] { CatLifeSessionPhase.Reward });
+        camera.GetComponent("CatLifeCameraDirector").GetType().GetMethod("Show").Invoke(
+            camera.GetComponent("CatLifeCameraDirector"), new object[] { CatLifeSessionPhase.Reward, true });
+        yield return new WaitForSeconds(2.5f);
+        foreach (string reaction in new[] { "paw_wave", "tail_wag", "focus_rest", "stretch" })
+        {
+            Assert.That((bool)coordinator.GetType().GetMethod("PlayAiReaction").Invoke(coordinator, new object[] { reaction }), Is.True);
+            var samples = new System.Text.StringBuilder("seconds,state,normalized_time,root_x,root_y,root_z\n");
+            float start = Time.time;
+            int frame = 0;
+            do
+            {
+                yield return new WaitForSeconds(1f / 6f);
+                var state = cat.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0);
+                Vector3 p = cat.transform.position;
+                samples.AppendLine(FormattableString.Invariant($"{Time.time-start:F3},{state.shortNameHash},{state.normalizedTime:F3},{p.x:F4},{p.y:F4},{p.z:F4}"));
+                Capture(camera, frame++, "../wp01-20261009-frames/" + reaction);
+            } while (!(bool)presenter.GetType().GetProperty("AiReactionCompleted").GetValue(presenter) && Time.time - start < 14f);
+            string folder = Path.GetFullPath(Path.Combine(Application.dataPath, "../../../Reports/wp01-20261009-frames", reaction));
+            Directory.CreateDirectory(folder);
+            File.WriteAllText(Path.Combine(folder, "samples.csv"), samples.ToString());
+            Assert.That((bool)presenter.GetType().GetProperty("AiReactionCompleted").GetValue(presenter), Is.True, reaction);
+            yield return new WaitForSeconds(.3f);
+            Assert.That(cat.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("CL_CAT_StandIdle_v01_loop_96f"), Is.True, reaction);
+        }
+    }
+
     Vector3 PawCenter(SkinnedMeshRenderer skin, List<int> points)
     {
         skin.BakeMesh(baked, false);
