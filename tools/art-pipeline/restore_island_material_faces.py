@@ -14,10 +14,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--pipeline', required=True)
     parser.add_argument('--output', required=True)
+    parser.add_argument('--track', choices=('runtime', 'master'), default='runtime')
     args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:])
     pipeline, output = Path(args.pipeline), Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
-    bpy.ops.wm.open_mainfile(filepath=str(pipeline / 'runtime/CatLife_runtime.blend'))
+    bpy.ops.wm.open_mainfile(filepath=str(pipeline / args.track / ('CatLife_' + args.track + '.blend')))
     runtime = bpy.data.objects['CL_ENV_IslandBase_01']
     with bpy.data.libraries.load(str(pipeline / 'render/CatLife_render.blend'), link=False) as (_, data):
         data.objects = ['CL_ENV_IslandBase_01']
@@ -40,7 +41,9 @@ def main():
     print('RESTORED_ISLAND_FACES', dict(Counter(runtime.data.materials[p.material_index].name for p in runtime.data.polygons)))
     bpy.data.objects.remove(source, do_unlink=True)
     bpy.ops.outliner.orphans_purge(do_recursive=True)
-    bpy.ops.wm.save_as_mainfile(filepath=str(output / 'CatLife_runtime_island_restored.blend'), compress=True)
+    bpy.ops.wm.save_as_mainfile(filepath=str(output / ('CatLife_' + args.track + '_island_restored.blend')), compress=True)
+    if args.track == 'master':
+        return
     bpy.ops.object.select_all(action='DESELECT')
     for obj in bpy.context.scene.objects:
         if obj.type == 'MESH':
