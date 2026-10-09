@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 
 namespace CatLife.Mobile.Tests
@@ -36,6 +37,29 @@ namespace CatLife.Mobile.Tests
             }
 
             Assert.That(hasCompleteIsland, Is.True);
+        }
+
+        [Test]
+        public void IslandSourceAndPrefabKeepTopSideAndBottomFaceAssignments()
+        {
+            foreach (string path in new[] {
+                "Assets/MobileRuntime/Art/Town/Source/CL_TWN_Runtime.fbx",
+                "Assets/MobileRuntime/Art/Town/PF_CL_TWN_Town.prefab" })
+            {
+                var root = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                var renderer = root.GetComponentsInChildren<MeshRenderer>(true)
+                    .Single(item => item.name == "CL_ENV_IslandBase_01");
+                var mesh = renderer.GetComponent<MeshFilter>().sharedMesh;
+                Assert.That(mesh.subMeshCount, Is.EqualTo(3), path);
+                Assert.That(renderer.sharedMaterials.Length, Is.EqualTo(3), path);
+                var expectedIndices = new Dictionary<string, uint> {
+                    { "MAT_CL_SoilWarm", 576 }, { "MAT_CL_GrassSoftGreen", 1434 },
+                    { "MAT_CL_IslandDarkBottom", 282 }
+                };
+                CollectionAssert.AreEquivalent(expectedIndices.Keys, renderer.sharedMaterials.Select(m => m.name));
+                for (int i = 0; i < mesh.subMeshCount; i++)
+                    Assert.That(mesh.GetIndexCount(i), Is.EqualTo(expectedIndices[renderer.sharedMaterials[i].name]), path);
+            }
         }
 
         [Test]

@@ -498,16 +498,20 @@ def replace_materials(source_records, texture_exports, atlas_slots):
         if not target_materials:
             target_materials.append(fallback_material(record, source_name, palette))
 
+        polygon_material_indices = []
         for polygon in obj.data.polygons:
             old_index = polygon.material_index
             atlas_slot = atlas_slots.get((source_name, old_index))
             if atlas_slot is not None:
                 remap_atlas_uv(obj, polygon, atlas_slot)
-            polygon.material_index = target_indices.get(old_index, 0)
+            polygon_material_indices.append(target_indices.get(old_index, 0))
 
         obj.data.materials.clear()
         for material in target_materials:
             obj.data.materials.append(material)
+        # Blender clears every polygon's material index when clearing slots.
+        for polygon, material_index in zip(obj.data.polygons, polygon_material_indices):
+            polygon.material_index = material_index
         assigned[source_name] = "|".join(material.name for material in target_materials)
 
     used = {material for obj in bpy.data.objects if obj.type == "MESH" for material in obj.data.materials if material}
