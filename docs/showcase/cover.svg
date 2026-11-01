@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="440" viewBox="0 0 1280 440" role="img" aria-labelledby="title desc">
+ <title id="title">CatLife — 和猫一起，把时间留给喜欢的事</title>
+ <desc id="desc">奶油白与森林绿品牌封面。低多边形小镇、猫咪陪伴、轻负担专注。</desc>
+ <rect width="1280" height="440" rx="28" fill="#F8F4E9"/>
+ <circle cx="1120" cy="110" r="236" fill="#E8EDDE"/>
+ <circle cx="1212" cy="360" r="134" fill="#F5D9A3"/>
+ <path d="M0 400 Q430 320 800 405 T1280 370 V440 H0Z" fill="#EDF0E5"/>
+ <g font-family="Segoe UI,Microsoft YaHei,sans-serif">
+  <text x="72" y="78" font-size="16" letter-spacing="5" fill="#6B775F">A LITTLE COMPANY. A LITTLE MORE FOCUS.</text>
+  <text x="68" y="193" font-size="104" font-weight="700" letter-spacing="-5" fill="#234B3B">CatLife<tspan fill="#E8A347">.</tspan></text>
+  <text x="74" y="260" font-size="34" font-weight="600" fill="#234B3B">和猫一起，把时间留给喜欢的事。</text>
+  <text x="74" y="312" font-size="21" fill="#697260">低多边形小镇 · 猫咪陪伴 · 轻负担专注</text>
+  <rect x="74" y="351" width="254" height="38" rx="19" fill="#234B3B"/>
+  <text x="201" y="376" text-anchor="middle" font-size="14" letter-spacing="2" fill="#FFFDF5">ANDROID · UNITY · AI</text>
+ </g>
+ <g transform="translate(1010 208)" fill="#234B3B">
+  <ellipse cy="68" rx="58" ry="48" transform="rotate(-12 0 68)"/>
+  <ellipse cx="-56" cy="-6" rx="22" ry="29" transform="rotate(-24 -56 -6)"/>
+  <ellipse cx="-10" cy="-29" rx="22" ry="29" transform="rotate(-8 -10 -29)"/>
+  <ellipse cx="38" cy="-19" rx="22" ry="29" transform="rotate(15 38 -19)"/>
+  <ellipse cx="77" cy="15" rx="20" ry="27" transform="rotate(34 77 15)"/>
+ </g>
+</svg>
