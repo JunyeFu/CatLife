@@ -7,6 +7,7 @@
 | [当前进展](STATUS.md) | 最近运行版本、真实验证范围、未完成项 |
 | [开发与资产准备](DEVELOPMENT.md) | Unity 入口、依赖、源码状态、资产与配置要求 |
 | [真实画面及来源](showcase/README.md) | 截图、动态图的版本与来源区间 |
+| [五类追问与缺陷实测](audits/2026-11-05-interview-audit.md) | 61项Unity测试、4类新问题及2项既有缺口 |
 | [技术规格](../07-tech-specs) | 产品流程、UI、状态机和 Android 方案 |
 | [开发记录](../08-handoff-docs/planning) | 阶段问题、修复与验证报告 |
 | [资产规范](../02-asset-specs) | 低多边形资产需求与规范 |
