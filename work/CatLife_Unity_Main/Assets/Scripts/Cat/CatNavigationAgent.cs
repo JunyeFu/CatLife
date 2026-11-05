@@ -22,6 +22,7 @@ namespace CatLife.Cat
 
         private float speedMultiplier = 1f;
         private bool destinationRequested;
+        private bool destinationReached;
         private Vector3 physicalDestination;
         private bool onFinalSegment;
         private bool hasArrivalHeading;
@@ -233,6 +234,7 @@ namespace CatLife.Cat
                 if (toLanding.magnitude <= agent.stoppingDistance)
                 {
                     StopSoft();
+                    destinationReached = true;
                     direction = Vector3.zero;
                 }
                 else if (onFinalSegment)
@@ -386,6 +388,7 @@ namespace CatLife.Cat
 
         private bool StartRoute(Vector3 landing, NavMeshPath path)
         {
+            destinationReached = false;
             agent.isStopped = false;
             destinationRequested = agent.SetPath(path);
             physicalDestination = landing;
@@ -423,6 +426,7 @@ namespace CatLife.Cat
             }
 
             if (!TryFindSupportedLanding(target, out var landing, exactLanding)) return false;
+            destinationReached = false;
             agent.isStopped = false;
             destinationRequested = agent.SetDestination(landing);
             physicalDestination = landing;
@@ -512,6 +516,7 @@ namespace CatLife.Cat
 
         public void StopSoft()
         {
+            destinationReached = false;
             if (locomotion != null && locomotion.NavigationOwnsPose) EndTurn();
             if (agent == null || !agent.enabled)
             {
@@ -542,18 +547,7 @@ namespace CatLife.Cat
 
         public bool HasArrived()
         {
-            if (!IsOnNavMesh || !destinationRequested || agent.isStopped || agent.pathPending ||
-                !agent.hasPath || agent.pathStatus != NavMeshPathStatus.PathComplete)
-            {
-                return false;
-            }
-
-            if (agent.remainingDistance > agent.stoppingDistance)
-            {
-                return false;
-            }
-
-            return !agent.hasPath || agent.velocity.sqrMagnitude < 0.01f;
+            return destinationReached;
         }
 
         private void OnDrawGizmosSelected()

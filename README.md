@@ -44,20 +44,20 @@
 <table>
 <tr><th width="33%">在小镇里开始</th><th width="33%">选一个舒服的节奏</th><th width="33%">让猫安静地陪着</th></tr>
 <tr>
-<td><img src="docs/showcase/home-r33.png" width="280" alt="真实主页：猫咪、小镇与开始专注按钮"></td>
-<td><img src="docs/showcase/setup-r34.png" width="280" alt="真实准备页：时长、陪伴模式与AI开关"></td>
-<td><img src="docs/showcase/focus-r34.png" width="280" alt="真实专注页：倒计时与趴卧猫咪"></td>
+<td><img src="docs/showcase/home-r41.png" width="280" alt="真实主页：猫咪、小镇与开始专注按钮"></td>
+<td><img src="docs/showcase/setup-r41.png" width="280" alt="真实准备页：时长、陪伴模式与AI开关"></td>
+<td><img src="docs/showcase/focus-r41.png" width="280" alt="真实专注页：倒计时与趴卧猫咪"></td>
 </tr>
 </table>
 
-<sub>Android 模拟器实际画面 · 2026-10-24 · 主页 r33，准备与专注 r34。[素材来源与展示范围](docs/showcase/README.md)</sub>
+<sub>Android 模拟器实际画面 · 2026-11-06 · 同一 r41 候选。[素材来源与展示范围](docs/showcase/README.md)</sub>
 
 ### 从准备到陪伴，看它真的动起来
 
 <div align="center">
-<img src="docs/showcase/session-r34.gif" width="320" alt="r34真实连续录屏：准备与猫咪到位过程">
+<img src="docs/showcase/session-r41.gif" width="320" alt="r41真实连续录屏：准备与猫咪到位过程">
 <br>
-<sub>r34 会话原片第 6–30 秒 · 保留真实动作与界面 · 循环播放</sub>
+<sub>r41 会话原片第 2–30 秒 · 保留真实动作与界面 · 循环播放</sub>
 </div>
 
 ## 专注留在本地，AI 只在你需要时出现
@@ -66,7 +66,7 @@
 
 **会后一次 · 可选择关闭 · 明确反馈来源 · 不修改计时与奖励**
 
-上方 r34 展示来自离线验证。11/5 的 r38 已切换至 `mimo-v2.6-flash`，会后实际单次请求 HTTP 200，显示来源及下一步建议，并完成“轻摆尾→回站立”的连续画面核读；冷启仍保留次数 1。AI 收益尚待人工对照评估。[完整进展与边界 →](docs/STATUS.md)
+本页均为 r41 的真实画面。当前使用 `mimo-v2.6-flash`：一次普通分钟会后请求 HTTP 200，建议、来源及“轻摆尾→回站立”已核读，冷启仍保留次数 1。AI 相对本地模板的收益尚待真人对照评价。[完整进展与边界 →](docs/STATUS.md)
 
 ## 一个完整的小镇，一条清楚的实现路径
 
@@ -78,11 +78,18 @@
 | 小镇 | 完整空岛，229,286三角面、16材质、167稳定资产ID |
 | AI | MiMo系列模型，会后单次请求、本地允许动作映射 |
 
-最新 **83.47 MiB** 的 r38 私有本机候选完成真实 AI 会后请求、动作回应和冷启保存核读，相关 Unity **11 / 11**、APK 静态 **6 / 6**。此前 r37 已完成离线结算、后台与杀进程恢复、中断零奖励及 **96 / 96** 回归；两批测试不相加冒充同包全量回归。本地源码和资产集已还原构建，含本地凭据的候选包不公开分发。[查看修复与实际验收 →](docs/audits/2026-11-05-repair-results.md)
+最新 **r41 / 83.47 MiB** 私有候选完成相关 Unity **152 / 152**（去重）及 APK 静态 **6 / 6**。同包实测会后一次真实 AI、滚动读取完整建议、冷启保留请求结果、30/60/120 秒自动专注、中断零奖励、关闭统计、离线结算及进程恢复。[查看实际验收 →](docs/audits/2026-11-05-repair-results.md)
+
+<table>
+<tr><th width="50%">完成后，看见这一段积累</th><th width="50%">可选 AI，给下一小步建议</th></tr>
+<tr><td align="center"><img src="docs/showcase/reward-r41.png" width="280" alt="r41真实离线结果：一分钟、成长加一、爪印加一、统计未采集"></td><td align="center"><img src="docs/showcase/ai-reward-r41.png" width="280" alt="r41短屏真实AI结果：统计、MiMo来源、建议与滚动提示"></td></tr>
+</table>
+
+<sub>同一 r41 的两次独立会话；左侧关闭统计并离线完成，右侧同意后仅一次模型请求。截图中的测试记录不代表用户研究结果。</sub>
 
 ## 项目进展与参与入口
 
-CatLife 起源于中国高校计算机大赛 AIGC 创新赛，目前处于产品收口阶段。Reward 信息缺失、AI 卡片裁切、Focus 滑条遮挡和人工对照评估仍待完成；4GB 真机与公开发行暂缓。源码已整合，但运行资产公开再分发权限尚未确认，公开克隆仍需额外资产才能完整构建。
+CatLife 起源于中国高校计算机大赛 AIGC 创新赛，目前按**实习私有交付**收口。主要页面缺字、结果黑缝和建议裁切已修复并读取真实画面；整页视觉仍待本人签收，AI 相对本地模板的人工收益评价仍未完成。慢大回转保留为已知细节，4GB 真机、真实用户研究与公开发行暂缓。猫和小镇素材来自 Meshy AI，运行资产包私有提供；公开克隆需补齐资产，含本地凭据的验收 APK 不分享。
 
 | 想了解什么 | 从这里开始 |
 |---|---|
@@ -95,5 +102,5 @@ CatLife 起源于中国高校计算机大赛 AIGC 创新赛，目前处于产品
 
 <div align="center">
 <strong>CatLife · 给专注一点陪伴。</strong><br>
-<sub>展示更新 2026-11-01 · 最近运行验证 2026-10-24 · 真实画面，按版本说明</sub>
+<sub>展示更新 2026-11-06 · 最近运行验证 r41 / 2026-11-06 · 真实画面，按版本说明</sub>
 </div>

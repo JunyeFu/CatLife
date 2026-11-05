@@ -362,6 +362,7 @@ public sealed class CatLifeMobileApp : MonoBehaviour
         if (currentReward != record || session.Phase != CatLifeSessionPhase.Reward || CurrentView != "RewardPanel") yield break;
         rewardPresentationReady = true;
         views["RewardCard"].SetActive(true);
+        RenderReward(record);
         bubbleText.transform.parent.gameObject.SetActive(false);
         if (!record.aiRequestAttempted) PlayRewardCelebration();
     }

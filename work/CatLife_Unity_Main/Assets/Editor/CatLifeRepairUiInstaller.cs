@@ -29,6 +29,7 @@ public static class CatLifeRepairUiInstaller
 
     public static void Apply(GameObject root)
     {
+        CatLifeFigmaUiInstaller.ApplyPageRepairs(root);
         Transform Find(string name) => root.GetComponentsInChildren<Transform>(true).First(t => t.name == name);
         Find("CatNameText").GetComponent<Text>().supportRichText = false;
         Find("BubbleText").GetComponent<Text>().supportRichText = false;

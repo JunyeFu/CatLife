@@ -23,7 +23,7 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
     public Text[] recordRows;
     public GameObject[] recordCards;
     public GameObject rewardStats;
-    public Text rewardDuration, rewardBehavior, rewardGrowth, rewardPaws, rewardInsight;
+    public Text rewardDuration, rewardBehavior, rewardGrowth, rewardPaws, rewardInsight, rewardScrollHint;
     public Image rewardProgress;
     public RectTransform rewardViewport, rewardContent;
     public ScrollRect rewardScroll;
@@ -113,7 +113,7 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
         rewardProgress.fillAmount = stats.LevelProgress / 100f;
         rewardInsight.text = insight;
         rewardInsight.fontSize = 34;
-        SetRewardViewport(670, 190);
+        SetRewardViewport(670, 170);
         ResizeInsight();
     }
 
@@ -121,7 +121,7 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
     {
         rewardInsight.fontSize = 34;
         rewardStats.SetActive(false);
-        SetRewardViewport(210, 650);
+        SetRewardViewport(210, 630);
         ResizeInsight();
     }
 
@@ -135,8 +135,10 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
     private void ResizeInsight()
     {
         Canvas.ForceUpdateCanvases();
+        float contentHeight = rewardInsight.preferredHeight + 48;
         rewardContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
-            Mathf.Max(rewardViewport.rect.height, rewardInsight.preferredHeight + 48));
+            Mathf.Max(rewardViewport.rect.height, contentHeight));
+        rewardScrollHint.gameObject.SetActive(contentHeight > rewardViewport.rect.height);
         rewardScroll.verticalNormalizedPosition = 1;
     }
 }

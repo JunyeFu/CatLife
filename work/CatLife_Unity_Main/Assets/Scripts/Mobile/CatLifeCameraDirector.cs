@@ -33,7 +33,7 @@ public sealed class CatLifeCameraDirector : MonoBehaviour
     }
     public void Show(CatLifeSessionPhase phase, bool immediate = false)
     {
-        SetBottomSheetCoverage(phase == CatLifeSessionPhase.Reward ? .48f : 0f);
+        SetBottomSheetCoverage(phase == CatLifeSessionPhase.Reward ? 1104f / 2424f : 0f);
         targetCamera.backgroundColor = phase == CatLifeSessionPhase.Focus ? new Color32(64, 90, 121, 255) : daylightBackground;
         Preset preset = GetPreset(phase);
         if (move != null) StopCoroutine(move);

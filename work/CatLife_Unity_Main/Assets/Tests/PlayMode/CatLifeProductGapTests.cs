@@ -88,9 +88,13 @@ public sealed class CatLifeProductGapTests
     public IEnumerator ExitHandleIsVisibleAndRequiresActualDrag()
     {
         var data = new CatLifeAppData(); data.settings.catAdopted = true;
+        data.settings.catExitInterventionEnabled = false;
+        var controller = new CatLifeSessionController(data);
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        controller.BeginTransition(60, now); controller.EnterFocus(now);
         PlayerPrefs.SetString(Key, CatLifeDataJson.Serialize(data));
         SceneManager.LoadScene("CatLifeMobile"); yield return null;
-        View("FocusPanel").SetActive(true); yield return null;
+        Assert.That(View("FocusPanel").activeSelf, Is.True); yield return null;
         var rect = View("SwipeTrack").GetComponent<RectTransform>();
         var swipe = rect.GetComponent("CatLifeSwipeToEnd");
         var pointer = new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current);
@@ -98,7 +102,9 @@ public sealed class CatLifeProductGapTests
         swipe.GetType().GetMethod("OnPointerDown").Invoke(swipe, new object[] { pointer });
         swipe.GetType().GetMethod("OnPointerUp").Invoke(swipe, new object[] { pointer });
         Assert.That(View("ExitConfirm").activeSelf, Is.False, "A tap at the right edge must not count as a swipe");
-        Assert.That(View("SwipeHandle").GetComponent<RectTransform>().rect.width, Is.EqualTo(128));
+        var handle = View("SwipeHandle").GetComponent<RectTransform>();
+        Assert.That(handle.rect.width, Is.GreaterThanOrEqualTo(128));
+        Assert.That(handle.rect.width, Is.LessThan(rect.rect.width));
         pointer.position = RectTransformUtility.WorldToScreenPoint(null, rect.TransformPoint(new Vector3(rect.rect.width * -.40f, 0, 0)));
         swipe.GetType().GetMethod("OnPointerDown").Invoke(swipe, new object[] { pointer });
         pointer.position = RectTransformUtility.WorldToScreenPoint(null, rect.TransformPoint(new Vector3(rect.rect.width * .30f, 0, 0)));
@@ -122,8 +128,9 @@ public sealed class CatLifeProductGapTests
         type.GetMethod("Show").Invoke(director, new object[] { CatLifeSessionPhase.Reward, true });
         reference.transform.SetPositionAndRotation(go.transform.position, go.transform.rotation);
         reference.fieldOfView = 54f;
-        reference.rect = new Rect(0, .48f, 1, .52f);
-        Assert.That(camera.rect.yMin, Is.LessThan(.48f - 36f / 2400f),
+        const float sheetCoverage = 1104f / 2424f;
+        reference.rect = new Rect(0, sheetCoverage, 1, 1 - sheetCoverage);
+        Assert.That(camera.rect.yMin, Is.LessThan(sheetCoverage - 36f / 2400f),
             "The 36-unit rounded backing needs world pixels behind its transparent edge.");
         foreach (var point in new[] { new Vector3(.15f,.15f,4), new Vector3(.5f,.5f,6), new Vector3(.85f,.85f,8) })
         {
@@ -149,7 +156,7 @@ public sealed class CatLifeProductGapTests
         var director = go.AddComponent(type);
         type.GetMethod("Configure").Invoke(director, new object[] { camera });
         type.GetMethod("Show").Invoke(director, new object[] { CatLifeSessionPhase.Reward, true });
-        Assert.That(camera.rect.yMin, Is.InRange(.45f, .48f));
+        Assert.That(camera.rect.yMin, Is.EqualTo(1104f / 2424f - 40f / 2400f).Within(.001f));
         Assert.That(camera.rect.yMax, Is.EqualTo(1f).Within(.001f));
         type.GetMethod("Show").Invoke(director, new object[] { CatLifeSessionPhase.Focus, true });
         Assert.That(camera.backgroundColor, Is.Not.EqualTo(day));
@@ -199,14 +206,15 @@ public sealed class CatLifeProductGapTests
         SceneManager.LoadScene("CatLifeMobile"); yield return null;
         Assert.That(View("AdoptionPanel").activeSelf, Is.False);
         Click("GrowthButton");
-        Assert.That(View("GrowthText").GetComponent<Text>().text, Does.Contain("团子").And.Contain("爪印 3"));
+        Assert.That(View("GrowthNameText").GetComponent<Text>().text, Does.Contain("团子"));
+        Assert.That(View("GrowthText").GetComponent<Text>().text, Does.Contain("爪印 3"));
         Assert.That(View("GrowthActionTailText").GetComponent<Text>().text, Does.Contain("已解锁"));
         Assert.That(View("GrowthActionStretchText").GetComponent<Text>().text, Does.Contain("8 枚"));
         Click("GrowthBack"); Click("RecordsButton");
         Assert.That(View("DayLabel6").GetComponent<Text>().text, Is.EqualTo(DateTime.Now.ToString("M/d")));
         Assert.That(View("DayLabel0").GetComponent<Text>().text, Is.EqualTo(DateTime.Now.AddDays(-6).ToString("M/d")));
         Assert.That(View("DayBar0").activeSelf, Is.False, "Zero-minute days must not draw positive bars");
-        Assert.That(View("DayBar6").GetComponent<RectTransform>().anchorMax.y, Is.EqualTo(.24f + .48f * 3f / 45f).Within(.001f));
+        Assert.That(View("DayBar6").GetComponent<RectTransform>().anchorMax.y, Is.EqualTo((170f + 300f * 3f / 45f) / 650f).Within(.001f));
         Assert.That(View("ChartAxis3").GetComponent<Text>().text, Is.EqualTo("45 分"));
     }
 

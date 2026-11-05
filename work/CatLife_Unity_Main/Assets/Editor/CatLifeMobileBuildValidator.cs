@@ -63,7 +63,7 @@ namespace CatLife.Editor
             }
             GameObject mobileView = GameObject.Find("CatLifeMobileView");
             if (mobileView == null || PrefabUtility.GetPrefabInstanceStatus(mobileView) != PrefabInstanceStatus.Connected) issues.Add("Serialized mobile UI prefab instance missing.");
-            else foreach (string layer in new[] { "HomeHudLayer", "SessionLayer", "PageLayer", "TransientLayer", "SaveRecoveryPanel", "RecoveryRetry", "ClockRecoveryPanel", "GrowthNameText" }) if (FindDescendant(mobileView.transform, layer) == null) issues.Add("UI layer/binding missing: " + layer);
+            else foreach (string layer in new[] { "HomeHudLayer", "SessionLayer", "PageLayer", "TransientLayer", "SaveRecoveryPanel", "RecoveryRetry", "ClockRecoveryPanel", "GrowthNameText", "RewardScrollHint" }) if (FindDescendant(mobileView.transform, layer) == null) issues.Add("UI layer/binding missing: " + layer);
 
             GameObject cloudLayer = GameObject.Find("CL_ENV_CloudLayer_01");
             if (cloudLayer == null || cloudLayer.GetComponentsInChildren<SpriteRenderer>(true).Length != 3) issues.Add("Three-cloud sky layer missing.");

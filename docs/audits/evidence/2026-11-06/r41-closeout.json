@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-06",
+  "candidate": "r41",
+  "version": "0.3.0",
+  "versionCode": 3,
+  "package": "com.catlife.review.ui",
+  "apkBytes": 87528302,
+  "apkMiB": 83.47,
+  "purpose": "Private local verification; credential-bearing APK must not be shared. Meshy AI runtime assets restricted to private internship handoff by owner instruction.",
+  "tests": {
+    "unityUnique": 152,
+    "unityPass": 152,
+    "apkStaticPass": 6,
+    "workbenchPass": 13
+  },
+  "ai": {
+    "model": "mimo-v2.6-flash",
+    "sessionMinutes": 1,
+    "requests": 1,
+    "http": 200,
+    "latencyMs": 4347,
+    "requestId": "9690e936e0ea49b3bf4353f11d7cddb1",
+    "recommended": "social_response",
+    "localAction": "tail_wag",
+    "coldRequestCount": 0,
+    "lastColdRequests": 0,
+    "persistedRequestCount": 1,
+    "benefitHumanRatings": 0
+  },
+  "autoFocus": [
+    {
+      "ConfiguredSeconds": 30,
+      "HomeObservedEpoch": 1793901425.5817711,
+      "FocusEpoch": 1793901478.379,
+      "ElapsedSinceHomeObservation": 52.79722881317139,
+      "AutoFocusEvents": 1,
+      "NewModelRequests": 0
+    },
+    {
+      "ConfiguredSeconds": 60,
+      "HomeObservedEpoch": 1793901514.10622,
+      "FocusEpoch": 1793901610.739,
+      "ElapsedSinceHomeObservation": 96.63278007507324,
+      "AutoFocusEvents": 1,
+      "NewModelRequests": 0
+    },
+    {
+      "ConfiguredSeconds": 120,
+      "HomeObservedEpoch": 1793901647.908717,
+      "FocusEpoch": 1793901800.673,
+      "ElapsedSinceHomeObservation": 152.76428318023682,
+      "AutoFocusEvents": 1,
+      "NewModelRequests": 0
+    }
+  ],
+  "statisticsOff": {
+    "homeWaitSeconds": 35,
+    "newAutomaticEntries": 0,
+    "manualTimer": true,
+    "resultSaysNotCollected": true,
+    "rewardGrowth": 1,
+    "rewardPaws": 1
+  },
+  "recovery": {
+    "StartedEpoch": 1793902261.3908663,
+    "FocusEpoch": 1793902272.424,
+    "InitialPid": "14447",
+    "RestoredPid": "14936",
+    "RestoredAtUtc": "2026-11-05T18:11:30.6880249Z",
+    "RecorderPid": 9320,
+    "offlineVerifiedEpoch": 1793902301.9776764,
+    "network": "Active default network: none",
+    "offlineFromStart": false,
+    "restoredRequests": 0,
+    "scope": "Pending Transition restarted; Focus background and process restart, original deadline completes once. Network disconnected in session, not from launch."
+  },
+  "finalSave": {
+    "records": 14,
+    "completed": 10,
+    "interrupted": 4,
+    "growth": 10,
+    "paws": 10,
+    "statisticsEnabled": true,
+    "aiEnabled": false,
+    "autoFocusSeconds": 0,
+    "clearCancelled": true,
+    "coldPersisted": true
+  },
+  "stability": {
+    "pid": 12555,
+    "elapsed": "11:37",
+    "anr": "none since AVD boot",
+    "scope": "Emulator functional observation, not physical-device performance"
+  },
+  "visual": {
+    "screens": "1080x2424 seven pages + 720x1280 key flow",
+    "agentRead": true,
+    "ownerAccepted": false,
+    "ownerState": "pending explicit response",
+    "cloudOverviewFrames": 36,
+    "cloudReactionFrames": 80,
+    "cloudReactionSampleFps": 5,
+    "cloudReactionIntervalSeconds": [
+      80,
+      96
+    ],
+    "recoveryOverviewFrames": 36,
+    "fullVideosDecoded": true,
+    "perFrameAllAnimations": false
+  },
+  "remaining": [
+    "Owner visual acceptance",
+    "IA-06 real human comparative ratings; historical 12 synthetic scenes used model2.5, not2.6",
+    "Slow large turns retained by user scope decision",
+    "Physical device, actual user study and public distribution deferred"
+  ],
+  "handoff": {
+    "sourceFiles": 373,
+    "runtimeFiles": 342,
+    "copiedOldLibrary": false,
+    "assetSource": "Meshy AI (owner-reported)",
+    "publicAssetDistribution": "out of scope; authorization not inferred"
+  },
+  "deviceFinal": {
+    "size": "1080x2424",
+    "density": 420,
+    "airplaneMode": false,
+    "reviewAppStopped": true,
+    "dataCleared": false
+  }
+}

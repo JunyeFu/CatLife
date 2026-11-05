@@ -596,13 +596,17 @@ public sealed class CatLifeMobileFlowTests
             object[] planArgs = { snapshot, requested, cat.transform.position, Vector3.zero };
             Assert.That((bool)requestedPlan.Invoke(planner, planArgs), Is.True, pointName + " was rejected by the planner.");
             Assert.That((bool)navigation.GetType().GetMethod("TryMoveTo").Invoke(navigation, new[] { planArgs[3] }), Is.True);
+            Assert.That((bool)navigation.GetType().GetMethod("HasArrived").Invoke(navigation, null), Is.False, "A new route must clear the previous arrival.");
             yield return null;
 
             float deadline = Time.realtimeSinceStartup + 9f;
             while (Time.realtimeSinceStartup < deadline && !(bool)navigation.GetType().GetMethod("HasArrived").Invoke(navigation, null))
                 yield return null;
             Assert.That((bool)navigation.GetType().GetMethod("HasArrived").Invoke(navigation, null), Is.True, pointName + " was not reached.");
+            Assert.That(HorizontalDistance(cat.transform.position, (Vector3)planArgs[3]), Is.LessThan(.15f), "Arrival must describe the physical cat.");
         }
+        navigation.GetType().GetMethod("StopSoft").Invoke(navigation, null);
+        Assert.That((bool)navigation.GetType().GetMethod("HasArrived").Invoke(navigation, null), Is.False, "Cancelling is not arriving.");
     }
 
     [UnityTest]
@@ -727,7 +731,7 @@ public sealed class CatLifeMobileFlowTests
 
         foreach (Image image in Object.FindObjectsByType<Image>(FindObjectsInactive.Include, FindObjectsSortMode.None))
         {
-            if (image.name == "AdoptionPanel" || image.name == "FigmaPrivacyPanel") { Assert.That(image.raycastTarget, Is.True, "An open modal must prevent click-through to the town."); continue; }
+            if (image.name == "AdoptionPanel" || image.name == "FigmaPrivacyPanel" || image.name == "SaveRecoveryPanel" || image.name == "ClockRecoveryPanel") { Assert.That(image.raycastTarget, Is.True, "An open modal must prevent click-through to the town."); continue; }
             var scroll = image.GetComponent<ScrollRect>() ?? image.GetComponentInParent<ScrollRect>(true);
             if (scroll != null && scroll.viewport == image.rectTransform)
             { Assert.That(image.raycastTarget, Is.True, "The scroll viewport must receive real drag events."); continue; }

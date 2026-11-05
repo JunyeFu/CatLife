@@ -24,7 +24,10 @@ function Adb([string[]]$Arguments) {
 }
 $avd = Adb -Arguments @('emu','avd','name')
 if (($avd -join '').Trim() -notmatch '^CatLifeInterview20261008\s*OK$') { throw 'Not the dedicated CatLife AVD.' }
-Adb -Arguments @('shell','uiautomator','dump','/sdcard/catlife-wp04-review-ui.xml') | Out-Null
+$dump = & $adbExe -s $reviewSerial shell uiautomator dump /sdcard/catlife-wp04-review-ui.xml 2>&1
+if ($LASTEXITCODE -ne 0 -or ($dump -join "`n") -match 'ERROR:') {
+    throw 'UI hierarchy capture failed; no input was sent and the previous XML was not reused.'
+}
 $uiPath = Join-Path $outputRoot ($Tag + '-ui.xml')
 Adb -Arguments @('pull','/sdcard/catlife-wp04-review-ui.xml',$uiPath) | Out-Null
 [xml]$ui = Get-Content -LiteralPath $uiPath -Raw

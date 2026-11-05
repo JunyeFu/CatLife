@@ -1,0 +1,768 @@
+{
+  "uniqueUnityTests": 152,
+  "passed": 152,
+  "failed": 0,
+  "scope": "113 PlayMode + 39 core; latest eight UI results replace overlapping results after final typography-only changes",
+  "cases": [
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"none\",0,\"\")",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"none\",1,\"\")",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"none\",8,\"\")",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"quiet_idle\",1,\"paw_wave\")",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"quiet_idle\",5,\"focus_rest\")",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"social_response\",0,\"\")",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"social_response\",1,\"paw_wave\")",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"social_response\",3,\"tail_wag\")",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"soft_roam\",5,\"paw_wave\")",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"soft_roam\",8,\"stretch\")",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"transform\",8,\"\")",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AppSettingsRoundTripLocalBehaviorStatistics",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AutoFocusRequiresContinuousStableDwellAndTriggersOnlyOnce",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AutoFocusResetDropsElapsedDwellButDoesNotRearmConsumedPolicy(120)",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AutoFocusResetDropsElapsedDwellButDoesNotRearmConsumedPolicy(30)",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AutoFocusResetDropsElapsedDwellButDoesNotRearmConsumedPolicy(60)",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.BackgroundKeepsTimerAndResetsStableSegmentAcrossRestore",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.CompletedSessionCanAttemptAiOnlyOnceAcrossJsonRestore",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.CompletedSessionDrivesApprovedFlowAndRewards",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.DerivedStatsExposeTodayCountsLongestAndSevenLocalDayBuckets",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.DisabledStatisticsInterruptionStoresNoBehaviorAndNoReward",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.DisabledStatisticsSurviveRestoreWithoutChangingDeadlineOrRewards",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.EmptyDataJsonRoundTripHasNoActiveSession",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.EmptyStatsHaveSevenZeroDaysAndNoInventedStability",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.FreshInstallDoesNotEnableAutoFocus",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.InterruptedSessionIsRecordedWithoutRewards",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.JsonRoundTripRestoresActiveDeadlineAndSettings",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.LocalMidnightAndSevenDayEdgesUseEndDateAfterJsonRoundTrip",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.RecordsDeriveGrowthPawsSevenDayMinutesAndLocalInsight",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLifeExitGestureTests.CancelAfterContactRetainsSingleInterventionButEarlyProbeDoesNot",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLifeExitGestureTests.DisabledInterventionTracksRelativeDistanceAndCancelsOnBackDrag",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLifeExitGestureTests.FastDragMustContactThenContinueWithoutJump",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLifeExitGestureTests.HoldExpiresAtTotalOnePointTwoSecondsEvenWithLateFrame",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLifeExitPersistenceTests.ContactPersistsAcrossReloadWithoutChangingDeadlineOrReward",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLifeExitPersistenceTests.DeadlineWinsDuringEveryInterventionPhase(0.0d,Preparing)",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLifeExitPersistenceTests.DeadlineWinsDuringEveryInterventionPhase(0.4d,Holding)",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLifeExitPersistenceTests.DeadlineWinsDuringEveryInterventionPhase(1.21d,Released)",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLifeExitPersistenceTests.DisabledInterventionDoesNotConsumeContactAndIgnoresAiAndStatisticsSwitches",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLifeExitPersistenceTests.LegacySettingsDefaultEnabledAndExplicitDisabledSurvivesReload",
+      "result": "Passed",
+      "run": "gap20-final-core-20261106"
+    },
+    {
+      "name": "CatLifeFigmaUiTests.BlackTextAndCenteredButtonsSurviveSetupSelection",
+      "result": "Passed",
+      "run": "gap20-reward-metrics-ui-green-20261106"
+    },
+    {
+      "name": "CatLifeFigmaUiTests.PageLabelsFitShorterPortraitWithoutLosingGlyphs",
+      "result": "Passed",
+      "run": "gap20-reward-metrics-ui-green-20261106"
+    },
+    {
+      "name": "CatLifeFigmaUiTests.RecordRowsAndGrowthProgressUseExistingData",
+      "result": "Passed",
+      "run": "gap20-reward-metrics-ui-green-20261106"
+    },
+    {
+      "name": "CatLifeFigmaUiTests.RewardAggregatesFitActualFontAndGenerateVisibleGlyphs",
+      "result": "Passed",
+      "run": "gap20-reward-metrics-ui-green-20261106"
+    },
+    {
+      "name": "CatLifeFigmaUiTests.RewardSeparatesRealAggregatesFromScrollableAdvice",
+      "result": "Passed",
+      "run": "gap20-reward-metrics-ui-green-20261106"
+    },
+    {
+      "name": "CatLifeFigmaUiTests.RewardWorldExtendsUnderActualSheetEdge",
+      "result": "Passed",
+      "run": "gap20-reward-metrics-ui-green-20261106"
+    },
+    {
+      "name": "CatLifeFigmaUiTests.SerializedPagesRetainSafeAreaAndNonInteractiveDecorations",
+      "result": "Passed",
+      "run": "gap20-reward-metrics-ui-green-20261106"
+    },
+    {
+      "name": "CatLifeFigmaUiTests.SettingsPrivacyAndSwitchesPreserveConsentAndRecords",
+      "result": "Passed",
+      "run": "gap20-reward-metrics-ui-green-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.CrossMidnightUsesCompletionDayAndInterruptionsNeverUnlockActions",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.DailyAndWeeklyTotalsMustRoundAfterSummingSeconds(119)",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.DailyAndWeeklyTotalsMustRoundAfterSummingSeconds(59)",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.DailyAndWeeklyTotalsMustRoundAfterSummingSeconds(90)",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.DeactivatingHostMustReleaseBusyBeforeReuse",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.DisablingOnlyBehaviourDoesNotStopItsCoroutine",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.LateResultKeepsOriginalRecordWithoutInterruptingNextFocus",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.ModelRewardTextMustRemainPlainText",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.SecondConcurrentRequestIsRejectedAndFirstStillFinishes",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.SuggestedTextTruncationMustNotSplitEmojiSurrogatePair",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.UserCatNameMustNotBecomeGrowthRichTextMarkup",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.BackwardWallClockMustNotExtendBeyondPlannedDuration",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.CancellingLiveTransportDisposesRequestAndPreventsLateCallback",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.ChineseUnsafeAdviceMustBeRejectedDespiteFalseSafetyFlags(\"你太没用了，不继续学我就离开你\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.ChineseUnsafeAdviceMustBeRejectedDespiteFalseSafetyFlags(\"你患有抑郁症，应该停止服药\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.ChineseUnsafeAdviceMustBeRejectedDespiteFalseSafetyFlags(\"我能判断你有焦虑症，这是诊断结果\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.CompletionRemainsExactlyOnceAfterRestore",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.ExternalActionCommandIsRejected",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.InvalidSavedDataMustNotReachBootAsUnhandledOrNullState(\"null\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.InvalidSavedDataMustNotReachBootAsUnhandledOrNullState(\"{\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.InvalidSavedDataMustNotReachBootAsUnhandledOrNullState(\"{\\\"records\\\":null,\\\"settings\\\":null}\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.RealTransport400HtmlDoesNotLeakResponseBody",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.RealTransport400KeepsProviderCodeWithoutEchoingMessage",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.RealTransport400RejectsUnboundedDiagnosticToken",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.RealTransport429CallsErrorOnce",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.RealTransportMalformed200CallsErrorOnce",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.RealTransportTimeoutCallsErrorOnce",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.TurningAiOffMustPreventPendingResponseFromBeingStored",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.AiConsentOffAndInterruptedSessionsNeverRequest",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.AiReactionPlaysUnlockedAnimatorStateOnlyInReward",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.ApprovedFunctionalPagesExposeRealVisualComponents",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.ApprovedHomeAndSetupUseSerializedUiKitSprites",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.AutoFocusPageExitResetsDwellForEveryConfiguredDuration",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.AutoFocusRespectsEligibilityAndStatsOffStillAllowsManualSession",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.BehaviorEventBoundaryRejectsRawTouchAndPackagePayloads",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.CameraDirectorExposesApprovedFixedPresets",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.ClearedDataIgnoresLateLocalAiCallback",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.ConfirmedClearResetsAdoptionNameAndPersistsEmptyData",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.DisabledStatisticsRewardAndPromptDoNotInventMeasurements",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.FailedAiClientPersistsSingleAttemptWithoutChangingReward",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.FocusSwipeProducesSanitizedAggregateEvent",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.GenericCloudConfigUsesMiMoDefaults",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.GenericCloudParserAcceptsPlainTextWithoutRetry",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.HomePointerActivityResetsDwellWithoutDuplicatingSemanticTaps",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.InterruptConfirmationAtDeadlineCompletesExactlyOnce",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.LeavingRewardKeepsLateLocalAdviceWithoutReopeningPageOrRetrying",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.LocalTailReviewUsesRealPresenterWithoutRecordsRewardsOrCloud",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.MiMoRequestDisablesThinkingAndRequestsJson",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.MobileCatCanNavigateFromSpawnToApprovedInterestPoint",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.MobileCatRoamsWithoutUserMoveCommandAndHasWalkAnimation",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.MobileCatTapProducesVisibleLowDistractionFeedback",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.MobileCatTraversesThreeApprovedInterestPointsContinuously",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.MobileCatUsesGravityAndWalkableTownCollidersWithoutFallingThrough",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.MobileNavigationDefinesSemanticBuildingForbiddenZones",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.MobileSceneRoutesPagesAndStartsAfterTransition",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.MobileSceneWiresRecognitionThroughSingleRuntimeSystemsRoot",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.MobileUiBackgroundsDoNotBlockWorldInteractionRaycasts",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.MobileUiButtonsFeedTheAggregateTapRate",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.NormalRoamingPrefersTheApprovedFixedCameraRange",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.QuietDwellBecomesExplicitLocalAggregateEvent",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.RecognitionSpectrumClassifiesDistractedTransitioningAndStableWithTrend",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.RestoredTransitionFinishesLieDownBeforeStartingClock",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.ReviewerPanelRendersCurrentRecognitionInsteadOfPresetValues",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.RewardNoneActionRendersAndPersistsWithoutInventingReaction",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.RewardShowsRequestingStructuredSuccessAndLocalFailure",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.SceneContainsStableLandmarkEntrypointsAndAnimatorStates",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.StableRecognitionAutomaticallyEntersFocusAfterTransition",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.StableRecognitionStartsCancelableAutoTransitionWithoutRetriggering",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.StructuredAiOutputPreservesSectionsAndRejectsUnsafeText",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.SyntheticAiCallbackRejectsIncompleteAndUsesOnlyUnlockedActions",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeProductGapTests.AdoptionPersistsWithoutErasingRecordsAndUnlockedCardsFollowPaws",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeProductGapTests.AiWithoutConsentOrWithAiDisabledDoesNotAttemptRequest",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeProductGapTests.AllLandmarksHaveConsumersAndFocusRejectsPageEntry",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeProductGapTests.DisablingBehaviorStatsStopsCollectionAndClearsExistingWindow",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeProductGapTests.EmptyOrUnsafeAiOutputCannotBecomeExecutableSuggestion",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeProductGapTests.ExitHandleIsVisibleAndRequiresActualDrag",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeProductGapTests.GrowthUsesApprovedTailNameWithoutChangingUnlocks",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeProductGapTests.LeavingSettingsCancelsPendingDataClear",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeProductGapTests.RestoredFocusInitializesProneAnimationAfterAllComponentsAwake",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeProductGapTests.RewardFramingReservesVisibleWorldAndHomeRestoresFullViewport",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeProductGapTests.RoundedSheetRendersWorldBehindItsEdgeWithoutMovingVisibleWorld(1080,2424)",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeProductGapTests.RoundedSheetRendersWorldBehindItsEdgeWithoutMovingVisibleWorld(720,1280)",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.AiOffOnCannotReviveCancelledRecord",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.CancelledClientCanImmediatelyRequestWithoutOldCallback",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.CandidatePreparationActuallyEntersFocus",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.ClockRollbackAfterRestartRequiresExplicitChoice",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.CorruptSaveRecoveryPreservesOriginalUntilConfirmed",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.DestroyingClientDoesNotCallDestroyedUi",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.ElapsedClockIgnoresWallClockChanges(-3600)",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.ElapsedClockIgnoresWallClockChanges(3600)",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.ForegroundCallbackBeforeStartUsesInitializedSessionClock",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"不继续学习我就不理你\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"休息一下也可以\",True)",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"你​患有抑郁症\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"你患有焦 虑 症\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"先打开材料，写一行\",True)",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"再退出我就离开你\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"建议你自行停药\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.NicknameStaysLiteralAndSurvivesReload",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.RetryRecoveryRestoresValidFocusAndDoesNotRetryOldAi",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.TextCutKeepsUtf16Pairs(\"\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.TextCutKeepsUtf16Pairs(\"abcdefghijklmnopqrstuvw🐱\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.TextCutKeepsUtf16Pairs(\"猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫🐱\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.TextCutKeepsUtf16Pairs(\"🐱\")",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.WeeklyTotalSumsUnroundedSecondsAcrossDays",
+      "result": "Passed",
+      "run": "gap20-final-play3-20261106"
+    }
+  ]
+}

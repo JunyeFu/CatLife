@@ -117,6 +117,7 @@ public static class CatLifeFigmaUiInstaller
         Reward(ui);
         PageHeader("Records", "专注记录"); PageHeader("Growth", "猫咪成长"); PageHeader("Settings", "设置");
         Records(ui); Growth(ui); Settings(ui, root);
+        ApplyPageRepairs(root);
         foreach (string name in new[] { "AdoptionCard", "ExitConfirmCard", "AiConsentPanelCard" }) Surface(Named(name), "Card");
         foreach (string name in new[] { "AdoptionConfirm", "InterruptConfirm", "AiConsentAccept", "ReviewerMinute", "ReviewTail", "ReviewWave", "ReviewRest", "ReviewStretch" })
             StyleButton(Named(name), true, name.StartsWith("Review") ? 36 : 44);
@@ -124,6 +125,36 @@ public static class CatLifeFigmaUiInstaller
             StyleButton(Named(name), false, 40);
         if (root.GetComponentsInChildren<Button>(true).Length < buttonsBefore)
             throw new InvalidOperationException("The frontend must preserve every existing button.");
+        EditorUtility.SetDirty(root);
+    }
+
+    public static void ApplyPageRepairs(GameObject root)
+    {
+        nodes = root.GetComponentsInChildren<Transform>(true);
+        font = Named("TodayText").GetComponent<Text>().font;
+        var ui = root.GetComponent<CatLifeMobileUiPresentation>();
+        ui.rewardDuration.fontSize = 96;
+        ui.rewardBehavior.fontSize = 32;
+        Fill(ui.rewardBehavior.rectTransform, 8);
+        ui.rewardPaws.fontSize = 36;
+        Named("TimerText").GetComponent<Text>().fontSize = 96;
+        Named("FocusTitle").GetComponent<Text>().fontSize = 36;
+        Named("BrandTitle").GetComponent<Text>().fontSize = 56;
+        Named("FigmaSetupBrand").GetComponent<Text>().fontSize = 56;
+        Named("SetupTitle").GetComponent<Text>().fontSize = 56;
+        Named("SelectedMinutes").GetComponent<Text>().fontSize = 24;
+        Box(Named("SelectedMinutes"), Named("SetupCard"), 64, 252, 952, 48, 1080, 1104);
+        Named("RewardTitle").GetComponent<Text>().fontSize = 52;
+        Named("RewardHome").GetComponentInChildren<Text>(true).fontSize = 40;
+        Named("RewardAgain").GetComponentInChildren<Text>(true).fontSize = 40;
+        // Reserve the left side for the cat's contact paws, without relocating the gesture track.
+        Box(Named("SwipeLabel"), Named("SwipeTrack"), 540, 0, 308, 180, 888, 180);
+        Type("SwipeLabel", 36, Color.black, TextAnchor.MiddleCenter);
+        var hint = NewText(Named("RewardCard"), "RewardScrollHint", 20, Color.black);
+        Box(hint.transform, Named("RewardCard"), 64, 840, 952, 40, 1080, 1104);
+        hint.text = "上下滑动查看完整建议";
+        hint.gameObject.SetActive(false);
+        ui.rewardScrollHint = hint;
         EditorUtility.SetDirty(root);
     }
 

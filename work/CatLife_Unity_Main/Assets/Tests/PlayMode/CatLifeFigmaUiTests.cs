@@ -42,7 +42,7 @@ public sealed class CatLifeFigmaUiTests
         foreach (string name in new[] { "StartButton", "SetupStart", "RewardAgain" })
         {
             var text = View(name).GetComponentInChildren<Text>(true);
-            Assert.That(text.fontSize, Is.EqualTo(52));
+            Assert.That(text.fontSize, Is.EqualTo(name == "RewardAgain" ? 40 : 52));
             Assert.That(text.alignment, Is.EqualTo(TextAnchor.MiddleCenter));
             Assert.That(text.resizeTextForBestFit, Is.False);
             Assert.That(text.rectTransform.offsetMin, Is.EqualTo(-text.rectTransform.offsetMax));
@@ -102,8 +102,85 @@ public sealed class CatLifeFigmaUiTests
         Assert.That(Field<Text>(ui, "rewardGrowth").text, Does.Contain("成长 +1"));
         Assert.That(Field<Text>(ui, "rewardInsight").text, Does.Contain("MiMo 生成").And.Contain("小步骤"));
         Assert.That(Field<RectTransform>(ui, "rewardContent").rect.height, Is.GreaterThan(Field<RectTransform>(ui, "rewardViewport").rect.height));
+        Assert.That(Field<Text>(ui, "rewardScrollHint").gameObject.activeSelf, Is.True);
+        var scroll = Field<ScrollRect>(ui, "rewardScroll");
+        var pointer = new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current)
+            { position = RectTransformUtility.WorldToScreenPoint(null, Field<RectTransform>(ui, "rewardViewport").position) };
+        scroll.OnBeginDrag(pointer);
+        pointer.position += Vector2.up * 100; pointer.delta = Vector2.up * 100;
+        scroll.OnDrag(pointer); scroll.OnEndDrag(pointer);
+        Assert.That(scroll.verticalNormalizedPosition, Is.LessThan(1), "The full advice must be reachable by dragging.");
         Assert.That(record.aiRequestCount, Is.EqualTo(1));
         Assert.That(record.PawsAwarded, Is.EqualTo(1));
+    }
+
+    [UnityTest]
+    public IEnumerator RewardAggregatesFitActualFontAndGenerateVisibleGlyphs()
+    {
+        Seed(); yield return null;
+        // Measure the serialized layout in its approved portrait reference frame, not the batch Editor's landscape Game view.
+        Canvas canvas = GameObject.Find("CatLifeMobileView").GetComponent<Canvas>();
+        canvas.GetComponent<CanvasScaler>().enabled = false;
+        canvas.renderMode = RenderMode.WorldSpace;
+        var frame = (RectTransform)canvas.transform;
+        frame.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 1080);
+        frame.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 2424);
+        View("RewardPanel").gameObject.SetActive(true);
+        View("RewardCard").gameObject.SetActive(true);
+        var app = GameObject.Find("CatLifeMobileApp").GetComponent("CatLifeMobileApp");
+        var record = new CatLifeSessionRecord { completed = true, plannedSeconds = 60, actualSeconds = 60 };
+        app.GetType().GetMethod("RenderReward", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(app, new object[] { record });
+        yield return null; Canvas.ForceUpdateCanvases();
+        foreach (string field in new[] { "rewardDuration", "rewardBehavior", "rewardGrowth", "rewardPaws" })
+        {
+            Text text = Field<Text>(Presentation(), field);
+            text.cachedTextGenerator.Populate(text.text, text.GetGenerationSettings(text.rectTransform.rect.size));
+            Debug.Log($"GAP20_FONT {field} rect={text.rectTransform.rect.height} preferred={text.preferredHeight} vertices={text.cachedTextGenerator.vertexCount}");
+            Assert.That(text.preferredHeight, Is.LessThanOrEqualTo(text.rectTransform.rect.height + .1f), field);
+            Assert.That(text.cachedTextGenerator.vertexCount, Is.GreaterThan(4), field);
+        }
+    }
+
+    [UnityTest]
+    public IEnumerator RewardWorldExtendsUnderActualSheetEdge()
+    {
+        Seed(); yield return null;
+        View("RewardPanel").gameObject.SetActive(true); View("RewardCard").gameObject.SetActive(true);
+        var director = Camera.main.GetComponent("CatLifeCameraDirector");
+        director.GetType().GetMethod("Show").Invoke(director, new object[] { CatLifeSessionPhase.Reward, true });
+        Canvas.ForceUpdateCanvases();
+        var corners = new Vector3[4]; ((RectTransform)View("RewardCard")).GetWorldCorners(corners);
+        Assert.That(Camera.main.pixelRect.y, Is.LessThanOrEqualTo(corners[1].y - 24f * Screen.height / 2424f),
+            "The world render ends above the sheet edge, exposing a black seam.");
+    }
+
+    [UnityTest]
+    public IEnumerator PageLabelsFitShorterPortraitWithoutLosingGlyphs()
+    {
+        Seed(); yield return null;
+        var ui = Presentation();
+        ui.GetComponent<CanvasScaler>().enabled = false;
+        ui.GetComponent<Canvas>().renderMode = RenderMode.WorldSpace;
+        ((RectTransform)ui.transform).sizeDelta = new Vector2(1080, 1920);
+        foreach (string name in new[] { "HomeHudLayer", "SetupPanel", "SetupCard", "FocusPanel", "RewardPanel", "RewardCard" })
+            View(name).gameObject.SetActive(true);
+        var app = GameObject.Find("CatLifeMobileApp").GetComponent("CatLifeMobileApp");
+        var record = new CatLifeSessionRecord { completed = true, plannedSeconds = 60, actualSeconds = 60, longestStableSeconds = 60 };
+        app.GetType().GetMethod("RenderReward", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(app, new object[] { record });
+        Canvas.ForceUpdateCanvases();
+        var labels = new[] { "BrandTitle", "FigmaSetupBrand", "SetupTitle", "SelectedMinutes", "FocusTitle", "TimerText", "RewardTitle", "RewardDurationText", "RewardBehaviorText", "RewardGrowthText", "RewardPawsText", "RewardScrollHint", "RewardHomeText", "RewardAgainText" };
+        foreach (string name in labels)
+        {
+            var text = View(name).GetComponent<Text>();
+            text.cachedTextGenerator.Populate(text.text, text.GetGenerationSettings(text.rectTransform.rect.size));
+            Debug.Log($"GAP20_SHORT_FONT {name} rect={text.rectTransform.rect.height} preferred={text.preferredHeight} vertices={text.cachedTextGenerator.vertexCount}");
+        }
+        foreach (string name in labels)
+        {
+            var text = View(name).GetComponent<Text>();
+            Assert.That(text.preferredHeight, Is.LessThanOrEqualTo(text.rectTransform.rect.height + .1f), name);
+            Assert.That(text.cachedTextGenerator.vertexCount, Is.GreaterThan(4), name);
+        }
     }
 
     [UnityTest]
