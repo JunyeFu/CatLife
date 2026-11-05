@@ -208,6 +208,12 @@ namespace CatLife.Cat
 
             if (hasHit)
             {
+                CatLifeLandmark landmark = hit.collider.GetComponentInParent<CatLifeLandmark>();
+                if (landmark != null && (landmark.action != CatLifeLandmarkAction.Plaza || pressSeconds >= longPressSeconds))
+                {
+                    Object.FindFirstObjectByType<CatLifeMobileApp>().OpenLandmark(landmark.action);
+                    return;
+                }
                 behaviorDriver.NotifyGroundTapped(hit.point);
             }
         }
@@ -303,7 +309,7 @@ namespace CatLife.Cat
                 Transform current = result.gameObject.transform;
                 while (current != null)
                 {
-                    if (current.name == "SwipeTrack") return true;
+                    if (current.name == "SwipeTrack" || current.name == "AdoptionPanel") return true;
                     current = current.parent;
                 }
             }

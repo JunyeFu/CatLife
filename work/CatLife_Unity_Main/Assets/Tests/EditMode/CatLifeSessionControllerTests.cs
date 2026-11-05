@@ -6,6 +6,59 @@ namespace CatLife.Mobile.Tests
     public sealed class CatLifeSessionControllerTests
     {
         [Test]
+        public void DisabledStatisticsSurviveRestoreWithoutChangingDeadlineOrRewards()
+        {
+            var data = new CatLifeAppData();
+            data.settings.localBehaviorStatsEnabled = false;
+            var controller = new CatLifeSessionController(data);
+            controller.BeginTransition(60, 100);
+            controller.EnterFocus(102);
+            controller.RecordTouch();
+            controller.RecordBackground(110);
+            data = CatLifeDataJson.Deserialize(CatLifeDataJson.Serialize(data));
+            controller = new CatLifeSessionController(data);
+            controller.RecordForeground(130);
+            Assert.That(controller.RemainingSeconds(130), Is.EqualTo(32));
+            Assert.That(controller.TryComplete(162, out var record), Is.True);
+            Assert.That(record.behaviorStatsDisabled, Is.True);
+            Assert.That(record.touchCount, Is.Zero);
+            Assert.That(record.backgroundCount, Is.Zero);
+            Assert.That(record.longestStableSeconds, Is.Zero);
+            Assert.That(record.GrowthAwarded, Is.EqualTo(1));
+            Assert.That(record.PawsAwarded, Is.EqualTo(1));
+            StringAssert.Contains("未采集", CatLifeInsightEngine.Create(record));
+            StringAssert.DoesNotContain("稳定度", CatLifeInsightEngine.Create(record));
+            Assert.That(CatLifeStats.Derive(data, 162).TodayHasBehaviorStats, Is.False);
+        }
+
+        [Test]
+        public void DisabledStatisticsInterruptionStoresNoBehaviorAndNoReward()
+        {
+            var data = new CatLifeAppData();
+            data.settings.localBehaviorStatsEnabled = false;
+            var controller = new CatLifeSessionController(data);
+            controller.BeginTransition(60, 100);
+            controller.EnterFocus(102);
+            controller.RecordTouch();
+            controller.RecordBackground(110);
+            controller.RecordForeground(120);
+            var record = controller.Interrupt(130);
+            Assert.That(record.behaviorStatsDisabled, Is.True);
+            Assert.That(record.backgroundCount + record.touchCount + record.longestStableSeconds, Is.Zero);
+            Assert.That(record.GrowthAwarded + record.PawsAwarded, Is.Zero);
+            data = CatLifeDataJson.Deserialize(CatLifeDataJson.Serialize(data));
+            Assert.That(data.records[0].behaviorStatsDisabled, Is.True);
+        }
+
+        [Test]
+        public void FreshInstallDoesNotEnableAutoFocus()
+        {
+            CatLifeAppData data = new CatLifeAppData();
+
+            Assert.That(data.settings.autoFocusAdaptationSeconds, Is.EqualTo(0));
+        }
+
+        [Test]
         public void CompletedSessionDrivesApprovedFlowAndRewards()
         {
             CatLifeAppData data = new CatLifeAppData();
@@ -151,6 +204,24 @@ namespace CatLife.Mobile.Tests
             CatLifeAppData restored = CatLifeDataJson.Deserialize(CatLifeDataJson.Serialize(data));
             Assert.That(restored.records[0].aiRequestAttempted, Is.True);
             Assert.That(restored.records[0].aiSource, Is.EqualTo("mimo_cloud_pending"));
+            Assert.That(restored.records[0].aiRequestCount, Is.EqualTo(1));
+            Assert.That(new CatLifeSessionController(restored).TryMarkAiRequestAttempted(restored.records[0], "mimo_cloud_pending"), Is.False);
+        }
+
+        [TestCase("quiet_idle", 5, "focus_rest")]
+        [TestCase("soft_roam", 8, "stretch")]
+        [TestCase("social_response", 3, "tail_wag")]
+        [TestCase("quiet_idle", 1, "paw_wave")]
+        [TestCase("none", 0, "")]
+        [TestCase("none", 1, "")]
+        [TestCase("none", 8, "")]
+        [TestCase("social_response", 1, "paw_wave")]
+        [TestCase("soft_roam", 5, "paw_wave")]
+        [TestCase("transform", 8, "")]
+        [TestCase("social_response", 0, "")]
+        public void AiRecommendationRespectsActionWhitelistAndUnlocks(string action, int paws, string expected)
+        {
+            Assert.That(CatLifeUnlocks.ResolveAiReaction(action, paws), Is.EqualTo(expected));
         }
 
         [Test]
@@ -185,6 +256,50 @@ namespace CatLife.Mobile.Tests
         }
 
         [Test]
+        public void EmptyStatsHaveSevenZeroDaysAndNoInventedStability()
+        {
+            var stats = CatLifeStats.Derive(new CatLifeAppData(), 1791504000);
+            Assert.That(stats.SevenDayMinutesByDay, Is.EqualTo(new int[7]));
+            Assert.That(stats.TodayMinutes, Is.Zero);
+            Assert.That(stats.TodayCompletedCount, Is.Zero);
+            Assert.That(stats.TodayHasBehaviorStats, Is.False);
+            Assert.That(stats.TodayLongestStableSeconds, Is.Zero);
+            Assert.That(stats.TotalGrowth, Is.Zero);
+            Assert.That(stats.Paws, Is.Zero);
+            Assert.That(stats.Level, Is.EqualTo(1));
+            Assert.That(stats.GrowthToNextLevel, Is.EqualTo(100));
+        }
+
+        [Test]
+        public void LocalMidnightAndSevenDayEdgesUseEndDateAfterJsonRoundTrip()
+        {
+            var midnight = new DateTime(2026, 10, 10, 0, 0, 0, DateTimeKind.Local);
+            long boundary = new DateTimeOffset(midnight).ToUnixTimeSeconds();
+            var data = new CatLifeAppData();
+            data.records.Add(new CatLifeSessionRecord { endedAt = boundary - 1, actualSeconds = 60, plannedSeconds = 60, completed = true, longestStableSeconds = 60 });
+            data.records.Add(new CatLifeSessionRecord { endedAt = boundary + 1, actualSeconds = 120, plannedSeconds = 120, completed = true, behaviorStatsDisabled = true, longestStableSeconds = 999 });
+            data.records.Add(new CatLifeSessionRecord { endedAt = boundary + 2, actualSeconds = 60, plannedSeconds = 600, completed = false, longestStableSeconds = 20 });
+            data.records.Add(new CatLifeSessionRecord { endedAt = new DateTimeOffset(midnight.AddDays(-6)).ToUnixTimeSeconds(), actualSeconds = 180, plannedSeconds = 180, completed = true });
+            data.records.Add(new CatLifeSessionRecord { endedAt = new DateTimeOffset(midnight.AddDays(-6)).ToUnixTimeSeconds() - 1, actualSeconds = 240, plannedSeconds = 240, completed = true });
+            var stats = CatLifeStats.Derive(CatLifeDataJson.Deserialize(CatLifeDataJson.Serialize(data)), boundary + 30);
+            Assert.That(stats.SevenDayMinutesByDay, Is.EqualTo(new[] { 3, 0, 0, 0, 0, 1, 3 }));
+            Assert.That(stats.SevenDayMinutes, Is.EqualTo(7));
+            Assert.That(stats.TodayMinutes, Is.EqualTo(3));
+            Assert.That(stats.TodayCompletedCount, Is.EqualTo(1));
+            Assert.That(stats.TodayLongestStableSeconds, Is.EqualTo(20));
+            Assert.That(stats.TotalGrowth, Is.EqualTo(10));
+            Assert.That(stats.Paws, Is.EqualTo(4)); // One paw per completed session, not per minute.
+        }
+
+        [Test]
+        public void EmptyDataJsonRoundTripHasNoActiveSession()
+        {
+            var restored = CatLifeDataJson.Deserialize(CatLifeDataJson.Serialize(new CatLifeAppData()));
+            Assert.That(restored.activeSession, Is.Null);
+            Assert.That(new CatLifeSessionController(restored).Phase, Is.EqualTo(CatLifeSessionPhase.Normal));
+        }
+
+        [Test]
         public void AutoFocusRequiresContinuousStableDwellAndTriggersOnlyOnce()
         {
             Type policyType = Type.GetType("CatLife.Mobile.CatLifeAutoFocusPolicy, CatLife.Mobile.Core");
@@ -196,6 +311,20 @@ namespace CatLife.Mobile.Tests
             Assert.That((bool)shouldStart.Invoke(policy, new object[] { CatLifeSessionPhase.Normal, true, .80f, 1f }), Is.True);
             Assert.That((bool)shouldStart.Invoke(policy, new object[] { CatLifeSessionPhase.Normal, true, .80f, 10f }), Is.False);
             Assert.That((bool)shouldStart.Invoke(policy, new object[] { CatLifeSessionPhase.Transition, true, .80f, 10f }), Is.False);
+        }
+
+        [TestCase(30)]
+        [TestCase(60)]
+        [TestCase(120)]
+        public void AutoFocusResetDropsElapsedDwellButDoesNotRearmConsumedPolicy(int duration)
+        {
+            var policy = new CatLifeAutoFocusPolicy(duration, .68f);
+            Assert.That(policy.ShouldStart(CatLifeSessionPhase.Normal, true, .82f, duration - 1), Is.False);
+            policy.ResetDwell();
+            Assert.That(policy.ShouldStart(CatLifeSessionPhase.Normal, true, .82f, 1), Is.False);
+            Assert.That(policy.ShouldStart(CatLifeSessionPhase.Normal, true, .82f, duration - 1), Is.True);
+            policy.ResetDwell();
+            Assert.That(policy.ShouldStart(CatLifeSessionPhase.Normal, true, .82f, duration), Is.False);
         }
     }
 }

@@ -16,6 +16,7 @@ namespace CatLife.Cat
         [SerializeField] private float minProgressSpeed = 0.02f;
 
         private Vector3 previousPosition;
+        private Quaternion previousRotation;
         private float stuckTimer;
         private int recoveryCount;
         private int stuckRecoveryCount;
@@ -75,6 +76,7 @@ namespace CatLife.Cat
             }
 
             previousPosition = transform.position;
+            previousRotation = transform.rotation;
             CacheSafePositionIfAvailable();
         }
 
@@ -96,6 +98,7 @@ namespace CatLife.Cat
             GuardPathStatus();
             GuardStuckMovement();
             previousPosition = transform.position;
+            previousRotation = transform.rotation;
         }
 
         public string BuildStatusLine()
@@ -119,7 +122,7 @@ namespace CatLife.Cat
                 return;
             }
 
-            lastNavMeshDistance = Vector3.Distance(transform.position, hit.position);
+            lastNavMeshDistance = HorizontalDistance(transform.position, hit.position);
             if (lastNavMeshDistance > Mathf.Max(0.02f, maxSurfaceDrift))
             {
                 RecoverByWarp(hit.position, "surface_drift");
@@ -170,9 +173,19 @@ namespace CatLife.Cat
             }
 
             float deltaTime = Mathf.Max(Time.deltaTime, 0.0001f);
-            float moved = Vector3.Distance(transform.position, previousPosition);
+            float moved = HorizontalDistance(transform.position, previousPosition);
             float progressSpeed = moved / deltaTime;
-            if (progressSpeed >= minSpeed || agent.velocity.magnitude >= minSpeed)
+            // A planted-foot turn intentionally has no translation. Count real
+            // angular progress, not simply the existence of a turn request.
+            if (navigationAgent != null && navigationAgent.IsTurning &&
+                Quaternion.Angle(previousRotation, transform.rotation) / deltaTime >= 1f)
+            {
+                stuckTimer = 0f;
+                return;
+            }
+            // The agent simulates velocity even when physics blocks the body.
+            // Only actual horizontal displacement proves forward progress.
+            if (progressSpeed >= minSpeed)
             {
                 stuckTimer = 0f;
                 return;
@@ -216,7 +229,7 @@ namespace CatLife.Cat
             {
                 lastSafeNavMeshPosition = hit.position;
                 hasLastSafePosition = true;
-                lastNavMeshDistance = Vector3.Distance(transform.position, hit.position);
+                lastNavMeshDistance = HorizontalDistance(transform.position, hit.position);
             }
         }
 
@@ -252,7 +265,8 @@ namespace CatLife.Cat
                 return;
             }
 
-            if (agent.isOnNavMesh)
+            if (navigationAgent != null) navigationAgent.StopSoft();
+            else if (agent.isOnNavMesh)
             {
                 agent.ResetPath();
             }
@@ -260,6 +274,13 @@ namespace CatLife.Cat
             agent.isStopped = true;
             recoveryCount += 1;
             lastRecoveryReason = reason;
+        }
+
+        private static float HorizontalDistance(Vector3 a, Vector3 b)
+        {
+            a.y = 0f;
+            b.y = 0f;
+            return Vector3.Distance(a, b);
         }
     }
 }

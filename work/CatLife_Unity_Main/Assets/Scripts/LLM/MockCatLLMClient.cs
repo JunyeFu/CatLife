@@ -11,7 +11,7 @@ namespace CatLife.LLM
         [SerializeField] private bool enableClient = true;
         [SerializeField] private float simulatedLatencySeconds = 0.15f;
         [SerializeField] private bool preferGenericCloudWhenConfigured = true;
-        [SerializeField] private int cloudTimeoutSeconds = 8;
+        [SerializeField] private int cloudTimeoutSeconds = 30;
 
         public bool Enabled { get { return enableClient; } }
         public bool IsBusy { get; private set; }
@@ -21,6 +21,10 @@ namespace CatLife.LLM
         public long LastCloudStatusCode { get; private set; }
         public string LastCloudProvider { get; private set; } = "not_configured";
         public bool LastCloudConfigUsable { get; private set; }
+        private Coroutine pending;
+        private UnityWebRequest activeRequest;
+        private Action<string> pendingError;
+        private int requestGeneration;
 
         public void RequestSuggestion(
             CatPromptContext context,
@@ -48,13 +52,44 @@ namespace CatLife.LLM
                 return;
             }
 
-            StartCoroutine(CoRespond(context, onSuccess));
+            IsBusy = true;
+            pendingError = onError;
+            pending = StartCoroutine(CoOwnedResponse(++requestGeneration, context, onSuccess));
         }
+
+        private IEnumerator CoOwnedResponse(int generation, CatPromptContext context, Action<LLMBehaviorSuggestion> onSuccess)
+        {
+            LLMBehaviorSuggestion result = null;
+            try { yield return CoRespond(context, value => result = value); }
+            finally
+            {
+                if (generation == requestGeneration) { IsBusy = false; pending = null; pendingError = null; }
+            }
+            if (generation == requestGeneration) onSuccess?.Invoke(result);
+        }
+
+        public void CancelPending(string reason = "cancelled") { CancelRequest(reason, true); }
+
+        private void CancelRequest(string reason, bool notify)
+        {
+            ++requestGeneration;
+            Coroutine running = pending; pending = null;
+            Action<string> error = pendingError; pendingError = null;
+            IsBusy = false;
+            if (activeRequest != null)
+            {
+                UnityWebRequest request = activeRequest; activeRequest = null;
+                request.Abort(); request.Dispose();
+            }
+            if (running != null) StopCoroutine(running);
+            if (notify) error?.Invoke(reason);
+        }
+
+        private void OnDisable() { if (!gameObject.activeInHierarchy) CancelRequest("cancelled", false); }
+        private void OnDestroy() { CancelRequest("destroyed", false); }
 
         private IEnumerator CoRespond(CatPromptContext context, Action<LLMBehaviorSuggestion> onSuccess)
         {
-            IsBusy = true;
-
             GenericCloudConfig config = GenericCloudConfig.Load();
             LastCloudProvider = config.provider;
             LastCloudConfigUsable = config.HasUsableCloudCredentials;
@@ -70,7 +105,7 @@ namespace CatLife.LLM
                 bool cloudCompleted = false;
                 LLMBehaviorSuggestion cloudSuggestion = null;
                 string cloudError = "";
-                yield return StartCoroutine(CoRequestGenericCloud(
+                yield return CoRequestGenericCloud(
                     config,
                     context,
                     suggestion =>
@@ -82,11 +117,10 @@ namespace CatLife.LLM
                     {
                         cloudError = error;
                         cloudCompleted = true;
-                    }));
+                    });
 
                 if (cloudCompleted && cloudSuggestion != null)
                 {
-                    IsBusy = false;
                     LastSource = "mimo_cloud";
                     LastFailureReason = "";
                     Debug.Log("[CatLife] llm_result llm_source=mimo_cloud status_code=" + LastCloudStatusCode +
@@ -158,7 +192,6 @@ namespace CatLife.LLM
                 suggestion.showBubble = false;
             }
 
-            IsBusy = false;
             if (LastSource != "mimo_cloud")
             {
                 LastSource = "local_template";
@@ -184,7 +217,9 @@ namespace CatLife.LLM
             LastCloudStatusCode = 0;
             string bodyJson = BuildGenericCloudRequestJson(config.model, context);
 
-            using (UnityWebRequest req = new UnityWebRequest(config.apiEndpoint, UnityWebRequest.kHttpVerbPOST))
+            UnityWebRequest req = new UnityWebRequest(config.apiEndpoint, UnityWebRequest.kHttpVerbPOST);
+            activeRequest = req;
+            try
             {
                 byte[] payload = Encoding.UTF8.GetBytes(bodyJson);
                 req.uploadHandler = new UploadHandlerRaw(payload);
@@ -248,6 +283,10 @@ namespace CatLife.LLM
                 {
                     onSuccess(safeSuggestion);
                 }
+            }
+            finally
+            {
+                if (ReferenceEquals(activeRequest, req)) { activeRequest = null; req.Dispose(); }
             }
         }
 
@@ -398,7 +437,7 @@ namespace CatLife.LLM
                     stream = false,
                     temperature = 0f,
                     top_p = 1f,
-                    max_completion_tokens = 256,
+                    max_completion_tokens = 768,
                     response_format = new CloudResponseFormat { type = "json_object" },
                     thinking = new CloudThinking { type = "disabled" },
                     messages = new[]

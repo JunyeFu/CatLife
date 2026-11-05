@@ -88,11 +88,10 @@ public sealed class CatLifeInterviewAuditTests
     public void InvalidSavedDataMustNotReachBootAsUnhandledOrNullState(string json)
     {
         CatLifeAppData loaded = null;
-        Assert.DoesNotThrow(() => loaded = CatLifeDataJson.Deserialize(json),
-            "Awake calls this deserializer directly; corruption needs an explicit recovery/error path.");
-        Assert.That(loaded, Is.Not.Null);
-        Assert.That(loaded.records, Is.Not.Null);
-        Assert.That(loaded.settings, Is.Not.Null);
+        bool ok = false;
+        Assert.DoesNotThrow(() => ok = CatLifeDataJson.TryDeserialize(json, out loaded));
+        if (json == "{" || json == "null") Assert.That(ok, Is.False, "Corrupt input must enter explicit recovery.");
+        else { Assert.That(ok, Is.True); Assert.That(loaded.records, Is.Not.Null); Assert.That(loaded.settings, Is.Not.Null); }
     }
 
     [Test]
@@ -151,6 +150,38 @@ public sealed class CatLifeInterviewAuditTests
 
     [UnityTest] public IEnumerator RealTransportTimeoutCallsErrorOnce() =>
         CheckTransport(25489, 200, "{}", 2500, "generic_cloud_network_");
+
+    [UnityTest] public IEnumerator CancellingLiveTransportDisposesRequestAndPreventsLateCallback()
+    {
+        var listener = new TcpListener(IPAddress.Loopback, 25487); listener.Start();
+        Task server = Task.Run(() => { using (TcpClient peer = listener.AcceptTcpClient())
+            using (var stream = peer.GetStream()) { byte[] buffer = new byte[8192]; stream.Read(buffer, 0, buffer.Length); Thread.Sleep(250);
+                try { byte[] response = Encoding.ASCII.GetBytes("HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\n{}"); stream.Write(response, 0, response.Length); }
+                catch (System.IO.IOException) { } } });
+        var host = new GameObject("CancelLiveTransport");
+        try
+        {
+            Type type = Type.GetType("CatLife.LLM.MockCatLLMClient, Assembly-CSharp");
+            var client = (MonoBehaviour)host.AddComponent(type);
+            object config = Activator.CreateInstance(type.Assembly.GetType("CatLife.LLM.GenericCloudConfig"));
+            config.GetType().GetField("apiEndpoint").SetValue(config, "http://127.0.0.1:25487/");
+            config.GetType().GetField("apiKey").SetValue(config, "AUDIT_PLACEHOLDER_NOT_A_SECRET");
+            int callbacks = 0;
+            var flow = (IEnumerator)type.GetMethod("CoRequestGenericCloud", Private).Invoke(client,
+                new object[] { config, null, null, (Action<string>)(_ => callbacks++) });
+            Coroutine running = client.StartCoroutine(flow);
+            type.GetField("pending", Private).SetValue(client, running);
+            yield return new WaitForSecondsRealtime(.1f);
+            Assert.That(type.GetField("activeRequest", Private).GetValue(client), Is.Not.Null);
+            type.GetMethod("CancelPending").Invoke(client, new object[] { "cancelled" });
+            yield return new WaitForSecondsRealtime(.4f);
+            Assert.That(callbacks, Is.Zero); Assert.That(type.GetField("activeRequest", Private).GetValue(client), Is.Null);
+            Assert.That(type.GetProperty("IsBusy").GetValue(client), Is.False);
+            while (!server.IsCompleted) yield return null;
+            if (server.IsFaulted) throw server.Exception;
+        }
+        finally { listener.Stop(); UnityEngine.Object.DestroyImmediate(host); }
+    }
 
     private IEnumerator CheckTransport(int port, int status, string body, int delayMs, string errorPrefix)
     {

@@ -35,6 +35,7 @@ namespace CatLife.Cat
         [SerializeField] private bool preferCameraRangeWhenFocused = true;
         [SerializeField] private float viewportSafeMargin = 0.08f;
         [SerializeField] private float viewportProbeHeight = 0.28f;
+        [SerializeField] private float visibleBodyRadius;
         [SerializeField] private float cameraVisibleBiasWeight = 4f;
         [SerializeField] private float cameraReturnBiasWeight = 10f;
         [SerializeField] private float nonFocusNearCameraBiasWeight = 2.5f;
@@ -49,6 +50,8 @@ namespace CatLife.Cat
 
         private readonly Collider[] overlapBuffer = new Collider[12];
         private string lastPlannedInterestPointId = "";
+        private NavMeshPath plannedRoamingPath;
+        private Vector3 plannedRoamingLanding;
 
         public string LastPlannedInterestPointId
         {
@@ -99,13 +102,12 @@ namespace CatLife.Cat
         {
             bool focused = snapshot.IsFocused || decision.state == CatBehaviorState.FocusedRoam;
             lastPlannedInterestPointId = "";
+            plannedRoamingPath = null;
+
+            if (!focused)
+                return TryPlanRoaming(snapshot, decision, needs, memory, currentPosition, out result);
 
             if (focused && ShouldUseCameraPreference(true) && TryCameraReturnPlan(true, currentPosition, out result))
-            {
-                return true;
-            }
-
-            if (!focused && ShouldReturnToCamera(false, currentPosition) && TryCameraReturnPlan(false, currentPosition, out result))
             {
                 return true;
             }
@@ -140,6 +142,7 @@ namespace CatLife.Cat
             out Vector3 result)
         {
             lastPlannedInterestPointId = "";
+            plannedRoamingPath = null;
 
             NavMeshHit hit;
             if (!NavMesh.SamplePosition(requestedPoint, out hit, navMeshProbeDistance, NavMesh.AllAreas))
@@ -157,6 +160,85 @@ namespace CatLife.Cat
 
             result = hit.position;
             return true;
+        }
+
+        private bool TryPlanRoaming(RecognitionSnapshot snapshot, CatBehaviorDecision decision,
+            CatNeedState needs, CatBehaviorMemory memory, Vector3 origin, out Vector3 result)
+        {
+            var navigation = GetComponent<CatNavigationAgent>();
+            var bestScore = float.NegativeInfinity;
+            result = origin;
+            string bestInterest = "";
+            NavMeshPath bestPath = null;
+            CatInterestPoint interest = null;
+            if (interestPointRegistry != null && decision.IsLocomotion)
+                interestPointRegistry.TryPickPoint(snapshot, decision, needs, memory, origin, out interest);
+
+            // The semantic destination competes with the full roaming area. Its
+            // tiny local radius must not hide every longer, executable route.
+            int interestSamples = interest != null ? sampleAttempts / 2 : 0;
+            for (int i = 0; i < sampleAttempts * 2 + interestSamples; i++)
+            {
+                bool nearInterest = i < interestSamples;
+                Vector3 center = nearInterest ? interest.transform.position : origin;
+                Vector2 offset;
+                if (nearInterest) offset = UnityEngine.Random.insideUnitCircle * interest.SampleRadius;
+                else
+                {
+                    // Cover short and long directions even in the narrow portrait
+                    // corridor; random disc samples often missed all usable stops.
+                    int sample = i - interestSamples;
+                    if (sample >= sampleAttempts)
+                        offset = UnityEngine.Random.insideUnitCircle * nonFocusSampleRadius;
+                    else
+                    {
+                        float angle = (sample % 8) * Mathf.PI / 4;
+                        int rings = Mathf.CeilToInt(sampleAttempts / 8f);
+                        float radius = nonFocusSampleRadius * (sample / 8 + 1f) / rings;
+                        offset = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle)) * radius;
+                    }
+                }
+                Vector3 requested = center + new Vector3(offset.x, 0, offset.y);
+                if (!navigation.TryResolveRoamingRoute(requested, out var landing, out var path)) continue;
+                float score = ScoreRoamingRoute(path, transform.forward);
+                if (nearInterest) score += .2f;
+                // The whole-body visibility test is already a hard constraint;
+                // centre preference should not overpower actual route quality.
+                score += ScoreCameraPreferredDestination(landing, true, false) * .05f;
+                if (score <= bestScore) continue;
+                bestScore = score;
+                result = landing;
+                bestPath = path;
+                bestInterest = nearInterest ? interest.InterestId : "";
+            }
+            if (bestPath == null) return false;
+            plannedRoamingPath = bestPath;
+            plannedRoamingLanding = result;
+            lastPlannedInterestPointId = bestInterest;
+            return true;
+        }
+
+        internal static float ScoreRoamingRoute(NavMeshPath path, Vector3 forward)
+        {
+            var corners = path.corners;
+            float length = 0;
+            for (int i = 1; i < corners.Length; i++)
+            {
+                Vector3 delta = corners[i] - corners[i - 1]; delta.y = 0;
+                length += delta.magnitude;
+            }
+            Vector3 firstLeg = corners[1] - corners[0]; firstLeg.y = 0;
+            float angle = Vector3.Angle(forward, firstLeg);
+            // Accepted Walk: .405m/s. Accepted planted turn: 30 degrees/second.
+            // Prefer useful walking time over repeatedly paying for a U-turn.
+            return length / .405f - Mathf.Floor(angle / 30f);
+        }
+
+        internal bool TryTakePlannedRoamingPath(Vector3 target, out NavMeshPath path)
+        {
+            path = plannedRoamingPath;
+            plannedRoamingPath = null;
+            return path != null && target == plannedRoamingLanding;
         }
 
         private bool TryInterestPointPlan(
@@ -325,6 +407,15 @@ namespace CatLife.Cat
                 }
 
                 float score = ScoreCameraPreferredDestination(hit.position, originInCameraRange, focused);
+                if (!focused && originInCameraRange)
+                {
+                    // Keep roaming through the visible space instead of repeatedly
+                    // selecting the centre behind the cat after each short walk.
+                    Vector3 travel = hit.position - origin;
+                    travel.y = 0;
+                    score += Vector3.Dot(transform.forward, travel.normalized) * 2f;
+                    score += Mathf.Clamp01(travel.magnitude / Mathf.Max(.2f, radius));
+                }
                 score += UnityEngine.Random.value * 0.05f;
                 if (score > bestScore)
                 {
@@ -405,9 +496,17 @@ namespace CatLife.Cat
                 viewport.y <= 1f - safeMargin;
         }
 
-        private bool IsDestinationValid(Vector3 point, Vector3 origin, bool focused)
+        internal bool IsDestinationValid(Vector3 point, Vector3 origin, bool focused)
+            => ValidateDestination(point, origin, focused, false);
+
+        internal bool IsSessionDestinationValid(Vector3 point, Vector3 origin, bool focused)
+            => ValidateDestination(point, origin, focused, true);
+
+        private bool ValidateDestination(Vector3 point, Vector3 origin, bool focused, bool allowShortMove)
         {
-            if (Vector3.Distance(origin, point) < minMoveDistance)
+            if (visibleBodyRadius > 0f && !IsWholeBodyVisible(point)) return false;
+            Vector3 travel = point - origin; travel.y = 0;
+            if (!allowShortMove && travel.magnitude < minMoveDistance)
             {
                 return false;
             }
@@ -450,7 +549,32 @@ namespace CatLife.Cat
                 return false;
             }
 
-            return path.status == NavMeshPathStatus.PathComplete && IsPathClear(path, blockerCheckRadius);
+            if (path.status != NavMeshPathStatus.PathComplete || !IsPathClear(path, blockerCheckRadius)) return false;
+            if (visibleBodyRadius > 0f)
+                for (int i = 1; i < path.corners.Length; i++)
+                    if (!IsWholeBodyVisible(path.corners[i])) return false;
+            return true;
+        }
+
+        private bool IsWholeBodyVisible(Vector3 point)
+        {
+            Camera camera = ResolvePlanningCamera();
+            // Test a vertical cylinder instead of the empty corners of a square.
+            // Crop the projection to the same Home-safe viewport as before.
+            Matrix4x4 crop = Matrix4x4.identity;
+            crop.m00 = 1f / (.91f * camera.rect.height);
+            crop.m11 = 1f / .64f;
+            crop.m13 = -.02f / .64f;
+            var planes = GeometryUtility.CalculateFrustumPlanes(crop * camera.projectionMatrix * camera.worldToCameraMatrix);
+            const float halfHeight = .85f;
+            Vector3 center = point + Vector3.up * halfHeight;
+            foreach (var plane in planes)
+            {
+                Vector3 normal = plane.normal;
+                float extent = visibleBodyRadius * new Vector2(normal.x, normal.z).magnitude + halfHeight * Mathf.Abs(normal.y);
+                if (plane.GetDistanceToPoint(center) < extent) return false;
+            }
+            return true;
         }
 
         private bool IsPathClear(NavMeshPath path, float radius)

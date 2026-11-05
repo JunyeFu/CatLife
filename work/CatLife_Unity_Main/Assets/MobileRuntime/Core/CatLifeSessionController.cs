@@ -24,17 +24,22 @@ namespace CatLife.Mobile
     [Serializable]
     public sealed class CatLifeAppSettings
     {
+        public bool catAdopted;
+        public string catName = "小橘";
         public int defaultMinutes = 25;
         public string reminderMode = "quiet";
         public bool aiEnabled;
         public bool aiConsent;
         public bool localBehaviorStatsEnabled = true;
-        public int autoFocusAdaptationSeconds = 12;
+        public int autoFocusAdaptationSeconds = 0;
+        public bool catExitInterventionEnabled = true;
     }
 
     [Serializable]
     public sealed class CatLifeActiveSession
     {
+        public bool exitInterventionShown;
+        public bool behaviorStatsDisabled;
         public CatLifeSessionPhase phase;
         public int plannedSeconds;
         public long focusStartedAt;
@@ -50,6 +55,7 @@ namespace CatLife.Mobile
     [Serializable]
     public sealed class CatLifeSessionRecord
     {
+        public bool behaviorStatsDisabled;
         public long startedAt;
         public long endedAt;
         public int plannedSeconds;
@@ -64,6 +70,16 @@ namespace CatLife.Mobile
         public string aiReaction;
         public bool aiRequestAttempted;
         public string aiSource;
+        public string aiRequestStatus;
+        public int aiRequestCount;
+        public string aiGentleReminder;
+        public string aiReturnSuggestion;
+        public string aiReactionReason;
+        public string aiRequestedAction;
+        public string aiActionStatus;
+        public string aiAggregateSummary;
+        public string aiRequestId;
+        public long aiStatusCode;
 
         public bool Completed => completed;
         public int ActualSeconds => actualSeconds;
@@ -90,11 +106,22 @@ namespace CatLife.Mobile
 
         public CatLifeSessionPhase Phase => phase;
 
+        public bool CanShowExitIntervention => phase == CatLifeSessionPhase.Focus &&
+            data.settings.catExitInterventionEnabled && !data.activeSession.exitInterventionShown;
+
+        public bool MarkExitInterventionShown()
+        {
+            if (!CanShowExitIntervention) return false;
+            data.activeSession.exitInterventionShown = true;
+            return true;
+        }
+
         public void BeginTransition(int plannedSeconds, long now)
         {
             data.activeSession = new CatLifeActiveSession
             {
                 phase = CatLifeSessionPhase.Transition,
+                behaviorStatsDisabled = !data.settings.localBehaviorStatsEnabled,
                 plannedSeconds = plannedSeconds,
                 stateSequence = "Normal>Transition"
             };
@@ -107,7 +134,7 @@ namespace CatLife.Mobile
             active.phase = CatLifeSessionPhase.Focus;
             active.focusStartedAt = now;
             active.targetEndAt = now + active.plannedSeconds;
-            active.stableSegmentStartedAt = now;
+            active.stableSegmentStartedAt = active.behaviorStatsDisabled ? 0 : now;
             active.foreground = true;
             active.stateSequence = "Normal>Transition>Focus";
             phase = CatLifeSessionPhase.Focus;
@@ -127,14 +154,14 @@ namespace CatLife.Mobile
         public int RemainingSeconds(long now)
         {
             return phase == CatLifeSessionPhase.Focus
-                ? (int)Math.Max(0, data.activeSession.targetEndAt - now)
+                ? (int)Math.Max(0, Math.Min(data.activeSession.plannedSeconds, data.activeSession.targetEndAt - now))
                 : 0;
         }
 
         public void RecordBackground(long now)
         {
             CatLifeActiveSession active = data.activeSession;
-            if (phase != CatLifeSessionPhase.Focus || !active.foreground)
+            if (phase != CatLifeSessionPhase.Focus || active.behaviorStatsDisabled || !active.foreground)
             {
                 return;
             }
@@ -148,7 +175,7 @@ namespace CatLife.Mobile
         public void RecordForeground(long now)
         {
             CatLifeActiveSession active = data.activeSession;
-            if (phase != CatLifeSessionPhase.Focus)
+            if (phase != CatLifeSessionPhase.Focus || active.behaviorStatsDisabled)
             {
                 return;
             }
@@ -159,7 +186,7 @@ namespace CatLife.Mobile
 
         public void RecordTouch()
         {
-            if (phase == CatLifeSessionPhase.Focus)
+            if (phase == CatLifeSessionPhase.Focus && !data.activeSession.behaviorStatsDisabled)
             {
                 data.activeSession.touchCount += 1;
             }
@@ -168,7 +195,7 @@ namespace CatLife.Mobile
         public CatLifeSessionRecord Interrupt(long now)
         {
             CatLifeActiveSession active = data.activeSession;
-            if (active.foreground)
+            if (active.foreground && !active.behaviorStatsDisabled)
             {
                 int stableSeconds = (int)Math.Max(0, now - active.stableSegmentStartedAt);
                 active.longestStableSeconds = Math.Max(active.longestStableSeconds, stableSeconds);
@@ -182,6 +209,7 @@ namespace CatLife.Mobile
                 plannedSeconds = active.plannedSeconds,
                 actualSeconds = actualSeconds,
                 completed = false,
+                behaviorStatsDisabled = active.behaviorStatsDisabled,
                 touchCount = active.touchCount,
                 backgroundCount = active.backgroundCount,
                 longestStableSeconds = active.longestStableSeconds,
@@ -202,7 +230,7 @@ namespace CatLife.Mobile
                 return false;
             }
 
-            if (active.foreground)
+            if (active.foreground && !active.behaviorStatsDisabled)
             {
                 int stableSeconds = (int)Math.Max(0, active.targetEndAt - active.stableSegmentStartedAt);
                 active.longestStableSeconds = Math.Max(active.longestStableSeconds, stableSeconds);
@@ -214,6 +242,7 @@ namespace CatLife.Mobile
                 plannedSeconds = active.plannedSeconds,
                 actualSeconds = active.plannedSeconds,
                 completed = true,
+                behaviorStatsDisabled = active.behaviorStatsDisabled,
                 touchCount = active.touchCount,
                 backgroundCount = active.backgroundCount,
                 longestStableSeconds = active.longestStableSeconds,
@@ -238,6 +267,8 @@ namespace CatLife.Mobile
             }
 
             record.aiRequestAttempted = true;
+            record.aiRequestCount = 1;
+            record.aiRequestStatus = "requesting";
             record.aiSource = source ?? string.Empty;
             return true;
         }

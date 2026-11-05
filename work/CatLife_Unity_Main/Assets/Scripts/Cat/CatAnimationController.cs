@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 namespace CatLife.Cat
@@ -19,21 +20,21 @@ namespace CatLife.Cat
         [SerializeField] private string legacyIsWalkingParameter = "IsWalking";
 
         [Header("State Names")]
-        [SerializeField] private string idleStateName = "CL_CAT_IdleBreath_v06_headsync_loop_108f";
-        [SerializeField] private string walkStateName = "CL_CAT_SRC_Walk_60fps";
-        [SerializeField] private string alertLookStateName = "CL_CAT_AlertLook_v01_loop_120f";
-        [SerializeField] private string curiousSniffStateName = "CL_CAT_CuriousSniff_v02_loop_112f";
-        [SerializeField] private string earTwitchAlertStateName = "CL_CAT_EarTwitchAlert_v02_loop_120f";
-        [SerializeField] private string headShakeNoStateName = "CL_CAT_HeadShakeNo_v01_loop_108f";
-        [SerializeField] private string headTiltListenStateName = "CL_CAT_HeadTiltListen_v01_loop_96f";
-        [SerializeField] private string tailWagHappyStateName = "CL_CAT_TailWagHappy_v01_loop_96f";
-        [SerializeField] private string stretchYawnStateName = "CL_CAT_StretchYawn_v03_slow_loop_264f";
-        [SerializeField] private string pawWaveStateName = "CL_CAT_PawWave_v01_loop_96f";
-        [SerializeField] private string lookBackStateName = "CL_CAT_LookBack_v02_loop_112f";
+        [SerializeField] private string idleStateName = "CL_CAT_StandIdle_v01_loop_96f";
+        [SerializeField] private string walkStateName = "CL_CAT_Walk_v01_loop_60f";
+        [SerializeField] private string alertLookStateName = "CL_CAT_SitAlertLook_v01_loop_120f";
+        [SerializeField] private string curiousSniffStateName = "CL_CAT_SitCuriousSniff_v01_loop_112f";
+        [SerializeField] private string earTwitchAlertStateName = "CL_CAT_SitEarTwitchAlert_v01_loop_120f";
+        [SerializeField] private string headShakeNoStateName = "CL_CAT_CrouchHeadShakeNo_v01_loop_108f";
+        [SerializeField] private string headTiltListenStateName = "CL_CAT_CrouchHeadTiltListen_v01_loop_96f";
+        [SerializeField] private string tailWagHappyStateName = "CL_CAT_SitTailGreeting_v01_loop_96f";
+        [SerializeField] private string stretchYawnStateName = "CL_CAT_StandStretchYawn_v01_144f";
+        [SerializeField] private string pawWaveStateName = "CL_CAT_CrouchPawWave_v01_loop_96f";
+        [SerializeField] private string lookBackStateName = "CL_CAT_CrouchLookBack_v01_loop_112f";
 
         private float busyUntil;
+        public bool NavigationOwnsPose { get; set; }
         private bool interruptibleByMove = true;
-        private string lastPlayedState;
         private int moveSpeed01Hash;
         private int isMovingHash;
         private int inFocusModeHash;
@@ -68,6 +69,7 @@ namespace CatLife.Cat
 
         public void Tick(float moveSpeed01, bool isMoving, bool inFocusMode, float arousal01)
         {
+            if (NavigationOwnsPose) return;
             if (animator == null || animator.runtimeAnimatorController == null)
             {
                 return;
@@ -80,7 +82,7 @@ namespace CatLife.Cat
                 EnsureLocomotion(isMoving);
             }
 
-            ApplyPlaybackSpeed(isMoving && canUseLocomotion);
+            ApplyPlaybackSpeed(isMoving && canUseLocomotion, moveSpeed01);
         }
 
         public void PlayAction(CatBehaviorState state, float holdSeconds, bool canInterruptByMove)
@@ -107,7 +109,12 @@ namespace CatLife.Cat
             ApplyPlaybackSpeed(false);
             busyUntil = Time.time + Mathf.Max(0f, holdSeconds);
             interruptibleByMove = canInterruptByMove;
-            lastPlayedState = statePath;
+        }
+
+        public float CompleteActionSeconds(CatBehaviorState state, bool requireNonLooping = false)
+        {
+            AnimationClip clip = animator.runtimeAnimatorController.animationClips.First(item => item.name == StateToName(state));
+            return requireNonLooping && clip.isLooping ? 0f : clip.length + actionFade;
         }
 
         public void SetLocomotionPlaybackMultiplier(float multiplier)
@@ -120,6 +127,7 @@ namespace CatLife.Cat
 
         public void ForceLocomotion(bool isMoving)
         {
+            if (NavigationOwnsPose) return;
             busyUntil = 0f;
             EnsureLocomotion(isMoving);
             ApplyPlaybackSpeed(isMoving);
@@ -203,7 +211,7 @@ namespace CatLife.Cat
         {
             string targetState = isMoving ? walkStateName : idleStateName;
             string statePath = ToStatePath(targetState);
-            if (string.IsNullOrEmpty(targetState) || lastPlayedState == statePath)
+            if (string.IsNullOrEmpty(targetState))
             {
                 return;
             }
@@ -213,18 +221,28 @@ namespace CatLife.Cat
                 return;
             }
 
+            if (animator.IsInTransition(0))
+            {
+                if (animator.GetNextAnimatorStateInfo(0).IsName(statePath)) return;
+            }
+            else if (animator.GetCurrentAnimatorStateInfo(0).IsName(statePath))
+            {
+                return;
+            }
+
             animator.CrossFadeInFixedTime(statePath, locomotionFade, 0);
-            lastPlayedState = statePath;
         }
 
-        private void ApplyPlaybackSpeed(bool useLocomotionSpeed)
+        private void ApplyPlaybackSpeed(bool useLocomotionSpeed, float moveSpeed01 = 1f)
         {
             if (animator == null)
             {
                 return;
             }
 
-            animator.speed = useLocomotionSpeed ? locomotionPlaybackMultiplier : 1f;
+            // The new one-second Walk cycle advances .405m at the runtime scale.
+            // The movement ratio includes acceleration and physical obstruction.
+            animator.speed = useLocomotionSpeed ? locomotionPlaybackMultiplier * moveSpeed01 * (1.15f / .405f) : 1f;
         }
 
         private bool HasAnimatorState(string statePath)

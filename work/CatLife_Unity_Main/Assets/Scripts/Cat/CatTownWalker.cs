@@ -7,8 +7,8 @@ namespace CatLife.Cat
     {
         [SerializeField] private Animator animator;
         [SerializeField] private string isWalkingParameter = "IsWalking";
-        [SerializeField] private string walkStateName = "CL_CAT_SRC_Walk_60fps";
-        [SerializeField] private string idleStateName = "CL_CAT_IdleBreath_v06_headsync_loop_108f";
+        [SerializeField] private string walkStateName = "CL_CAT_Walk_v01_loop_60f";
+        [SerializeField] private string idleStateName = "CL_CAT_StandIdle_v01_loop_96f";
         [SerializeField] private Vector2 xRange = new Vector2(-6.5f, 6.5f);
         [SerializeField] private Vector2 zRange = new Vector2(-12.5f, -4.0f);
         [SerializeField] private Vector2 localPatrolSize = new Vector2(2.6f, 1.6f);

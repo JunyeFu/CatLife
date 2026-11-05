@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using CatLife.Cat;
 using CatLife.LLM;
 using CatLife.Recognition;
@@ -9,6 +11,7 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 using UnityEngine.AI;
+using Object = UnityEngine.Object;
 
 namespace CatLife.EditorTools
 {
@@ -22,7 +25,8 @@ namespace CatLife.EditorTools
         private const string AnchorRootName = "CatDestinationAnchors";
         private const string ForbiddenRootName = "CatForbiddenZones";
         private const string InterestRootName = "CatInterestPoints";
-        private const string ControllerPath = "Assets/Art/Cat/Animator/CatLife_TownWalker.controller";
+        private const string ControllerPath = "Assets/MobileRuntime/Art/Cat/CL_CAT_Mobile.controller";
+        private const string CatSourcePath = "Assets/MobileRuntime/Art/Cat/Source/CL_CAT_Runtime.fbx";
         private const string ProjectStructurePath = "Assets/PROJECT_STRUCTURE.md";
         private const string BehaviorEventSchemaPath = "Assets/Configs/behavior_event_schema.json";
         private const string LlmFeedbackSchemaPath = "Assets/Configs/llm_feedback_schema.json";
@@ -96,32 +100,12 @@ namespace CatLife.EditorTools
 
         private static readonly string[] RequiredStateNames =
         {
-            "CL_CAT_IdleBreath_v06_headsync_loop_108f",
-            "CL_CAT_SRC_Walk_60fps",
-            "CL_CAT_AlertLook_v01_loop_120f",
-            "CL_CAT_CuriousSniff_v02_loop_112f",
-            "CL_CAT_EarTwitchAlert_v02_loop_120f",
-            "CL_CAT_HeadShakeNo_v01_loop_108f",
-            "CL_CAT_HeadTiltListen_v01_loop_96f",
-            "CL_CAT_LookBack_v02_loop_112f",
-            "CL_CAT_PawWave_v01_loop_96f",
-            "CL_CAT_StretchYawn_v03_slow_loop_264f",
-            "CL_CAT_TailWagHappy_v01_loop_96f"
-        };
-
-        private static readonly string[] RequiredClipPaths =
-        {
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_IdleBreath_v06_headsync_loop_108f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_SRC_Walk_60fps.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_AlertLook_v01_loop_120f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_CuriousSniff_v02_loop_112f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_EarTwitchAlert_v02_loop_120f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_HeadShakeNo_v01_loop_108f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_HeadTiltListen_v01_loop_96f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_LookBack_v02_loop_112f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_PawWave_v01_loop_96f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_StretchYawn_v03_slow_loop_264f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_TailWagHappy_v01_loop_96f.anim"
+            "CL_CAT_StandIdle_v01_loop_96f", "CL_CAT_Walk_v01_loop_60f", "CL_CAT_CrouchIdleBreath_v01_loop_108f",
+            "CL_CAT_SitAlertLook_v01_loop_120f", "CL_CAT_SitCuriousSniff_v01_loop_112f", "CL_CAT_SitEarTwitchAlert_v01_loop_120f",
+            "CL_CAT_CrouchHeadShakeNo_v01_loop_108f", "CL_CAT_CrouchHeadTiltListen_v01_loop_96f", "CL_CAT_CrouchLookBack_v01_loop_112f",
+            "CL_CAT_CrouchPawWave_v01_loop_96f", "CL_CAT_StandStretchYawn_v01_144f", "CL_CAT_SitTailGreeting_v01_loop_96f",
+            "CL_CAT_StandToSit_v01_72f", "CL_CAT_SitIdle_v01_loop_96f", "CL_CAT_SitToLie_v01_120f",
+            "CL_CAT_LieFocusRest_v01_loop_96f", "CL_CAT_LieFocusAttention_v01_48f", "CL_CAT_LieToSit_v01_72f"
         };
 
         [MenuItem(MenuPath)]
@@ -364,11 +348,11 @@ namespace CatLife.EditorTools
 
         private static void ValidateAndroidBlueLmPlugin(List<string> issues)
         {
-            ValidateProjectFileContains(
-                "Assets/Plugins/Android/AndroidManifest.xml",
-                issues,
-                "MANAGE_EXTERNAL_STORAGE",
-                "/sdcard/1225/1.7.0.4_1225_mtk9500");
+            string manifest = File.ReadAllText("Assets/Plugins/Android/AndroidManifest.xml");
+            foreach (string forbidden in new[] { "MANAGE_EXTERNAL_STORAGE", "READ_EXTERNAL_STORAGE", "/sdcard/", "DEFAULT_MODEL_PATH" })
+                if (manifest.Contains(forbidden)) issues.Add("Legacy storage access in mobile manifest: " + forbidden);
+            foreach (string required in new[] { "allowBackup=\"false\"", "@xml/catlife_backup_rules", "@xml/catlife_data_extraction_rules" })
+                if (!manifest.Contains(required)) issues.Add("Missing mobile backup policy: " + required);
 
             ValidateProjectFileContains(
                 "Assets/Plugins/Android/libs/README.md",
@@ -1293,19 +1277,24 @@ namespace CatLife.EditorTools
                 }
             }
 
-            for (int i = 0; i < RequiredClipPaths.Length; i++)
+            AnimationClip[] runtimeClips = AssetDatabase.LoadAllAssetsAtPath(CatSourcePath)
+                .OfType<AnimationClip>()
+                .Where(clip => !clip.name.StartsWith("__preview__", StringComparison.Ordinal))
+                .ToArray();
+            for (int i = 0; i < RequiredStateNames.Length; i++)
             {
-                AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(RequiredClipPaths[i]);
+                string requiredName = RequiredStateNames[i];
+                AnimationClip clip = runtimeClips.FirstOrDefault(item => item.name.EndsWith(requiredName, StringComparison.Ordinal));
                 if (clip == null)
                 {
-                    issues.Add("Missing animation clip: " + RequiredClipPaths[i]);
+                    issues.Add("Missing animation clip: " + requiredName);
                     continue;
                 }
 
                 AnimationClipSettings settings = AnimationUtility.GetAnimationClipSettings(clip);
-                if (!settings.loopTime)
+                if (requiredName.Contains("_loop_") && !settings.loopTime)
                 {
-                    issues.Add("Animation clip is not looped: " + RequiredClipPaths[i]);
+                    issues.Add("Animation clip is not looped: " + requiredName);
                 }
             }
         }

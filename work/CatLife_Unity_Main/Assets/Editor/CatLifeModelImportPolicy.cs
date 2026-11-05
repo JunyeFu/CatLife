@@ -101,7 +101,7 @@ namespace CatLife.Editor
                     if (!importer.importAnimation) { importer.importAnimation = true; catChanged = true; }
                     if (importer.importCameras) { importer.importCameras = false; catChanged = true; }
                     if (importer.importLights) { importer.importLights = false; catChanged = true; }
-                    if (importer.importBlendShapes) { importer.importBlendShapes = false; catChanged = true; }
+                    if (!importer.importBlendShapes) { importer.importBlendShapes = true; catChanged = true; }
                     if (importer.importVisibility) { importer.importVisibility = false; catChanged = true; }
                     if (importer.isReadable) { importer.isReadable = false; catChanged = true; }
                     if (catChanged) { AssetDatabase.WriteImportSettingsIfDirty(row.Path); importer.SaveAndReimport(); changedCount++; }

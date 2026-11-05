@@ -18,6 +18,8 @@ class ReleasePackageAudit(unittest.TestCase):
 
     def test_01_no_all_files_access_for_offline_focus_and_cloud_feedback(self):
         self.assertNotIn("android.permission.MANAGE_EXTERNAL_STORAGE", self.permissions)
+        self.assertNotIn("android.permission.READ_EXTERNAL_STORAGE", self.permissions)
+        self.assertNotIn("com.catlife.bluelm.DEFAULT_MODEL_PATH", self.manifest)
 
     def test_02_release_candidate_is_not_debuggable(self):
         self.assertNotIn("application-debuggable", self.badging)
@@ -35,6 +37,11 @@ class ReleasePackageAudit(unittest.TestCase):
     def test_05_internet_is_declared_without_explicit_cleartext_opt_in(self):
         self.assertIn("android.permission.INTERNET", self.permissions)
         self.assertIsNone(re.search(r"android:usesCleartextTraffic[^\n]*0xffffffff", self.manifest))
+
+    def test_06_backup_policy_is_explicit(self):
+        self.assertRegex(self.manifest, r"android:allowBackup[^\n]*0x0(?:\s|$)")
+        self.assertIn("android:fullBackupContent", self.manifest)
+        self.assertIn("android:dataExtractionRules", self.manifest)
 
 
 if __name__ == "__main__":

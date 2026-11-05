@@ -3,7 +3,10 @@ using UnityEngine;
 public enum CatLifeLandmarkAction
 {
     Records,
-    Growth
+    Growth,
+    FishShop,
+    RewardTree,
+    Plaza
 }
 
 public sealed class CatLifeLandmark : MonoBehaviour

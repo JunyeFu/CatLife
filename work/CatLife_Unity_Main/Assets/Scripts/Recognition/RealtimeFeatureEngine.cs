@@ -22,6 +22,20 @@ namespace CatLife.Recognition
         private float quietDwellSeconds;
         private bool quietDwellReported;
         private RealtimeFeatureSnapshot latest;
+        private bool collectionEnabled = true;
+
+        public void SetCollectionEnabled(bool value)
+        {
+            collectionEnabled = value;
+            if (value) return;
+            System.Array.Clear(tapTimes, 0, tapTimes.Length);
+            System.Array.Clear(interactionTimes, 0, interactionTimes.Length);
+            System.Array.Clear(pageSwitchTimes, 0, pageSwitchTimes.Length);
+            tapIndex = interactionIndex = pageSwitchIndex = 0;
+            lastLocalEvent = "disabled";
+            quietDwellSeconds = 0; quietDwellReported = false;
+            latest = new RealtimeFeatureSnapshot { localEventSummary = "disabled" };
+        }
 
         public RealtimeFeatureSnapshot Latest
         {
@@ -40,28 +54,32 @@ namespace CatLife.Recognition
 
         public void RecordUiEvent(string eventName)
         {
+            if (!collectionEnabled) return;
             string safeEventName = string.IsNullOrEmpty(eventName) ? "ui_event" : eventName;
             RecordInteraction(safeEventName);
             if (safeEventName.Contains("page"))
             {
-                WriteTimestamp(pageSwitchTimes, ref pageSwitchIndex, Time.unscaledTime);
+                WriteTimestamp(pageSwitchTimes, ref pageSwitchIndex, CurrentTimestamp());
             }
         }
 
         public void RecordUiTap(string eventName)
         {
+            if (!collectionEnabled) return;
             RecordInteraction(string.IsNullOrEmpty(eventName) ? "ui_tap" : eventName);
-            WriteTimestamp(tapTimes, ref tapIndex, Time.unscaledTime);
+            WriteTimestamp(tapTimes, ref tapIndex, CurrentTimestamp());
         }
 
         public void RecordCatInteraction(string eventName)
         {
+            if (!collectionEnabled) return;
             RecordInteraction(string.IsNullOrEmpty(eventName) ? "cat_interaction" : eventName);
-            WriteTimestamp(tapTimes, ref tapIndex, Time.unscaledTime);
+            WriteTimestamp(tapTimes, ref tapIndex, CurrentTimestamp());
         }
 
         public void RecordFocusSessionStarted()
         {
+            if (!collectionEnabled) return;
             focusSessionActive = true;
             focusSessionStartedAt = Time.unscaledTime;
             RecordInteraction("focus_started");
@@ -69,6 +87,7 @@ namespace CatLife.Recognition
 
         public void RecordFocusSessionEnded(bool completed)
         {
+            if (!collectionEnabled) return;
             focusSessionActive = false;
             RecordInteraction(completed ? "focus_completed" : "focus_unlocked");
         }
@@ -127,6 +146,7 @@ namespace CatLife.Recognition
 
         public void Tick(float unscaledDeltaTime)
         {
+            if (!collectionEnabled) return;
             quietDwellSeconds += Mathf.Max(0f, unscaledDeltaTime);
             if (!quietDwellReported && quietDwellSeconds >= 6f)
             {
@@ -183,6 +203,14 @@ namespace CatLife.Recognition
         {
             values[index] = time;
             index = (index + 1) % values.Length;
+        }
+
+        private static float CurrentTimestamp()
+        {
+            // PlayMode and a real first-frame tap can occur while unscaledTime is
+            // exactly zero. Zero is the ring-buffer sentinel, so store a small
+            // positive value instead of silently dropping that first input.
+            return Mathf.Max(Time.unscaledTime, .0001f);
         }
 
         private static int CountSince(float[] values, float now, float windowSeconds)

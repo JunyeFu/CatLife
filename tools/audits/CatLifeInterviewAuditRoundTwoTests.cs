@@ -53,6 +53,7 @@ public sealed class CatLifeInterviewAuditRoundTwoTests
         Seed(); SceneManager.LoadScene("CatLifeMobile"); yield return null;
         Component app = GameObject.Find("CatLifeMobileApp").GetComponent("CatLifeMobileApp");
         var data = (CatLifeAppData)Field(app, "data");
+        data.settings.aiEnabled = true; data.settings.aiConsent = true;
         var old = new CatLifeSessionRecord { completed = true, actualSeconds = 60, plannedSeconds = 60,
             aiRequestAttempted = true, aiRequestStatus = "requesting", aiRequestCount = 1 };
         data.records.Add(old);

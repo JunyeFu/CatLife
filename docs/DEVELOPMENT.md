@@ -11,9 +11,22 @@
 
 ## 当前源码交付状态
 
-仓库可用于阅读工程与实现记录，**当前尚不支持克隆后直接完整构建**。本地存在未整合的运行改动，且原始美术、派生FBX和部分运行资产独立保留；本次主页整理没有把这些改动自动认定为发行源码。
+运行源码、生成器、实际场景和轻量引用已按r37候选收口；**公开克隆仍需额外运行资产包才能完整构建**。模型、动画及纹理未统一获确认公开再分发权限，不能把仓库可见性视作资产授权。
 
 具备项目所需资产时，在Unity Hub中打开`work/CatLife_Unity_Main`，检查资源引用及编译状态，再打开`Assets/Scenes/CatLifeMobile.unity`。资产未齐全时先阅读代码和技术规格，不把占位模型导入当成正确运行结果。
+
+### 11/5本地还原方法
+
+本地交付目录为`F:/AgentTools/CatLifeBuilds/repair-20261105-handoff/`。`CatLife-source-snapshot.zip`与`CatLife-runtime-assets-local.zip`均以Unity项目根为相对路径，依次解压到同一个空目录，保留全部`.meta`；不复制旧Library。`runtime-handoff.json`记录文件路径、大小、Unity版本和本地分发状态。运行资产包不是原始Blender全库，也不含私有配置。
+
+已按此方法完成空目录编译和39项核心测试；实际还原的`restored-project/`用于Android构建。场景依赖之外还必须包含ProjectSettings所引用的URP、Renderer和全局配置。详细结果见[执行记录](audits/2026-11-05-repair-results.md)。
+
+```powershell
+./tools/agent/Invoke-CatLifeUnityJob.ps1 -Action Start -RunName local-core -UnityProjectPath '<还原目录>' -Platform EditMode -Filter 'CatLifeSessionControllerTests;CatLifeExitPersistenceTests;CatLifeExitGestureTests'
+./tools/agent/Invoke-CatLifeUnityJob.ps1 -Action Start -RunName local-review -UnityProjectPath '<还原目录>' -Mode Execute -ExecuteMethod CatLife.Editor.CatLifeAndroidBuild.BuildNavigationTurnReviewApk -ExecuteArguments '-buildTarget','Android','-outputPath','<独立输出>/CatLife-review.apk'
+```
+
+默认review构建临时移出本地凭据，构建后恢复。只有显式加`-privateLocalReview`且本地配置存在时，才生成含凭据的**仅本机验收包**；其输出目录有`distribution-policy.txt`，这类APK不得作为GitHub附件或分享资料。无凭据与私有配置的测试结论分别记录。
 
 ## 代码导航
 

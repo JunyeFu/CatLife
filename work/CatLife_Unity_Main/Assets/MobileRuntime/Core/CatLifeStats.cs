@@ -13,6 +13,7 @@ namespace CatLife.Mobile
         public int GrowthToNextLevel { get; internal set; }
         public int TodayCompletedCount { get; internal set; }
         public int TodayLongestStableSeconds { get; internal set; }
+        public bool TodayHasBehaviorStats { get; internal set; }
         public int[] SevenDayMinutesByDay { get; internal set; } = new int[7];
     }
 
@@ -22,28 +23,36 @@ namespace CatLife.Mobile
         {
             DateTime today = DateTimeOffset.FromUnixTimeSeconds(now).ToLocalTime().Date;
             CatLifeDerivedStats stats = new CatLifeDerivedStats();
+            long todaySeconds = 0, weekSeconds = 0;
+            long[] daySeconds = new long[7];
             foreach (CatLifeSessionRecord record in data.records)
             {
                 DateTime day = DateTimeOffset.FromUnixTimeSeconds(record.endedAt).ToLocalTime().Date;
-                int minutes = record.actualSeconds / 60;
                 if (day == today)
                 {
-                    stats.TodayMinutes += minutes;
+                    todaySeconds += record.actualSeconds;
                     if (record.completed) stats.TodayCompletedCount += 1;
-                    stats.TodayLongestStableSeconds = Math.Max(stats.TodayLongestStableSeconds, record.longestStableSeconds);
+                    if (!record.behaviorStatsDisabled)
+                    {
+                        stats.TodayHasBehaviorStats = true;
+                        stats.TodayLongestStableSeconds = Math.Max(stats.TodayLongestStableSeconds, record.longestStableSeconds);
+                    }
                 }
 
                 int dayOffset = (today - day).Days;
                 if (dayOffset >= 0 && dayOffset <= 6)
                 {
-                    stats.SevenDayMinutes += minutes;
-                    stats.SevenDayMinutesByDay[6 - dayOffset] += minutes;
+                    weekSeconds += record.actualSeconds;
+                    daySeconds[6 - dayOffset] += record.actualSeconds;
                 }
 
                 stats.TotalGrowth += record.GrowthAwarded;
                 stats.Paws += record.PawsAwarded;
             }
 
+            stats.TodayMinutes = (int)(todaySeconds / 60);
+            stats.SevenDayMinutes = (int)(weekSeconds / 60);
+            for (int i = 0; i < 7; i++) stats.SevenDayMinutesByDay[i] = (int)(daySeconds[i] / 60);
             stats.Level = stats.TotalGrowth / 100 + 1;
             stats.LevelProgress = stats.TotalGrowth % 100;
             stats.GrowthToNextLevel = 100 - stats.LevelProgress;
@@ -54,6 +63,32 @@ namespace CatLife.Mobile
 
     public static class CatLifeUnlocks
     {
+        public static string ResolveAiReaction(string action, int paws)
+        {
+            string requested;
+            switch (action)
+            {
+                case "quiet_idle": requested = "focus_rest"; break;
+                case "soft_roam": requested = "stretch"; break;
+                case "social_response": requested = "tail_wag"; break;
+                case "none": return string.Empty;
+                default: return string.Empty;
+            }
+            return SelectUnlockedReaction(requested, paws);
+        }
+
+        public static string ReactionLabel(string action)
+        {
+            switch (action)
+            {
+                case "paw_wave": return "挥爪回应";
+                case "tail_wag": return "轻摆尾";
+                case "focus_rest": return "安静休息";
+                case "stretch": return "伸个懒腰";
+                default: return "暂无动作";
+            }
+        }
+
         public static string[] GetUnlockedReactions(int paws)
         {
             if (paws >= 8)
@@ -103,6 +138,9 @@ namespace CatLife.Mobile
             {
                 return "本次专注提前结束，记录已保存；下一轮可以选择更短时长。";
             }
+
+            if (record.behaviorStatsDisabled)
+                return string.Format("完成 {0} 分钟；行为统计未采集，下一轮从一个小步骤开始。", minutes);
 
             if (record.backgroundCount > 0)
             {

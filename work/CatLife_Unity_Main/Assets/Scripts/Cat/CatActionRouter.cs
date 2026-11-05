@@ -86,7 +86,7 @@ namespace CatLife.Cat
             out CatActionRequest playableRequest)
         {
             playableRequest = default;
-            if (!hasPendingRequest || isBusy)
+            if (!hasPendingRequest)
             {
                 return false;
             }
@@ -95,14 +95,11 @@ namespace CatLife.Cat
             float age = Time.time - request.createdAt;
             if (request.maxDelaySeconds > 0f && age > request.maxDelaySeconds)
             {
-                if (request.interruptPolicy != CatActionInterruptPolicy.QueueIfMoving)
-                {
-                    hasPendingRequest = false;
-                    LastDecision = "drop_expired_" + request.state;
-                    return false;
-                }
+                hasPendingRequest = false;
+                LastDecision = "drop_expired_" + request.state;
+                return false;
             }
-            else if (isMoving && request.interruptPolicy == CatActionInterruptPolicy.QueueIfMoving)
+            if (isBusy || isMoving && request.interruptPolicy == CatActionInterruptPolicy.QueueIfMoving)
             {
                 return false;
             }

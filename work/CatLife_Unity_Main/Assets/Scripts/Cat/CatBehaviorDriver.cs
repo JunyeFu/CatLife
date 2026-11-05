@@ -67,8 +67,11 @@ namespace CatLife.Cat
         private float nextDecisionTime;
         private float nextLlmTime;
         private float actionHoldUntil;
+        private bool pathWasInProgress;
         private bool walkingEnabled = true;
-        private float navigationSpeedMultiplier = 1f;
+        // The accepted Walk covers .405 metres per one-second authored cycle.
+        // Use that natural cadence at Home; the old 1.15m/s base sped it up 2.84x.
+        private float navigationSpeedMultiplier = .405f / 1.15f;
         private string lastLlmSafetyReason = "not_requested";
         private string lastLlmLocalActionReason = "not_requested";
         private string lastLlmBubbleReason = "not_requested";
@@ -81,6 +84,18 @@ namespace CatLife.Cat
         private SceneInteractionPayload latestSceneInteractionPayload;
         private SceneInteractionPoint latestSceneInteractionPoint;
         private bool sceneInteractionMapperSubscribed;
+        private int moveDecisionCount;
+        private int movePlanFailureCount;
+        private int moveLandingFailureCount;
+        private int moveStartedCount;
+        private string lastMoveReason = "none";
+
+        public string NavigationDecisionSummary =>
+            $"walking={walkingEnabled} decisions={moveDecisionCount} planFailed={movePlanFailureCount} " +
+            $"landingFailed={moveLandingFailureCount} started={moveStartedCount} reason={lastMoveReason} " +
+            $"hold={ActionHoldRemaining:F2} nextDecision={Mathf.Max(0, nextDecisionTime-Time.time):F2} " +
+            $"focused={snapshot.IsFocused} roamCooldown={behaviorMemory.GetCooldownRemaining(CatBehaviorState.Roam,Time.time):F2} " +
+            $"roamBias={GetSuggestion().roamWeightBias:F2}";
 
         public CatBehaviorState CurrentState
         {
@@ -443,21 +458,6 @@ namespace CatLife.Cat
                 animationController.ForceLocomotion(true);
             }
 
-            if (actionRouter != null)
-            {
-                CatActionRequest sniffRequest = CatActionRequest.Create(
-                    CatBehaviorState.CuriousSniff,
-                    CatActionSource.User,
-                    "tap_ground_arrival",
-                    70,
-                    10f,
-                    3f,
-                    CatActionInterruptPolicy.QueueIfMoving,
-                    false);
-                CatActionRequest playableRequest;
-                actionRouter.TryRoute(sniffRequest, true, false, out playableRequest);
-            }
-
             return true;
         }
 
@@ -715,7 +715,7 @@ namespace CatLife.Cat
                 return;
             }
 
-            if (navigationAgent != null && navigationAgent.IsMoving)
+            if (navigationAgent != null && navigationAgent.IsPathInProgress)
             {
                 return;
             }
@@ -836,7 +836,17 @@ namespace CatLife.Cat
                 return;
             }
 
-            bool isMoving = navigationAgent != null && navigationAgent.IsMoving;
+            bool isMoving = navigationAgent != null && navigationAgent.IsPathInProgress;
+            if (pathWasInProgress && !isMoving &&
+                (currentState == CatBehaviorState.Roam || currentState == CatBehaviorState.FocusedRoam))
+            {
+                // Give arrival its standing beat before ambient decisions or queued reactions.
+                // An action that deliberately stopped the route already owns the Animator.
+                animationController.ForceLocomotion(false);
+                actionHoldUntil = Mathf.Max(actionHoldUntil, Time.time + decisionInterval);
+                nextDecisionTime = Mathf.Max(nextDecisionTime, actionHoldUntil);
+            }
+            pathWasInProgress = isMoving;
             float speed01 = navigationAgent != null ? navigationAgent.Speed01 : 0f;
             animationController.Tick(speed01, isMoving, snapshot.IsFocused, snapshot.userArousal);
         }
@@ -848,7 +858,7 @@ namespace CatLife.Cat
                 return;
             }
 
-            if (navigationAgent != null && navigationAgent.IsMoving && !navigationAgent.HasArrived())
+            if (navigationAgent != null && navigationAgent.IsPathInProgress)
             {
                 currentState = snapshot.IsFocused ? CatBehaviorState.FocusedRoam : CatBehaviorState.Roam;
                 return;
@@ -1092,6 +1102,8 @@ namespace CatLife.Cat
 
         private bool TryStartMove(CatBehaviorDecision decision)
         {
+            moveDecisionCount++;
+            lastMoveReason = decision.reason;
             if (navigationAgent == null || destinationPlanner == null)
             {
                 PlayIdleFallback();
@@ -1107,16 +1119,19 @@ namespace CatLife.Cat
                     transform.position,
                     out target))
             {
+                movePlanFailureCount++;
                 PlayIdleFallback();
                 return false;
             }
 
             if (!navigationAgent.TryMoveTo(target))
             {
+                moveLandingFailureCount++;
                 PlayIdleFallback();
                 return false;
             }
 
+            moveStartedCount++;
             actionHoldUntil = 0f;
             if (animationController != null)
             {
@@ -1206,7 +1221,7 @@ namespace CatLife.Cat
 
             CatActionRequest playableRequest;
             if (actionRouter.TryPopReady(
-                    navigationAgent != null && navigationAgent.IsMoving,
+                    navigationAgent != null && navigationAgent.IsPathInProgress,
                     Time.time < actionHoldUntil,
                     out playableRequest))
             {
@@ -1225,7 +1240,7 @@ namespace CatLife.Cat
             CatActionRequest playableRequest;
             if (actionRouter.TryRoute(
                     request,
-                    navigationAgent != null && navigationAgent.IsMoving,
+                    navigationAgent != null && navigationAgent.IsPathInProgress,
                     Time.time < actionHoldUntil,
                     out playableRequest))
             {
@@ -1284,8 +1299,11 @@ namespace CatLife.Cat
             switch (state)
             {
                 case CatBehaviorState.StretchYawn:
-                    return focused ? mediumActionSeconds : longActionSeconds;
+                    return Mathf.Max(focused ? mediumActionSeconds : longActionSeconds, animationController.CompleteActionSeconds(state));
+                case CatBehaviorState.PawWave:
+                    return Mathf.Max(focused ? shortActionSeconds : mediumActionSeconds, animationController.CompleteActionSeconds(state));
                 case CatBehaviorState.CuriousSniff:
+                    return Mathf.Max(mediumActionSeconds, animationController.CompleteActionSeconds(state, true));
                 case CatBehaviorState.HeadTiltListen:
                 case CatBehaviorState.TailWagHappy:
                     return mediumActionSeconds;

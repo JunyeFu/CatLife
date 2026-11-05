@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
@@ -7,37 +9,33 @@ namespace CatLife.EditorTools
     public static class CatLifeRuntimeAnimatorSetup
     {
         private const string MenuPath = "CatLife/Runtime/Setup Runtime Animator States";
-        private const string ControllerPath = "Assets/Art/Cat/Animator/CatLife_TownWalker.controller";
+        private const string ControllerPath = "Assets/MobileRuntime/Art/Cat/CL_CAT_Mobile.controller";
+        public const string ClipFolder = "Assets/MobileRuntime/Art/Cat/AnimationsV12/";
         private const string CatName = "CatCompanionModel";
 
         private static readonly string[] StateNames =
         {
-            "CL_CAT_IdleBreath_v06_headsync_loop_108f",
-            "CL_CAT_SRC_Walk_60fps",
-            "CL_CAT_AlertLook_v01_loop_120f",
-            "CL_CAT_CuriousSniff_v02_loop_112f",
-            "CL_CAT_EarTwitchAlert_v02_loop_120f",
-            "CL_CAT_HeadShakeNo_v01_loop_108f",
-            "CL_CAT_HeadTiltListen_v01_loop_96f",
-            "CL_CAT_LookBack_v02_loop_112f",
-            "CL_CAT_PawWave_v01_loop_96f",
-            "CL_CAT_StretchYawn_v03_slow_loop_264f",
-            "CL_CAT_TailWagHappy_v01_loop_96f",
-        };
-
-        private static readonly string[] ClipPaths =
-        {
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_IdleBreath_v06_headsync_loop_108f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_SRC_Walk_60fps.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_AlertLook_v01_loop_120f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_CuriousSniff_v02_loop_112f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_EarTwitchAlert_v02_loop_120f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_HeadShakeNo_v01_loop_108f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_HeadTiltListen_v01_loop_96f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_LookBack_v02_loop_112f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_PawWave_v01_loop_96f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_StretchYawn_v03_slow_loop_264f.anim",
-            "Assets/Art/Cat/Animations/Clips/CL_CAT_TailWagHappy_v01_loop_96f.anim",
+            "CL_CAT_StandIdle_v01_loop_96f",
+            "CL_CAT_Walk_v01_loop_60f",
+            "CL_CAT_CrouchIdleBreath_v01_loop_108f",
+            "CL_CAT_SitAlertLook_v01_loop_120f",
+            "CL_CAT_SitCuriousSniff_v01_loop_112f",
+            "CL_CAT_SitEarTwitchAlert_v01_loop_120f",
+            "CL_CAT_CrouchHeadShakeNo_v01_loop_108f",
+            "CL_CAT_CrouchHeadTiltListen_v01_loop_96f",
+            "CL_CAT_CrouchLookBack_v01_loop_112f",
+            "CL_CAT_CrouchPawWave_v01_loop_96f",
+            "CL_CAT_StandStretchYawn_v01_144f",
+            "CL_CAT_SitTailGreeting_v01_loop_96f",
+            "CL_CAT_RewardSideTailReturn_v01_384f",
+            "CL_CAT_StandToSit_v01_72f",
+            "CL_CAT_SitIdle_v01_loop_96f",
+            "CL_CAT_SitToLie_v01_120f",
+            "CL_CAT_LieFocusRest_v01_loop_96f",
+            "CL_CAT_LieFocusAttention_v01_48f",
+            "CL_CAT_LieToSit_v01_72f",
+            "CL_CAT_StandToLie_v11_150f", "CL_CAT_LieToStand_v11_120f",
+            "CL_CAT_ProneBreath_v11_loop_240f", "CL_CAT_ProneAttention_v11_48f",
         };
 
         [MenuItem(MenuPath)]
@@ -78,23 +76,24 @@ namespace CatLife.EditorTools
 
             AnimatorStateMachine stateMachine = controller.layers[0].stateMachine;
             ClearStateMachine(stateMachine);
-
             AnimatorState defaultState = null;
             for (int i = 0; i < StateNames.Length; i++)
             {
-                AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(ClipPaths[i]);
+                string clipName = StateNames[i];
+                if (clipName == "CL_CAT_LieFocusRest_v01_loop_96f") clipName = "CL_CAT_ProneBreath_v11_loop_240f";
+                if (clipName == "CL_CAT_LieFocusAttention_v01_48f") clipName = "CL_CAT_ProneAttention_v11_48f";
+                AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(ClipFolder + clipName + ".anim");
                 if (clip == null)
                 {
-                    Debug.LogWarning("CatLife runtime animator setup skipped missing clip: " + ClipPaths[i]);
-                    continue;
+                    throw new InvalidOperationException("Missing v12 runtime clip: " + clipName);
                 }
 
                 AnimatorState state = stateMachine.AddState(StateNames[i], new Vector3(260f + (i % 3) * 260f, 40f + (i / 3) * 90f, 0f));
                 state.motion = clip;
                 state.speed = 1f;
-                state.writeDefaultValues = true;
+                state.writeDefaultValues = false;
 
-                if (StateNames[i] == "CL_CAT_IdleBreath_v06_headsync_loop_108f")
+                if (StateNames[i] == "CL_CAT_StandIdle_v01_loop_96f")
                 {
                     defaultState = state;
                 }

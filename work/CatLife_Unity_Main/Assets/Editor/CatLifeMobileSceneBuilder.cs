@@ -21,9 +21,10 @@ public static class CatLifeMobileSceneBuilder
 {
     private const string TownSourcePath = "Assets/MobileRuntime/Art/Town/Source/CL_TWN_Runtime.fbx";
     private const string TownManifestPath = "Assets/MobileRuntime/Art/Town/Catalog/asset_manifest.csv";
-    private const string CatSourcePath = "Assets/MobileRuntime/Art/Cat/Source/CL_CAT_Runtime.fbx";
+    private const string CatSourcePath = "Assets/MobileRuntime/Art/Cat/PF_CL_CAT_Runtime_v12.prefab";
     private const string CatBaseColorPath = "Assets/MobileRuntime/Art/Cat/Textures/T_CL_Cat_BaseColor_1024.png";
     private const string CatNormalPath = "Assets/MobileRuntime/Art/Cat/Textures/T_CL_Cat_Normal_1024.png";
+    private const string CloudTexturePath = "Assets/MobileRuntime/Art/Environment/T_CL_CloudBillboard_v01.png";
     private const string Root = "Assets/MobileRuntime/Art";
     private const string ScenePath = "Assets/Scenes/CatLifeMobile.unity";
     private const string TownPrefabPath = "Assets/MobileRuntime/Art/Town/PF_CL_TWN_Town.prefab";
@@ -83,10 +84,8 @@ public static class CatLifeMobileSceneBuilder
 
     public static void AuditCatClipsBatch()
     {
-        string[] names = AssetDatabase.LoadAllAssetsAtPath(CatSourcePath)
-            .OfType<AnimationClip>()
-            .Where(clip => !clip.name.StartsWith("__preview__", StringComparison.Ordinal))
-            .Select(clip => clip.name)
+        string[] names = AssetDatabase.FindAssets("t:AnimationClip", new[] { CatLife.EditorTools.CatLifeRuntimeAnimatorSetup.ClipFolder.TrimEnd('/') })
+            .Select(guid => AssetDatabase.LoadAssetAtPath<AnimationClip>(AssetDatabase.GUIDToAssetPath(guid)).name)
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
         Debug.Log("[CatLifeCatClipAudit] " + string.Join(" | ", names));
@@ -124,6 +123,7 @@ public static class CatLifeMobileSceneBuilder
 
             MeshFilter filter = renderer.GetComponent<MeshFilter>();
             if (filter != null && filter.sharedMesh != null) triangles += filter.sharedMesh.triangles.Length / 3;
+            AddWalkableSurfaceCollider(renderer.gameObject, row.RuntimeName, filter);
 
             CatLifeArtAssetIdentity identity = renderer.gameObject.GetComponent<CatLifeArtAssetIdentity>();
             if (identity == null) identity = renderer.gameObject.AddComponent<CatLifeArtAssetIdentity>();
@@ -144,6 +144,7 @@ public static class CatLifeMobileSceneBuilder
         GameObject townInstance = PrefabUtility.InstantiatePrefab(prefab, scene) as GameObject;
         townInstance.name = "CatLifeMobileTown";
         CatLifeCameraDirector director = BuildCameraAndLighting();
+        BuildCloudLayer();
         CatLifeMobileCatPresenter cat = BuildCat();
         GameObject uiPrefab = CatLifeMobileUiPrefabBuilder.Build();
         GameObject ui = PrefabUtility.InstantiatePrefab(uiPrefab, scene) as GameObject;
@@ -184,15 +185,16 @@ public static class CatLifeMobileSceneBuilder
         CreateWalkArea(navigation.transform, "Walk_LeftGarden", new Vector3(-3.9f, groundY - .06f, -6.3f), new Vector3(2.8f, .12f, 3.6f));
         CreateWalkArea(navigation.transform, "Walk_RightGarden", new Vector3(3.9f, groundY - .06f, -6.3f), new Vector3(2.8f, .12f, 3.6f));
         CreateWalkArea(navigation.transform, "Walk_FrontPath", new Vector3(0f, groundY - .06f, -9.25f), new Vector3(6.6f, .12f, 2.2f));
+        CreateWalkArea(navigation.transform, "Walk_HomeForeground", new Vector3(0f, groundY - .06f, 4.5f), new Vector3(1.5f, .12f, 1.5f));
 
         Transform pointsRoot = new GameObject("CatInterestPoints").transform;
         pointsRoot.SetParent(navigation.transform, false);
         CatInterestPoint[] points =
         {
-            CreateInterestPoint(pointsRoot, "Interest_HomeFront", "home_front", new Vector3(-.3f, groundY, -6.78f), new[] { "plaza", "quiet" }),
-            CreateInterestPoint(pointsRoot, "Interest_Left_Garden", "left_garden", new Vector3(-1.55f, groundY, -6.55f), new[] { "garden", "curious" }),
-            CreateInterestPoint(pointsRoot, "Interest_Right_Garden", "right_garden", new Vector3(1.35f, groundY, -6.55f), new[] { "garden", "curious" }),
-            CreateInterestPoint(pointsRoot, "Interest_Front_Path", "front_path", new Vector3(0f, groundY, -8.35f), new[] { "path", "quiet" })
+            CreateInterestPoint(pointsRoot, "Interest_HomeFront", "home_front", new Vector3(0f, groundY, 4.5f), new[] { "plaza", "quiet" }),
+            CreateInterestPoint(pointsRoot, "Interest_Left_Garden", "left_garden", new Vector3(-.45f, groundY, 4.45f), new[] { "garden", "curious" }),
+            CreateInterestPoint(pointsRoot, "Interest_Right_Garden", "right_garden", new Vector3(.45f, groundY, 4.45f), new[] { "garden", "curious" }),
+            CreateInterestPoint(pointsRoot, "Interest_Front_Path", "front_path", new Vector3(0f, groundY, 4.3f), new[] { "path", "quiet" })
         };
         CatInterestPointRegistry registry = navigation.AddComponent<CatInterestPointRegistry>();
         registry.SetPoints(points);
@@ -201,21 +203,19 @@ public static class CatLifeMobileSceneBuilder
         surface.collectObjects = CollectObjects.Children;
         surface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;
         surface.layerMask = ~0;
-        surface.BuildNavMesh();
-        if (AssetDatabase.LoadAssetAtPath<NavMeshData>(NavMeshDataPath) != null)
-            AssetDatabase.DeleteAsset(NavMeshDataPath);
-        AssetDatabase.CreateAsset(surface.navMeshData, NavMeshDataPath);
+        CatLifeMobileNavigationRepair.Bake(surface, GameObject.Find("CatLifeMobileTown"));
 
         CatForbiddenZone[] forbiddenZones = BuildSemanticForbiddenZones(navigation.transform, groundY);
 
         NavMeshAgent agent = cat.AddComponent<NavMeshAgent>();
+        agent.enabled = false;
         agent.radius = .18f;
         agent.height = .55f;
         agent.baseOffset = 0f;
         agent.speed = 1.15f;
         agent.angularSpeed = 420f;
         agent.acceleration = 6f;
-        agent.stoppingDistance = .16f;
+        agent.stoppingDistance = .01f;
         agent.autoBraking = false;
         agent.updateRotation = true;
         CatNavigationAgent navigationAgent = cat.AddComponent<CatNavigationAgent>();
@@ -229,7 +229,7 @@ public static class CatLifeMobileSceneBuilder
         CatBehaviorDriver behavior = cat.AddComponent<CatBehaviorDriver>();
 
         SetObjectReference(animation, "animator", cat.GetComponentInChildren<Animator>());
-        SetString(animation, "idleStateName", "CL_CAT_SitIdle_v01_loop_96f");
+        SetString(animation, "idleStateName", "CL_CAT_StandIdle_v01_loop_96f");
         SetObjectReference(planner, "planningCamera", Camera.main);
         SetObjectReference(planner, "interestPointRegistry", registry);
         SetObjectReference(planner, "needModel", needModel);
@@ -237,8 +237,9 @@ public static class CatLifeMobileSceneBuilder
         SetObjectArray(planner, "forbiddenZones", forbiddenZones);
         SetBool(planner, "preferCameraRangeWhenNonFocused", true);
         SetBool(planner, "preferCameraRangeWhenFocused", false);
-        SetFloat(planner, "nonFocusSampleRadius", 2.25f);
-        SetFloat(planner, "minMoveDistance", .6f);
+        SetFloat(planner, "nonFocusSampleRadius", .55f);
+        SetFloat(planner, "visibleBodyRadius", 1.25f);
+        SetFloat(planner, "minMoveDistance", .35f);
         SetFloat(planner, "navMeshProbeDistance", 1.2f);
         SetInt(planner, "sampleAttempts", 32);
         SetObjectReference(behavior, "recognitionProviderComponent", systemsRoot.GetComponent<MockRecognitionProvider>());
@@ -251,6 +252,7 @@ public static class CatLifeMobileSceneBuilder
         SetObjectReference(behavior, "behaviorMemory", memory);
         SetObjectReference(behavior, "behaviorScorer", scorer);
         ConfigureCatInteraction(cat, behavior);
+        CatLifeV12FootContactPreparation.Configure(cat);
         return behavior;
     }
 
@@ -366,7 +368,7 @@ public static class CatLifeMobileSceneBuilder
         point.transform.SetParent(parent, false);
         point.transform.position = position;
         CatInterestPoint interest = point.GetComponent<CatInterestPoint>();
-        interest.Configure(id, tags, 1f, .25f, .45f, true);
+        interest.Configure(id, tags, 1f, .25f, .2f, true);
         return interest;
     }
 
@@ -394,7 +396,7 @@ public static class CatLifeMobileSceneBuilder
         return result;
     }
 
-    private static Material ResolveMaterial(Material imported)
+    internal static Material ResolveMaterial(Material imported)
     {
         if (imported == null) return null;
         string name = imported.name;
@@ -426,7 +428,8 @@ public static class CatLifeMobileSceneBuilder
             material.SetColor("_BaseColor", color);
         }
         material.SetFloat("_Smoothness", .18f);
-        material.enableInstancing = true;
+        // SwiftShader GLES rejects the town's instanced Unlit variant (uniform limit).
+        material.enableInstancing = false;
         EditorUtility.SetDirty(material);
         return material;
     }
@@ -436,6 +439,9 @@ public static class CatLifeMobileSceneBuilder
         CatLifeLandmarkAction? action = null;
         if (landmarkId == "TOMATO_CLOCK_TOWER") action = CatLifeLandmarkAction.Records;
         if (landmarkId == "CAT_HOUSE") action = CatLifeLandmarkAction.Growth;
+        if (landmarkId == "FISH_SHOP") action = CatLifeLandmarkAction.FishShop;
+        if (landmarkId == "REWARD_TREE") action = CatLifeLandmarkAction.RewardTree;
+        if (landmarkId == "PLAZA_RING") action = CatLifeLandmarkAction.Plaza;
         if (!action.HasValue) return;
 
         CatLifeLandmark landmark = item.GetComponent<CatLifeLandmark>();
@@ -469,14 +475,51 @@ public static class CatLifeMobileSceneBuilder
         Light sun = sunObject.GetComponent<Light>();
         sun.type = LightType.Directional;
         sun.color = new Color(1f, .91f, .74f, 1f);
-        sun.intensity = .9f;
+        sun.intensity = 1.12f;
         sun.shadows = LightShadows.Soft;
         sunObject.transform.rotation = Quaternion.Euler(48f, -26f, 0f);
         RenderSettings.ambientMode = AmbientMode.Trilight;
-        RenderSettings.ambientSkyColor = new Color(.52f, .68f, .82f, 1f);
-        RenderSettings.ambientEquatorColor = new Color(.48f, .52f, .42f, 1f);
-        RenderSettings.ambientGroundColor = new Color(.28f, .24f, .18f, 1f);
+        RenderSettings.ambientSkyColor = new Color(.58f, .70f, .82f, 1f);
+        RenderSettings.ambientEquatorColor = new Color(.34f, .39f, .31f, 1f);
+        RenderSettings.ambientGroundColor = new Color(.18f, .16f, .12f, 1f);
         return director;
+    }
+
+    private static void BuildCloudLayer()
+    {
+        TextureImporter importer = AssetImporter.GetAtPath(CloudTexturePath) as TextureImporter;
+        if (importer == null) throw new FileNotFoundException("Cloud billboard texture is missing.", CloudTexturePath);
+        importer.textureType = TextureImporterType.Sprite;
+        importer.spriteImportMode = SpriteImportMode.Single;
+        importer.alphaIsTransparency = true;
+        importer.mipmapEnabled = false;
+        importer.maxTextureSize = 1024;
+        TextureImporterPlatformSettings android = importer.GetPlatformTextureSettings("Android");
+        android.overridden = true;
+        android.maxTextureSize = 512;
+        android.format = TextureImporterFormat.ASTC_6x6;
+        importer.SetPlatformTextureSettings(android);
+        importer.SaveAndReimport();
+
+        Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(CloudTexturePath);
+        if (sprite == null) throw new InvalidDataException("Cloud billboard could not be imported as a sprite.");
+        Transform root = new GameObject("CL_ENV_CloudLayer_01").transform;
+        CreateCloud(root, sprite, "CL_ENV_Cloud_01", new Vector3(-8.5f, 8.2f, -14f), .58f, .80f);
+        CreateCloud(root, sprite, "CL_ENV_Cloud_02", new Vector3(8.2f, 10.0f, -20f), .48f, .68f);
+        CreateCloud(root, sprite, "CL_ENV_Cloud_03", new Vector3(1.0f, 14.5f, -31f), .72f, .42f);
+    }
+
+    private static void CreateCloud(Transform parent, Sprite sprite, string name, Vector3 position, float scale, float alpha)
+    {
+        GameObject cloud = new GameObject(name, typeof(SpriteRenderer));
+        cloud.transform.SetParent(parent, false);
+        cloud.transform.position = position;
+        cloud.transform.localScale = Vector3.one * scale;
+        SpriteRenderer renderer = cloud.GetComponent<SpriteRenderer>();
+        renderer.sprite = sprite;
+        renderer.color = new Color(1f, 1f, 1f, alpha);
+        renderer.shadowCastingMode = ShadowCastingMode.Off;
+        renderer.receiveShadows = false;
     }
 
     private static CatLifeMobileCatPresenter BuildCat()
@@ -485,9 +528,9 @@ public static class CatLifeMobileSceneBuilder
         if (catSource == null) throw new FileNotFoundException("Standardized cat FBX is missing.", CatSourcePath);
         GameObject cat = PrefabUtility.InstantiatePrefab(catSource) as GameObject;
         cat.name = "CatLifeMobileCat";
-        cat.transform.position = new Vector3(-.3f, .02f, -6.78f);
-        cat.transform.rotation = Quaternion.identity;
-        cat.transform.localScale = Vector3.one * .0275f;
+        cat.transform.position = new Vector3(0f, .02f, 4.5f);
+        cat.transform.rotation = Quaternion.Euler(0f, 22f, 0f);
+        cat.transform.localScale = Vector3.one * .045f;
 
         string materialPath = Root + "/Materials/MAT_CL_Cat.mat";
         Material material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
@@ -506,37 +549,68 @@ public static class CatLifeMobileSceneBuilder
         {
             renderer.sharedMaterial = material;
             renderer.updateWhenOffscreen = true;
+            for (int i = 0; i < renderer.sharedMesh.blendShapeCount; i++) renderer.SetBlendShapeWeight(i, 0f);
         }
+        ConfigureCatPhysics(cat);
         Animator animator = cat.GetComponentInChildren<Animator>();
         if (animator == null) animator = cat.AddComponent<Animator>();
         animator.runtimeAnimatorController = BuildCatAnimator();
         animator.applyRootMotion = false;
-        return cat.AddComponent<CatLifeMobileCatPresenter>();
+        CatLifeMobileCatPresenter presenter = cat.AddComponent<CatLifeMobileCatPresenter>();
+        presenter.ConfigureSessionAnchor(cat.transform.position, cat.transform.rotation);
+        return presenter;
+    }
+
+    private static void AddWalkableSurfaceCollider(GameObject item, string runtimeName, MeshFilter filter)
+    {
+        if (filter == null || filter.sharedMesh == null) return;
+        bool walkableSurface = runtimeName == "CL_ENV_IslandBase_01" ||
+            runtimeName == "CL_ENV_IslandGrass_01" ||
+            runtimeName == "CL_ROAD_CentralGardenRing_01" ||
+            runtimeName == "CL_ROAD_PlazaPath_01" ||
+            runtimeName == "CL_ROAD_PlazaRing_01" ||
+            runtimeName == "CL_PROP_CenterStone_01";
+        if (!walkableSurface) return;
+
+        MeshCollider collider = item.GetComponent<MeshCollider>();
+        if (collider == null) collider = item.AddComponent<MeshCollider>();
+        collider.sharedMesh = filter.sharedMesh;
+        collider.convex = false;
+        collider.isTrigger = false;
+    }
+
+    private static void ConfigureCatPhysics(GameObject cat)
+    {
+        Renderer[] renderers = cat.GetComponentsInChildren<Renderer>(true);
+        if (renderers.Length == 0) throw new InvalidDataException("Mobile cat has no renderer for physics bounds.");
+        Bounds bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++) bounds.Encapsulate(renderers[i].bounds);
+
+        Vector3 scale = cat.transform.lossyScale;
+        float worldRadius = Mathf.Min(bounds.size.x, bounds.size.z) * .26f;
+        float worldHeight = Mathf.Max(worldRadius * 2f, bounds.size.y * .88f);
+        Vector3 worldCenter = new Vector3(bounds.center.x, cat.transform.position.y + worldHeight * .5f, bounds.center.z);
+
+        CapsuleCollider bodyCollider = cat.AddComponent<CapsuleCollider>();
+        bodyCollider.direction = 1;
+        bodyCollider.center = cat.transform.InverseTransformPoint(worldCenter);
+        bodyCollider.radius = worldRadius / Mathf.Max(.0001f, Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.z)));
+        bodyCollider.height = worldHeight / Mathf.Max(.0001f, Mathf.Abs(scale.y));
+        bodyCollider.isTrigger = false;
+
+        Rigidbody body = cat.AddComponent<Rigidbody>();
+        body.mass = 3f;
+        body.useGravity = true;
+        body.isKinematic = false;
+        body.interpolation = RigidbodyInterpolation.Interpolate;
+        body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        body.constraints = RigidbodyConstraints.FreezeRotation;
     }
 
     private static AnimatorController BuildCatAnimator()
     {
-        if (AssetDatabase.LoadAssetAtPath<AnimatorController>(CatControllerPath) != null) AssetDatabase.DeleteAsset(CatControllerPath);
-        AnimatorController controller = AnimatorController.CreateAnimatorControllerAtPath(CatControllerPath);
-        AnimatorStateMachine machine = controller.layers[0].stateMachine;
-        AnimationClip[] clips = AssetDatabase.LoadAllAssetsAtPath(CatSourcePath).OfType<AnimationClip>().Where(clip => !clip.name.StartsWith("__preview__", StringComparison.Ordinal)).ToArray();
-        string[] required =
-        {
-            "CL_CAT_SRC_Walk_60fps", "CL_CAT_IdleBreath_v06_headsync_loop_108f",
-            "CL_CAT_AlertLook_v01_loop_120f", "CL_CAT_PawWave_v01_loop_96f", "CL_CAT_TailWagHappy_v01_loop_96f",
-            "CL_CAT_CuriousSniff_v02_loop_112f", "CL_CAT_HeadTiltListen_v01_loop_96f", "CL_CAT_LookBack_v02_loop_112f",
-            "CL_CAT_StretchYawn_v03_slow_loop_264f", "CL_CAT_EarTwitchAlert_v02_loop_120f", "CL_CAT_HeadShakeNo_v01_loop_108f",
-            "CL_CAT_SitDownTransition_v01_72f", "CL_CAT_SitIdle_v01_loop_96f", "CL_CAT_LieDownTransition_v01_120f",
-            "CL_CAT_FocusRest_v01_loop_96f", "CL_CAT_FocusAttention_v01_48f", "CL_CAT_WakeUpTransition_v01_72f"
-        };
-        foreach (string name in required)
-        {
-            AnimationClip clip = clips.FirstOrDefault(item => item.name.EndsWith(name, StringComparison.Ordinal));
-            if (clip == null) throw new InvalidDataException("Required cat animation missing: " + name);
-            AnimatorState state = machine.AddState(name); state.motion = clip; state.writeDefaultValues = true;
-            if (name == "CL_CAT_SitIdle_v01_loop_96f") machine.defaultState = state;
-        }
-        EditorUtility.SetDirty(controller);
+        AnimatorController controller = CatLife.EditorTools.CatLifeRuntimeAnimatorSetup.EnsureController();
+        CatLife.EditorTools.CatLifeRuntimeAnimatorSetup.RebuildControllerStates(controller);
         return controller;
     }
 

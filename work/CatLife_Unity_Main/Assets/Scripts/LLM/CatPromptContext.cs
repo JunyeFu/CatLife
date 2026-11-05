@@ -8,6 +8,7 @@ namespace CatLife.LLM
     [Serializable]
     public sealed class CatPromptContext
     {
+        public bool behaviorStatsDisabled;
         public string appMode;
         public string catBehaviorState;
         public string catEmotion;

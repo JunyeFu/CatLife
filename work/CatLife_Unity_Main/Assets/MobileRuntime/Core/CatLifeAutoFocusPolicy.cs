@@ -13,10 +13,13 @@ namespace CatLife.Mobile
             this.confidenceThreshold = confidenceThreshold;
         }
 
+        public void ResetDwell() => stableSeconds = 0f;
+
         public bool ShouldStart(CatLifeSessionPhase phase, bool stable, float confidence, float deltaSeconds)
         {
             if (consumed || phase != CatLifeSessionPhase.Normal)
             {
+                ResetDwell();
                 return false;
             }
 

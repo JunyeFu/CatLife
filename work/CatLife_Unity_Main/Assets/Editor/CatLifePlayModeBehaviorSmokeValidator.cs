@@ -368,12 +368,12 @@ namespace CatLife.EditorTools
                 return;
             }
 
-            if (!animator.HasState(0, Animator.StringToHash("Base Layer.CL_CAT_SRC_Walk_60fps")))
+            if (!animator.HasState(0, Animator.StringToHash("Base Layer.CL_CAT_Walk_v01_loop_60f")))
             {
                 issues.Add("Animator cannot resolve walk state in Play Mode.");
             }
 
-            if (!animator.HasState(0, Animator.StringToHash("Base Layer.CL_CAT_IdleBreath_v06_headsync_loop_108f")))
+            if (!animator.HasState(0, Animator.StringToHash("Base Layer.CL_CAT_StandIdle_v01_loop_96f")))
             {
                 issues.Add("Animator cannot resolve idle state in Play Mode.");
             }
@@ -381,7 +381,7 @@ namespace CatLife.EditorTools
             if (agent.hasPath && agent.velocity.magnitude > 0.01f)
             {
                 AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-                if (!stateInfo.IsName("CL_CAT_SRC_Walk_60fps") && !stateInfo.IsName("Base Layer.CL_CAT_SRC_Walk_60fps"))
+                if (!stateInfo.IsName("CL_CAT_Walk_v01_loop_60f") && !stateInfo.IsName("Base Layer.CL_CAT_Walk_v01_loop_60f"))
                 {
                     issues.Add("Cat is moving but Animator is not in walk state: " + stateInfo.shortNameHash);
                 }

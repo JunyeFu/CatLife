@@ -1,0 +1,487 @@
+{
+  "uniqueUnityTests": 96,
+  "passed": 96,
+  "failed": 0,
+  "cases": [
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.CrossMidnightUsesCompletionDayAndInterruptionsNeverUnlockActions",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.DailyAndWeeklyTotalsMustRoundAfterSummingSeconds(59)",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.DailyAndWeeklyTotalsMustRoundAfterSummingSeconds(90)",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.DailyAndWeeklyTotalsMustRoundAfterSummingSeconds(119)",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.DeactivatingHostMustReleaseBusyBeforeReuse",
+      "result": "Passed",
+      "run": "repair-final-lifecycle-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.DisablingOnlyBehaviourDoesNotStopItsCoroutine",
+      "result": "Passed",
+      "run": "repair-final-lifecycle-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.LateResultKeepsOriginalRecordWithoutInterruptingNextFocus",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.ModelRewardTextMustRemainPlainText",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.SecondConcurrentRequestIsRejectedAndFirstStillFinishes",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.SuggestedTextTruncationMustNotSplitEmojiSurrogatePair",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditRoundTwoTests.UserCatNameMustNotBecomeGrowthRichTextMarkup",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.BackwardWallClockMustNotExtendBeyondPlannedDuration",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.CancellingLiveTransportDisposesRequestAndPreventsLateCallback",
+      "result": "Passed",
+      "run": "repair-final-lifecycle-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.ChineseUnsafeAdviceMustBeRejectedDespiteFalseSafetyFlags(\"你患有抑郁症，应该停止服药\")",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.ChineseUnsafeAdviceMustBeRejectedDespiteFalseSafetyFlags(\"你太没用了，不继续学我就离开你\")",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.ChineseUnsafeAdviceMustBeRejectedDespiteFalseSafetyFlags(\"我能判断你有焦虑症，这是诊断结果\")",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.CompletionRemainsExactlyOnceAfterRestore",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.ExternalActionCommandIsRejected",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.InvalidSavedDataMustNotReachBootAsUnhandledOrNullState(\"{\")",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.InvalidSavedDataMustNotReachBootAsUnhandledOrNullState(\"null\")",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.InvalidSavedDataMustNotReachBootAsUnhandledOrNullState(\"{\\\"records\\\":null,\\\"settings\\\":null}\")",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.RealTransport429CallsErrorOnce",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.RealTransportMalformed200CallsErrorOnce",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.RealTransportTimeoutCallsErrorOnce",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeInterviewAuditTests.TurningAiOffMustPreventPendingResponseFromBeingStored",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.AiConsentOffAndInterruptedSessionsNeverRequest",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.ClearedDataIgnoresLateLocalAiCallback",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.ConfirmedClearResetsAdoptionNameAndPersistsEmptyData",
+      "result": "Passed",
+      "run": "repair-recovery-final-20261105"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.DisabledStatisticsRewardAndPromptDoNotInventMeasurements",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.FailedAiClientPersistsSingleAttemptWithoutChangingReward",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.InterruptConfirmationAtDeadlineCompletesExactlyOnce",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.LeavingRewardKeepsLateLocalAdviceWithoutReopeningPageOrRetrying",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.StructuredAiOutputPreservesSectionsAndRejectsUnsafeText",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeMobileFlowTests.SyntheticAiCallbackRejectsIncompleteAndUsesOnlyUnlockedActions",
+      "result": "Passed",
+      "run": "repair-final-play-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.AiOffOnCannotReviveCancelledRecord",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.CancelledClientCanImmediatelyRequestWithoutOldCallback",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.ClockRollbackAfterRestartRequiresExplicitChoice",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.CorruptSaveRecoveryPreservesOriginalUntilConfirmed",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.DestroyingClientDoesNotCallDestroyedUi",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.ElapsedClockIgnoresWallClockChanges(-3600)",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.ElapsedClockIgnoresWallClockChanges(3600)",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"你​患有抑郁症\")",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"你患有焦 虑 症\")",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"建议你自行停药\")",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"不继续学习我就不理你\")",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"再退出我就离开你\")",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"先打开材料，写一行\",True)",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.FullOutputBoundary(\"休息一下也可以\",True)",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.NicknameStaysLiteralAndSurvivesReload",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.TextCutKeepsUtf16Pairs(\"🐱\")",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.TextCutKeepsUtf16Pairs(\"abcdefghijklmnopqrstuvw🐱\")",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.TextCutKeepsUtf16Pairs(\"猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫猫🐱\")",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.TextCutKeepsUtf16Pairs(\"\")",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.WeeklyTotalSumsUnroundedSecondsAcrossDays",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.RetryRecoveryRestoresValidFocusAndDoesNotRetryOldAi",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"quiet_idle\",5,\"focus_rest\")",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"soft_roam\",8,\"stretch\")",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"social_response\",3,\"tail_wag\")",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"quiet_idle\",1,\"paw_wave\")",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"none\",0,\"\")",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"none\",1,\"\")",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"none\",8,\"\")",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"social_response\",1,\"paw_wave\")",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"soft_roam\",5,\"paw_wave\")",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"transform\",8,\"\")",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AiRecommendationRespectsActionWhitelistAndUnlocks(\"social_response\",0,\"\")",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AppSettingsRoundTripLocalBehaviorStatistics",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AutoFocusRequiresContinuousStableDwellAndTriggersOnlyOnce",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AutoFocusResetDropsElapsedDwellButDoesNotRearmConsumedPolicy(30)",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AutoFocusResetDropsElapsedDwellButDoesNotRearmConsumedPolicy(60)",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.AutoFocusResetDropsElapsedDwellButDoesNotRearmConsumedPolicy(120)",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.BackgroundKeepsTimerAndResetsStableSegmentAcrossRestore",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.CompletedSessionCanAttemptAiOnlyOnceAcrossJsonRestore",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.CompletedSessionDrivesApprovedFlowAndRewards",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.DerivedStatsExposeTodayCountsLongestAndSevenLocalDayBuckets",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.DisabledStatisticsInterruptionStoresNoBehaviorAndNoReward",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.DisabledStatisticsSurviveRestoreWithoutChangingDeadlineOrRewards",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.EmptyDataJsonRoundTripHasNoActiveSession",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.EmptyStatsHaveSevenZeroDaysAndNoInventedStability",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.FreshInstallDoesNotEnableAutoFocus",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.InterruptedSessionIsRecordedWithoutRewards",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.JsonRoundTripRestoresActiveDeadlineAndSettings",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.LocalMidnightAndSevenDayEdgesUseEndDateAfterJsonRoundTrip",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLife.Mobile.Tests.CatLifeSessionControllerTests.RecordsDeriveGrowthPawsSevenDayMinutesAndLocalInsight",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLifeExitGestureTests.CancelAfterContactRetainsSingleInterventionButEarlyProbeDoesNot",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLifeExitGestureTests.DisabledInterventionTracksRelativeDistanceAndCancelsOnBackDrag",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLifeExitGestureTests.FastDragMustContactThenContinueWithoutJump",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLifeExitGestureTests.HoldExpiresAtTotalOnePointTwoSecondsEvenWithLateFrame",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLifeExitPersistenceTests.ContactPersistsAcrossReloadWithoutChangingDeadlineOrReward",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLifeExitPersistenceTests.DeadlineWinsDuringEveryInterventionPhase(0.0d,Preparing)",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLifeExitPersistenceTests.DeadlineWinsDuringEveryInterventionPhase(0.4d,Holding)",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLifeExitPersistenceTests.DeadlineWinsDuringEveryInterventionPhase(1.21d,Released)",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLifeExitPersistenceTests.DisabledInterventionDoesNotConsumeContactAndIgnoresAiAndStatisticsSwitches",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLifeExitPersistenceTests.LegacySettingsDefaultEnabledAndExplicitDisabledSurvivesReload",
+      "result": "Passed",
+      "run": "repair-fresh-core-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.CandidatePreparationActuallyEntersFocus",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    },
+    {
+      "name": "CatLifeRepairAcceptanceTests.ForegroundCallbackBeforeStartUsesInitializedSessionClock",
+      "result": "Passed",
+      "run": "repair-clock-lifecycle-green-20261105"
+    }
+  ]
+}

@@ -194,7 +194,32 @@ namespace CatLife.Cat
 
             builder.Append("anim=").Append(GetAnimatorStateName());
             builder.Append("; safety=").Append(safetyGuard != null ? safetyGuard.BuildStatusLine() : "missing_safety_guard");
+            builder.AppendLine();
+            AppendMobileRuntimeLine();
             return builder.ToString();
+        }
+
+        private void AppendMobileRuntimeLine()
+        {
+            CatLifeMobileRuntimeCoordinator coordinator = Object.FindFirstObjectByType<CatLifeMobileRuntimeCoordinator>();
+            builder.Append("mobile_phase=").Append(coordinator != null ? coordinator.AppliedPhase.ToString() : "missing_runtime");
+            builder.Append("; animator_owner=").Append(coordinator != null && coordinator.BehaviorOwnsAnimator ? "behavior" : "presenter");
+            builder.Append("; position=").Append(transform.position.ToString("F3"));
+
+            if (animator == null || animator.runtimeAnimatorController == null)
+            {
+                builder.Append("; anim_current=missing");
+                return;
+            }
+
+            AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(0);
+            AnimatorStateInfo next = animator.GetNextAnimatorStateInfo(0);
+            builder.Append("; anim_current=").Append(current.fullPathHash);
+            builder.Append("; anim_current_t=").Append(current.normalizedTime.ToString("F3"));
+            builder.Append("; anim_next=").Append(animator.IsInTransition(0) ? next.fullPathHash.ToString() : "none");
+            builder.Append("; anim_next_t=").Append(animator.IsInTransition(0) ? next.normalizedTime.ToString("F3") : "none");
+            CatLifeMobileCatPresenter presenter = GetComponent<CatLifeMobileCatPresenter>();
+            builder.Append("; presenter_command=").Append(presenter != null ? presenter.LastAnimationCommand : "missing_presenter");
         }
 
         private void AppendSceneInteractionLine()

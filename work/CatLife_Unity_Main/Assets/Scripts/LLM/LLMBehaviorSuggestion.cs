@@ -1,4 +1,6 @@
 using System;
+using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace CatLife.LLM
@@ -13,6 +15,9 @@ namespace CatLife.LLM
 
         public string version = ExpectedVersion;
         public string suggestedLine = "";
+        public string gentleReminder = "";
+        public string returnSuggestion = "";
+        public string catReactionReason = "";
         public string moodBias = "calm";
         public float roamWeightBias;
         public float quietIdleWeightBias;
@@ -68,7 +73,8 @@ namespace CatLife.LLM
             }
 
             string safeLine = SanitizeLine(raw.suggestedLine);
-            if (ContainsBlockedOutputText(safeLine))
+            if (ContainsBlockedOutputText(raw.suggestedLine) || ContainsBlockedOutputText(raw.gentleReminder) ||
+                ContainsBlockedOutputText(raw.returnSuggestion) || ContainsBlockedOutputText(raw.catReactionReason))
             {
                 reason = "blocked_output_text";
                 return false;
@@ -84,6 +90,9 @@ namespace CatLife.LLM
             {
                 version = ExpectedVersion,
                 suggestedLine = safeLine,
+                gentleReminder = SanitizeLine(raw.gentleReminder, 24),
+                returnSuggestion = SanitizeLine(raw.returnSuggestion, 24),
+                catReactionReason = SanitizeLine(raw.catReactionReason, 24),
                 moodBias = safeMood,
                 roamWeightBias = safeRoam,
                 quietIdleWeightBias = safeQuiet,
@@ -109,7 +118,7 @@ namespace CatLife.LLM
             return true;
         }
 
-        private static string SanitizeLine(string value)
+        private static string SanitizeLine(string value, int maxChars = MaxSuggestedLineChars)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -125,7 +134,9 @@ namespace CatLife.LLM
                 trimmed = trimmed.Replace("  ", " ");
             }
 
-            return trimmed.Substring(0, Mathf.Min(MaxSuggestedLineChars, trimmed.Length));
+            int length = Mathf.Min(maxChars, trimmed.Length);
+            if (length > 0 && length < trimmed.Length && char.IsHighSurrogate(trimmed[length - 1]) && char.IsLowSurrogate(trimmed[length])) length--;
+            return trimmed.Substring(0, length);
         }
 
         private static bool ContainsBlockedOutputText(string value)
@@ -135,8 +146,11 @@ namespace CatLife.LLM
                 return false;
             }
 
-            string lower = value.ToLowerInvariant();
-            return lower.Contains("http://") ||
+            string lower = value.Normalize(NormalizationForm.FormKC).ToLowerInvariant();
+            string compact = Regex.Replace(lower, @"[\s\p{Cf}\p{P}]", "");
+            bool medical = Regex.IsMatch(compact, @"(你|判断|确定|诊断|患有|得了).{0,12}(抑郁症|焦虑症|精神病|心理疾病)|诊断结果|(停|停止|停用|不要|别再|减少|增加|加大|服用|吃).{0,5}(药|服药|吃药|用药|药物|药量|抗抑郁药)");
+            bool coercion = Regex.IsMatch(compact, @"(没用|废物|无能|懒鬼)|不.{0,10}(学|专注|继续).{0,10}(离开你|不要你|不理你|讨厌你)|再.{0,8}(结束|退出|放弃).{0,10}(离开你|不要你|不理你)");
+            return medical || coercion || lower.Contains("http://") ||
                    lower.Contains("https://") ||
                    lower.Contains("file://") ||
                    lower.Contains("screen capture") ||

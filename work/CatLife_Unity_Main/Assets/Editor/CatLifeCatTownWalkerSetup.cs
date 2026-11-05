@@ -9,15 +9,15 @@ using UnityEngine.SceneManagement;
 
 public static class CatLifeCatTownWalkerSetup
 {
-    private const string WalkFbxPath = "Assets/Art/Cat/Animations/CL_CAT_SRC_Walk_60fps.fbx";
-    private const string WalkClipPath = "Assets/Art/Cat/Animations/Clips/CL_CAT_SRC_Walk_60fps.anim";
-    private const string IdleClipPath = "Assets/Art/Cat/Animations/Clips/CL_CAT_IdleBreath_v06_headsync_loop_108f.anim";
-    private const string ControllerPath = "Assets/Art/Cat/Animator/CatLife_TownWalker.controller";
+    private const string WalkFbxPath = "Assets/MobileRuntime/Art/Cat/Source/CL_CAT_Runtime.fbx";
+    private const string WalkClipPath = "Assets/Art/Cat/Animations/Clips/CL_CAT_Walk_v01_loop_60f.anim";
+    private const string IdleClipPath = "Assets/Art/Cat/Animations/Clips/CL_CAT_StandIdle_v01_loop_96f.anim";
+    private const string ControllerPath = "Assets/MobileRuntime/Art/Cat/CL_CAT_Mobile.controller";
     private static readonly string[] SourceWalkRoots = { "Armature", "CL_CAT_Armature" };
     private const string RuntimeWalkRoot = "CL_CAT_CORRECTED_Armature";
     private const string IsWalkingParameter = "IsWalking";
-    private const string WalkStateName = "CL_CAT_SRC_Walk_60fps";
-    private const string IdleStateName = "CL_CAT_IdleBreath_v06_headsync_loop_108f";
+    private const string WalkStateName = "CL_CAT_Walk_v01_loop_60f";
+    private const string IdleStateName = "CL_CAT_StandIdle_v01_loop_96f";
 
     private static readonly Vector3 TownCatPosition = new Vector3(-0.3f, -0.02f, -6.78f);
     private static readonly Vector3 TownCatRotation = new Vector3(0f, -0.017f, 0f);
@@ -38,10 +38,8 @@ public static class CatLifeCatTownWalkerSetup
             return;
         }
 
-        EnsureFolders();
-        ConfigureWalkImporter();
-        AnimationClip walkClip = BuildRetargetedWalkClip();
-        AnimatorController controller = BuildAnimatorController(walkClip);
+        AnimatorController controller = CatLifeRuntimeAnimatorSetup.EnsureController();
+        CatLifeRuntimeAnimatorSetup.RebuildControllerStates(controller);
         ConfigureCatObject(cat, controller);
 
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
@@ -130,7 +128,7 @@ public static class CatLifeCatTownWalkerSetup
         }
 
         AnimationClip retargeted = new AnimationClip();
-        retargeted.name = "CL_CAT_SRC_Walk_60fps";
+        retargeted.name = "CL_CAT_Walk_v01_loop_60f";
         retargeted.frameRate = source.frameRate;
         retargeted.wrapMode = WrapMode.Loop;
 

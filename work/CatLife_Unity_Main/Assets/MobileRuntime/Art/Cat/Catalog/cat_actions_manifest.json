@@ -1,134 +1,37 @@
 {
-  "package": "CatLife mobile runtime cat animation set",
-  "generated_date": "2026-09-03",
+  "package": "CatLife standardized mobile runtime cat animation set",
+  "generated_date": "2026-09-23",
   "coordinate_basis": "+Z up; head faces -Y; tail points +Y; X left/right",
   "source_fbx": "06-deliverables/cat-animation-final-package-20260629/CatLife_cat_10_actions_final_state.fbx",
-  "derived_master": "03-3d-models/catlife-town/pipeline/master/CatLife_cat_runtime_v03.blend",
-  "export_fbx": "work/CatLife_Unity_Main/Assets/MobileRuntime/Art/Cat/Source/CL_CAT_Runtime.fbx",
-  "rig_objects": [
-    "CL_CAT_CORRECTED_Armature",
-    "CL_CAT_CORRECTED_Mesh"
-  ],
+  "derived_master": "Reports/cat-animation-v12/common-runtime-sit-prone/CatLife_common_sit_prone_v12.blend",
+  "export_fbx": "work/CatLife_Unity_Main/Assets/Editor/CatProneReview/CL_CAT_CommonWeightProbe_v12.fbx",
+  "runtime_prefab": "Assets/MobileRuntime/Art/Cat/PF_CL_CAT_Runtime_v12.prefab",
+  "runtime_clips": "Assets/MobileRuntime/Art/Cat/AnimationsV12",
+  "runtime_note": "22 stable API state names, 20 extracted clips; legacy pose and frame suffixes are not the actual v12 pose/duration contract. Study FBX is not a build dependency.",
+  "rig_objects": ["CL_CAT_CORRECTED_Armature", "CL_CAT_CORRECTED_Mesh"],
+  "naming_contract": "CL_CAT_<Pose><Behavior>_v<NN>_[loop_]<duration>f",
   "final_actions": [
-    {
-      "index": 1,
-      "action": "CL_CAT_IdleBreath_v06_headsync_loop_108f",
-      "status": "accepted",
-      "intent": "slow idle breathing loop",
-      "frame_range": "1-109"
-    },
-    {
-      "index": 2,
-      "action": "CL_CAT_AlertLook_v01_loop_120f",
-      "status": "accepted",
-      "intent": "alert standing look-around loop",
-      "frame_range": "1-121"
-    },
-    {
-      "index": 3,
-      "action": "CL_CAT_PawWave_v01_loop_96f",
-      "status": "accepted",
-      "intent": "subtle standing front-paw wave",
-      "frame_range": "1-97"
-    },
-    {
-      "index": 4,
-      "action": "CL_CAT_TailWagHappy_v01_loop_96f",
-      "status": "accepted",
-      "intent": "happy standing tail wag loop",
-      "frame_range": "1-97"
-    },
-    {
-      "index": 5,
-      "action": "CL_CAT_CuriousSniff_v02_loop_112f",
-      "status": "accepted",
-      "intent": "curious look-down / light sniff loop",
-      "frame_range": "1-113"
-    },
-    {
-      "index": 6,
-      "action": "CL_CAT_HeadTiltListen_v01_loop_96f",
-      "status": "accepted",
-      "intent": "curious head-tilt / listening loop",
-      "frame_range": "1-97"
-    },
-    {
-      "index": 7,
-      "action": "CL_CAT_LookBack_v02_loop_112f",
-      "status": "accepted",
-      "intent": "over-shoulder / look-back loop",
-      "frame_range": "1-113"
-    },
-    {
-      "index": 8,
-      "action": "CL_CAT_StretchYawn_v03_slow_loop_264f",
-      "status": "accepted",
-      "intent": "standing stretch / sleepy body stretch loop, 0.5x speed",
-      "frame_range": "1-265"
-    },
-    {
-      "index": 9,
-      "action": "CL_CAT_EarTwitchAlert_v02_loop_120f",
-      "status": "accepted",
-      "intent": "grounded alert ear twitch / scanning loop",
-      "frame_range": "1-121"
-    },
-    {
-      "index": 10,
-      "action": "CL_CAT_HeadShakeNo_v01_loop_108f",
-      "status": "draft_ready_for_review",
-      "intent": "grounded head-shake / no reaction loop",
-      "frame_range": "1-109"
-    },
-    {
-      "index": 11,
-      "action": "CL_CAT_SRC_Walk_60fps",
-      "status": "accepted",
-      "intent": "grounded town traversal",
-      "frame_range": "1-61"
-    },
-    {
-      "index": 12,
-      "action": "CL_CAT_SitDownTransition_v01_72f",
-      "status": "accepted",
-      "intent": "standing to seated transition",
-      "frame_range": "1-72"
-    },
-    {
-      "index": 13,
-      "action": "CL_CAT_SitIdle_v01_loop_96f",
-      "status": "accepted",
-      "intent": "seated home idle loop",
-      "frame_range": "1-96"
-    },
-    {
-      "index": 14,
-      "action": "CL_CAT_LieDownTransition_v01_120f",
-      "status": "accepted",
-      "intent": "seated sniff to focus rest transition",
-      "frame_range": "1-120"
-    },
-    {
-      "index": 15,
-      "action": "CL_CAT_FocusRest_v01_loop_96f",
-      "status": "accepted",
-      "intent": "focus rest breathing loop",
-      "frame_range": "1-96"
-    },
-    {
-      "index": 16,
-      "action": "CL_CAT_FocusAttention_v01_48f",
-      "status": "accepted",
-      "intent": "brief focus attention reaction",
-      "frame_range": "1-48"
-    },
-    {
-      "index": 17,
-      "action": "CL_CAT_WakeUpTransition_v01_72f",
-      "status": "accepted",
-      "intent": "focus rest to seated reward transition",
-      "frame_range": "1-72"
-    }
-  ],
-  "notes": "The runtime FBX contains only the selected rig and mesh plus these 17 accepted actions. The original FBX remains unchanged."
+    {"index": 1, "action": "CL_CAT_StandIdle_v01_loop_96f", "pose": "stand", "intent": "four-paw standing breathing idle", "frame_range": "1-97", "loop": true},
+    {"index": 2, "action": "CL_CAT_Walk_v01_loop_60f", "pose": "stand", "intent": "in-place town traversal", "frame_range": "1-61", "loop": true},
+    {"index": 3, "action": "CL_CAT_CrouchIdleBreath_v01_loop_108f", "pose": "crouch", "intent": "low crouch breathing loop", "frame_range": "1-109", "loop": true},
+    {"index": 4, "action": "CL_CAT_SitAlertLook_v01_loop_120f", "pose": "sit", "intent": "seated alert look-around", "frame_range": "1-121", "loop": true},
+    {"index": 5, "action": "CL_CAT_SitCuriousSniff_v01_loop_112f", "pose": "sit", "intent": "seated curious sniff", "frame_range": "1-113", "loop": true},
+    {"index": 6, "action": "CL_CAT_SitEarTwitchAlert_v01_loop_120f", "pose": "sit", "intent": "seated ear twitch alert", "frame_range": "1-121", "loop": true},
+    {"index": 7, "action": "CL_CAT_CrouchHeadShakeNo_v01_loop_108f", "pose": "crouch", "intent": "low head-shake reaction", "frame_range": "1-109", "loop": true},
+    {"index": 8, "action": "CL_CAT_CrouchHeadTiltListen_v01_loop_96f", "pose": "crouch", "intent": "low listening head tilt", "frame_range": "1-97", "loop": true},
+    {"index": 9, "action": "CL_CAT_CrouchLookBack_v01_loop_112f", "pose": "crouch", "intent": "low look-back reaction", "frame_range": "1-113", "loop": true},
+    {"index": 10, "action": "CL_CAT_CrouchPawWave_v01_loop_96f", "pose": "stand", "intent": "one front-paw wave with three-paw support", "frame_range": "1-145", "loop": false},
+    {"index": 11, "action": "CL_CAT_StandStretchYawn_v01_144f", "pose": "stand", "intent": "forelimb stretch and return to standing", "frame_range": "1-289", "loop": false},
+    {"index": 12, "action": "CL_CAT_SitTailGreeting_v01_loop_96f", "pose": "stand", "intent": "standing tail greeting", "frame_range": "1-145", "loop": true},
+    {"index": 13, "action": "CL_CAT_StandToSit_v01_72f", "pose": "transition", "intent": "four-paw stand to seated", "frame_range": "1-73", "loop": false},
+    {"index": 14, "action": "CL_CAT_SitIdle_v01_loop_96f", "pose": "sit", "intent": "seated breathing idle", "frame_range": "1-97", "loop": true},
+    {"index": 15, "action": "CL_CAT_SitToLie_v01_120f", "pose": "transition", "intent": "seated to focus rest", "frame_range": "1-121", "loop": false},
+    {"index": 16, "action": "CL_CAT_LieFocusRest_v01_loop_96f", "pose": "lie", "intent": "alias of ProneBreath", "frame_range": "1-241", "loop": true},
+    {"index": 17, "action": "CL_CAT_LieFocusAttention_v01_48f", "pose": "lie", "intent": "alias of ProneAttention", "frame_range": "1-49", "loop": false},
+    {"index": 18, "action": "CL_CAT_LieToSit_v01_72f", "pose": "transition", "intent": "focus rest to seated", "frame_range": "1-97", "loop": false},
+    {"index": 19, "action": "CL_CAT_StandToLie_v11_150f", "pose": "transition", "intent": "standing to prone", "frame_range": "1-151", "loop": false},
+    {"index": 20, "action": "CL_CAT_LieToStand_v11_120f", "pose": "transition", "intent": "prone to standing", "frame_range": "1-121", "loop": false},
+    {"index": 21, "action": "CL_CAT_ProneBreath_v11_loop_240f", "pose": "lie", "intent": "prone breathing", "frame_range": "1-241", "loop": true},
+    {"index": 22, "action": "CL_CAT_ProneAttention_v11_48f", "pose": "lie", "intent": "brief prone attention", "frame_range": "1-49", "loop": false}
+  ]
 }
