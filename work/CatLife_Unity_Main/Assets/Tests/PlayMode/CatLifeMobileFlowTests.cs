@@ -402,7 +402,7 @@ public sealed class CatLifeMobileFlowTests
         object config = System.Activator.CreateInstance(configType);
         Assert.That((string)configType.GetField("provider").GetValue(config), Is.EqualTo("mimo"));
         Assert.That((string)configType.GetField("apiEndpoint").GetValue(config), Is.EqualTo("https://api.xiaomimimo.com/v1/chat/completions"));
-        Assert.That((string)configType.GetField("model").GetValue(config), Is.EqualTo("mimo-v2.5"));
+        Assert.That((string)configType.GetField("model").GetValue(config), Is.EqualTo("mimo-v2.6-flash"));
         Assert.That(configType.GetField("apiKey"), Is.Not.Null);
     }
 
@@ -424,7 +424,7 @@ public sealed class CatLifeMobileFlowTests
         System.Type clientType = System.Type.GetType("CatLife.LLM.MockCatLLMClient, Assembly-CSharp");
         MethodInfo build = clientType.GetMethod("BuildGenericCloudRequestJson", BindingFlags.Static | BindingFlags.Public);
         Assert.That(build, Is.Not.Null);
-        string json = (string)build.Invoke(null, new object[] { "mimo-v2.5", null });
+        string json = (string)build.Invoke(null, new object[] { "mimo-v2.6-flash", null });
         StringAssert.Contains("\"thinking\":{\"type\":\"disabled\"}", json);
         StringAssert.Contains("\"response_format\":{\"type\":\"json_object\"}", json);
     }

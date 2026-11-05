@@ -145,6 +145,19 @@ public sealed class CatLifeInterviewAuditTests
     [UnityTest] public IEnumerator RealTransport429CallsErrorOnce() =>
         CheckTransport(25487, 429, "{}", 0, "generic_cloud_network_429");
 
+    [UnityTest] public IEnumerator RealTransport400KeepsProviderCodeWithoutEchoingMessage() =>
+        CheckTransport(25487, 400,
+            "{\"error\":{\"code\":\"model_not_found\",\"type\":\"invalid_request_error\",\"message\":\"PRIVATE_RESPONSE_MUST_NOT_BE_LOGGED\"}}",
+            0, "generic_cloud_network_400", "provider_code=model_not_found", "PRIVATE_RESPONSE_MUST_NOT_BE_LOGGED");
+
+    [UnityTest] public IEnumerator RealTransport400HtmlDoesNotLeakResponseBody() =>
+        CheckTransport(25487, 400, "<html>PRIVATE_RESPONSE_MUST_NOT_BE_LOGGED</html>",
+            0, "generic_cloud_network_400", null, "PRIVATE_RESPONSE_MUST_NOT_BE_LOGGED");
+
+    [UnityTest] public IEnumerator RealTransport400RejectsUnboundedDiagnosticToken() =>
+        CheckTransport(25487, 400, "{\"error\":{\"code\":\"" + new string('x', 120) + "\"}}",
+            0, "generic_cloud_network_400", "provider_code=unavailable", new string('x', 120));
+
     [UnityTest] public IEnumerator RealTransportMalformed200CallsErrorOnce() =>
         CheckTransport(25488, 200, "not-json", 0, "generic_cloud_response_parse_");
 
@@ -183,7 +196,8 @@ public sealed class CatLifeInterviewAuditTests
         finally { listener.Stop(); UnityEngine.Object.DestroyImmediate(host); }
     }
 
-    private IEnumerator CheckTransport(int port, int status, string body, int delayMs, string errorPrefix)
+    private IEnumerator CheckTransport(int port, int status, string body, int delayMs, string errorPrefix,
+        string expectedDetail = null, string excludedDetail = null)
     {
         var listener = new TcpListener(IPAddress.Loopback, port);
         listener.Start();
@@ -222,6 +236,8 @@ public sealed class CatLifeInterviewAuditTests
                 .Invoke(client, new object[] { config, context, null, onError });
             yield return flow;
             Assert.That(error, Does.StartWith(errorPrefix));
+            if (expectedDetail != null) Assert.That(error, Does.Contain(expectedDetail));
+            if (excludedDetail != null) Assert.That(error, Does.Not.Contain(excludedDetail));
             Assert.That(errors, Is.EqualTo(1));
             Assert.That(requests, Is.EqualTo(1));
             while (!server.IsCompleted) yield return null;

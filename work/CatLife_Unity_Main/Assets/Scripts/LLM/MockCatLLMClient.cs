@@ -235,7 +235,7 @@ namespace CatLife.LLM
                 {
                     if (onError != null)
                     {
-                        onError("generic_cloud_network_" + req.responseCode + "_" + req.error);
+                        onError(BuildTransportError(req.responseCode, req.error, req.downloadHandler.text));
                     }
 
                     yield break;
@@ -288,6 +288,28 @@ namespace CatLife.LLM
             {
                 if (ReferenceEquals(activeRequest, req)) { activeRequest = null; req.Dispose(); }
             }
+        }
+
+        private static string BuildTransportError(long status, string transportError, string responseBody)
+        {
+            string reason = "generic_cloud_network_" + status + "_" + transportError;
+            if (string.IsNullOrWhiteSpace(responseBody) || responseBody.Length > 4096) return reason;
+            CloudChatResponse response;
+            try { response = JsonUtility.FromJson<CloudChatResponse>(responseBody); }
+            catch (ArgumentException) { return reason; }
+            if (response?.error == null) return reason;
+            // Only bounded machine tokens may leave the provider response; never its message or body.
+            return reason + "_provider_code=" + DiagnosticToken(response.error.code)
+                + "_provider_type=" + DiagnosticToken(response.error.type);
+        }
+
+        private static string DiagnosticToken(string value)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length > 64) return "unavailable";
+            foreach (char c in value)
+                if (!(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z') && !(c >= '0' && c <= '9') && c != '_')
+                    return "unavailable";
+            return value;
         }
 
         public static bool TryParseGenericCloudSuggestion(
@@ -489,7 +511,7 @@ namespace CatLife.LLM
 
             public string ErrorCode()
             {
-                return error != null && !string.IsNullOrEmpty(error.code) ? error.code : "unknown";
+                return error != null && !string.IsNullOrEmpty(error.code) ? DiagnosticToken(error.code) : "unknown";
             }
 
             public string FirstContent()

@@ -11,7 +11,7 @@ namespace CatLife.LLM
         public string provider = "mimo";
         public string apiKey = "";
         public string apiEndpoint = "https://api.xiaomimimo.com/v1/chat/completions";
-        public string model = "mimo-v2.5";
+        public string model = "mimo-v2.6-flash";
         public bool enableDirectCloudApi = true;
 
         public bool HasUsableCloudCredentials
@@ -56,7 +56,7 @@ namespace CatLife.LLM
             config.apiEndpoint = string.IsNullOrEmpty(config.apiEndpoint)
                 ? "https://api.xiaomimimo.com/v1/chat/completions"
                 : config.apiEndpoint.Trim();
-            config.model = string.IsNullOrEmpty(config.model) ? "mimo-v2.5" : config.model.Trim();
+            config.model = string.IsNullOrEmpty(config.model) ? "mimo-v2.6-flash" : config.model.Trim();
             return config;
         }
     }

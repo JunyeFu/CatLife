@@ -1,0 +1,36 @@
+{
+  "candidate": "r38-private-local",
+  "model": "mimo-v2.6-flash",
+  "apkBytes": 87527446,
+  "relatedUnityTests": {
+    "total": 11,
+    "passed": 11
+  },
+  "apkStatic": {
+    "total": 6,
+    "passed": 6
+  },
+  "requests": 1,
+  "http": 200,
+  "elapsedMs": 9257,
+  "requestId": "942e1c1d0acd4e77b01f3eafde26bb07",
+  "requestedAction": "social_response",
+  "localAction": "tail_wag",
+  "actionLogStatus": "played",
+  "visualInspection": "36 overview frames and all 83 source frames in 87-98s inspected; side steps, tail movement, return to standing",
+  "coldRestartRequests": 0,
+  "coldSavedStatus": "succeeded / count 1 / same ID, screenshot read",
+  "records": {
+    "completed": 5,
+    "interrupted": 1,
+    "growth": 5,
+    "paws": 5
+  },
+  "open": [
+    "GAP20 reward empty card, black band, AI card clipping, focus slider occlusion",
+    "IA-05 public asset rights",
+    "IA-06 independent human evaluation",
+    "real device deferred"
+  ],
+  "scope": "Targeted r38 regression; does not combine prior 96 tests into same-package full regression."
+}
