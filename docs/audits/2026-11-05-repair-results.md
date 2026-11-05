@@ -97,3 +97,5 @@ IA-05需确认资产再分发权利；IA-06需真实独立评分及后续真实�
 原片`F:/AgentTools/CatLifeBuilds/ai-repair-20261105-r38-private/device/cloud/cloud.mp4`，180秒、完整解码退出0；读取36张概览与上述83连续帧。`ai-response-preview.mp4`为原片87–98秒的展示剪辑，不代替原片逐帧证据。测试及同包摘要见[本批结果](evidence/2026-11-05/r38-ai-repair.json)。
 
 本批关闭“当前模型400阻断”的复现；通过一次当前候选真实AI请求/来源/动作保存用例。不是全分支、整页视觉或AI相对模板收益验收。下一项 **GAP20：补Reward信息及AI卡片完整显示，再处理Focus遮爪**；IA-05公开资产权利和IA-06人工评价仍开放。历史12例来自旧模型，不转称2.6评估结果。
+
+收口补验：r38冷启后的PID30851持续超过10分钟；捕获日志无Unity/AndroidRuntime错误及新模型请求，lastanr无事件，AI关闭后已停止review。仅为模拟器观察，不作为真机性能结论。

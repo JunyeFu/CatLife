@@ -32,5 +32,7 @@
     "IA-06 independent human evaluation",
     "real device deferred"
   ],
-  "scope": "Targeted r38 regression; does not combine prior 96 tests into same-package full regression."
+  "scope": "Targeted r38 regression; does not combine prior 96 tests into same-package full regression.",
+  "postRestartObservation": "30851       10:42 com.catlife.review.ui",
+  "reviewStopped": true
 }
