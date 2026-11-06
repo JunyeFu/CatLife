@@ -1,0 +1,106 @@
+{
+  "candidate": "r42b",
+  "source_commit": "ba3e81c",
+  "package": "com.catlife.review.uistyle",
+  "version": "0.3.0 (3)",
+  "apk_bytes": 87592490,
+  "build_errors": 0,
+  "build_warnings": 435,
+  "private_configuration_in_build": false,
+  "new_model_requests": 0,
+  "resolutions": [
+    {
+      "size": [
+        1080,
+        2424
+      ],
+      "density": 420
+    },
+    {
+      "size": [
+        720,
+        1280
+      ],
+      "density": 280
+    }
+  ],
+  "G3": "passed",
+  "visual_acceptance": {
+    "date": "2026-11-07",
+    "answer": "接受本轮视觉",
+    "scope": "seven real pages and ordinary-session video UI/text reveal; not physical device or model usefulness"
+  },
+  "runtime_cases": [
+    "two IME fields at both resolutions and restore",
+    "ordinary one-minute natural completion at both resolutions +1/+1",
+    "background and process recovery with original deadline",
+    "partial return, contact/release, confirm cancel/confirm interrupt at both sizes",
+    "statistics off retains timing and interrupt saves with zero reward",
+    "AI consent cancel and privacy",
+    "clear cancel retains data; second confirmation clears own review samples",
+    "final cold readback two records: one completed, one interrupted; growth=1 pawprints=1"
+  ],
+  "continuous_observation": {
+    "pid": 10066,
+    "first_ready": "2026-11-07T01:19:42+08:00",
+    "end": "2026-11-07T01:30:29+08:00",
+    "seconds_at_least": 647,
+    "crash_buffer_empty": true,
+    "last_anr": "none since boot",
+    "selected_unity_exceptions": 0
+  },
+  "videos": [
+    {
+      "file": "1080/ordinary-session.mp4",
+      "seconds": 100.04,
+      "decoded_frames": 1264,
+      "read": "50 overview frames; all 18 decoded ROI frames at 78-79.5s"
+    },
+    {
+      "file": "1080/gesture.mp4",
+      "seconds": 80.38,
+      "decoded_frames": 894,
+      "read": "40 overview and 28 contact ROI frames at 4fps"
+    },
+    {
+      "file": "720/ordinary-session.mp4",
+      "seconds": 100.32,
+      "decoded_frames": 1844,
+      "read": "25 overview frames; stable Focus frame at 40s"
+    },
+    {
+      "file": "720/gesture.mp4",
+      "seconds": 60.06,
+      "decoded_frames": 1092,
+      "read": "30 overview frames"
+    }
+  ],
+  "world": {
+    "triangles": 229286,
+    "materials": 16,
+    "asset_ids": 167,
+    "editor_audit": "ui-style-r42b-island-20261107; seven images visually read; scene not saved"
+  },
+  "font_dependencies": {
+    "existing_runtime_chinese_bytes": 10589210,
+    "added_dark_subset_packed_bytes": 152286,
+    "new_full_variable_source_in_build": false
+  },
+  "remaining_observations": [
+    "Cold launch can show a white wait; early cold shots retained and settled pages used for acceptance.",
+    "Physical device, user benefit evaluation and public release remain deferred."
+  ],
+  "environment_restored": {
+    "resolution": [
+      1080,
+      2424
+    ],
+    "density": 420,
+    "airplane": 0,
+    "wifi": 1,
+    "review_app": "force-stopped",
+    "MVP_r41": "not operated"
+  },
+  "evidence_root_local": "F:/AgentTools/CatLifeBuilds/ui-style-20261106/r42b/device/",
+  "scope": "Emulator QA, selected video intervals; not full-film frame-by-frame or hardware performance"
+}

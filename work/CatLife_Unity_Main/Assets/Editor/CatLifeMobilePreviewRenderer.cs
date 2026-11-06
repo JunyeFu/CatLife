@@ -122,20 +122,30 @@ public static class CatLifeMobilePreviewRenderer
 
     public static void RenderExitCandidateIslandAuditBatch()
     {
-        const string scenePath = "Assets/Editor/CatProneReview/ExitCandidate/CatLifeExitCandidate.unity";
+        RenderCandidateIslandAudit("Assets/Editor/CatProneReview/ExitCandidate/CatLifeExitCandidate.unity",
+            Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", "..", "Reports", "wp06-island-audit-r22-20261017")));
+    }
+
+    public static void RenderUiStyleIslandAuditBatch()
+    {
+        RenderCandidateIslandAudit("Assets/Editor/CatProneReview/UiStyleCandidate/CatLifeUiStyleReview.unity",
+            Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Reports", "UiStyleR42bIsland")));
+    }
+
+    private static void RenderCandidateIslandAudit(string scenePath, string directory)
+    {
         string validation = CatLife.Editor.CatLifeMobileBuildValidator.ValidateSceneReport(scenePath);
         foreach (Canvas canvas in Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None)) canvas.enabled = false;
         Transform town = GameObject.Find("CatLifeMobileTown").transform;
         MeshRenderer[] renderers = town.GetComponentsInChildren<MeshRenderer>()
             .Where(renderer => renderer.enabled).ToArray();
-        string directory = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", "..", "Reports", "wp06-island-audit-r22-20261017"));
         Directory.CreateDirectory(directory);
         StringBuilder report = new StringBuilder();
         report.AppendLine("Scene=" + scenePath);
         report.AppendLine(validation);
         report.AppendLine("Editor-only audit cameras; no scene save, model relocation, material replacement or runtime UI.");
 
-        var cameraObject = new GameObject("CatLifeR22IslandAuditCamera");
+        var cameraObject = new GameObject("CatLifeIslandAuditCamera");
         Camera camera = cameraObject.AddComponent<Camera>();
         camera.orthographic = true;
         camera.clearFlags = CameraClearFlags.SolidColor;
@@ -177,7 +187,7 @@ public static class CatLifeMobilePreviewRenderer
         }
         Object.DestroyImmediate(cameraObject);
         File.WriteAllText(Path.Combine(directory, "audit.txt"), report.ToString());
-        Debug.Log("CATLIFE_R22_ISLAND_AUDIT=" + directory + " | " + validation);
+        Debug.Log("CATLIFE_ISLAND_AUDIT=" + directory + " | " + validation);
         EditorApplication.Exit(validation.StartsWith("PASS", System.StringComparison.Ordinal) ? 0 : 1);
     }
 

@@ -1,0 +1,123 @@
+{
+  "scope": "Final r42b hero/journey and separately labelled r41 historical AI artwork; GitHub native chrome remains platform controlled",
+  "browser": "Installed Chrome through existing Playwright",
+  "result": [
+    {
+      "board": "hero",
+      "background": "rgb(245, 245, 243)",
+      "numeric": "tabular-nums",
+      "borders": [],
+      "headingWeight": "650",
+      "paragraphs": [
+        {
+          "weight": "400",
+          "wrap": "pretty"
+        }
+      ],
+      "images": [
+        {
+          "source": "home-r42b.png",
+          "width": 540,
+          "height": 1212
+        },
+        {
+          "source": "focus-r42b.png",
+          "width": 540,
+          "height": 1212
+        }
+      ],
+      "fonts": [
+        {
+          "family": "CatLifeShowcase",
+          "weight": "100 900",
+          "status": "loaded"
+        }
+      ]
+    },
+    {
+      "board": "journey",
+      "background": "rgb(245, 245, 243)",
+      "numeric": "tabular-nums",
+      "borders": [],
+      "headingWeight": "700",
+      "paragraphs": [
+        {
+          "weight": "400",
+          "wrap": "pretty"
+        },
+        {
+          "weight": "400",
+          "wrap": "pretty"
+        },
+        {
+          "weight": "400",
+          "wrap": "pretty"
+        },
+        {
+          "weight": "400",
+          "wrap": "pretty"
+        }
+      ],
+      "images": [
+        {
+          "source": "setup-r42b.png",
+          "width": 540,
+          "height": 1212
+        },
+        {
+          "source": "focus-r42b.png",
+          "width": 540,
+          "height": 1212
+        },
+        {
+          "source": "reward-r42b.png",
+          "width": 540,
+          "height": 1212
+        }
+      ],
+      "fonts": [
+        {
+          "family": "CatLifeShowcase",
+          "weight": "100 900",
+          "status": "loaded"
+        }
+      ]
+    },
+    {
+      "board": "ai",
+      "background": "rgb(11, 11, 10)",
+      "numeric": "tabular-nums",
+      "borders": [],
+      "headingWeight": "660",
+      "paragraphs": [
+        {
+          "weight": "360",
+          "wrap": "pretty"
+        },
+        {
+          "weight": "360",
+          "wrap": "pretty"
+        },
+        {
+          "weight": "360",
+          "wrap": "pretty"
+        }
+      ],
+      "images": [
+        {
+          "source": "ai-reward-r41.png",
+          "width": 720,
+          "height": 1280
+        }
+      ],
+      "fonts": [
+        {
+          "family": "CatLifeShowcase",
+          "weight": "100 900",
+          "status": "loaded"
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,17 @@
+{
+  "apk": "F:/AgentTools/CatLifeBuilds/ui-style-20261106/r42b/CatLife-ui-style-r42b.apk",
+  "tests": 6,
+  "failures": [],
+  "errors": [],
+  "permissions": [
+    "android.permission.INTERNET",
+    "com.catlife.review.uistyle.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+  ],
+  "identity": "package: name='com.catlife.review.uistyle' versionCode='3' versionName='0.3.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'",
+  "backupAttributesExplicit": [
+    "allowBackup",
+    "fullBackupContent",
+    "dataExtractionRules"
+  ],
+  "scope": "Static manifest only; no permission grant, file access or backup operation was executed."
+}
