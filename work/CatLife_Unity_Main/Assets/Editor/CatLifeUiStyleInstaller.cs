@@ -92,6 +92,8 @@ public static class CatLifeUiStyleInstaller
         var tokens = JsonUtility.FromJson<Tokens>(File.ReadAllText(TokensPath));
         var colors = tokens.colors;
         var ui = root.GetComponent<CatLifeMobileUiPresentation>();
+        root.GetComponent<Canvas>().additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1
+            | AdditionalCanvasShaderChannels.TexCoord2 | AdditionalCanvasShaderChannels.TexCoord3;
         var nodes = root.GetComponentsInChildren<Transform>(true);
         ui.ink = Parse(colors.ink); ui.onDark = Parse(colors.onDark); ui.mutedInk = Parse(colors.mutedInk);
         foreach (Image image in root.GetComponentsInChildren<Image>(true))
@@ -99,6 +101,7 @@ public static class CatLifeUiStyleInstaller
             image.sprite = StyleSprite(image.sprite);
             // These three pre-Figma surfaces were still using the original outlined artwork.
             if (image.name == "SwipeFill") { image.sprite = Sprite("SkinSwipeFill"); image.color = Color.white; }
+            if (image.name == "DebugPanel") { image.sprite = Sprite("SkinCard"); image.type = Image.Type.Sliced; }
             if (image.name == "ExitInterventionPrompt" || image.name == "BubbleTextCard")
             { image.sprite = Sprite("SkinCard"); image.type = Image.Type.Sliced; image.color = Color.white; }
             Color c = image.color;
@@ -139,6 +142,7 @@ public static class CatLifeUiStyleInstaller
         ui.darkBodyFont = AssetDatabase.LoadAssetAtPath<Font>(tokens.typography.softwareDarkFont);
         ui.darkBodyTexts = nodes.Where(t => tokens.typography.softwareDarkObjects.Contains(t.name)).Select(t => t.GetComponent<Text>()).ToArray();
         ui.ApplyTypography();
+        foreach (Text dark in ui.darkBodyTexts) dark.color = ui.onDark;
         var reveal = ui.rewardInsight.GetComponent<CatLifeInsightReveal>() ?? ui.rewardInsight.gameObject.AddComponent<CatLifeInsightReveal>();
         var timing = tokens.textReveal;
         reveal.Configure(AssetDatabase.LoadAssetAtPath<Shader>("Assets/MobileRuntime/UI/Style/CL_UI_InsightReveal.shader"),
@@ -160,6 +164,8 @@ public static class CatLifeUiStyleInstaller
             rings.sprite = Sprite("InputFocus"); rings.type = Image.Type.Sliced; rings.color = Color.white;
             rings.raycastTarget = false; rings.enabled = false;
             var focus = field.GetComponent<CatLifeInputFocus>() ?? field.gameObject.AddComponent<CatLifeInputFocus>(); focus.Configure(field, rings);
+            var keyboard = field.GetComponent<CatLifeKeyboardAvoidance>() ?? field.gameObject.AddComponent<CatLifeKeyboardAvoidance>();
+            keyboard.Configure(field, (RectTransform)field.transform.parent);
         }
         EditorUtility.SetDirty(ui);
     }

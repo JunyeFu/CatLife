@@ -2427,7 +2427,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f15df8ede708a8e4da265fce1feb8795, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c2891dd9e54a2af4dab316bf4415c3fa, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -8941,6 +8941,7 @@ GameObject:
   - component: {fileID: 3920388514780526553}
   - component: {fileID: 4025477126078086384}
   - component: {fileID: 6611577572576062813}
+  - component: {fileID: 5353033726253354794}
   m_Layer: 0
   m_Name: CustomMinutes
   m_TagString: Untagged
@@ -9090,6 +9091,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CatLifeInputFocus
   input: {fileID: 4025477126078086384}
   rings: {fileID: 1126801891254247220}
+--- !u!114 &5353033726253354794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2373534322826128410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 215207611cff1904988bcc5ec4198e43, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CatLifeKeyboardAvoidance
+  input: {fileID: 4025477126078086384}
+  card: {fileID: 5803142888652198042}
 --- !u!1 &2430600241685986438
 GameObject:
   m_ObjectHideFlags: 0
@@ -9501,6 +9516,7 @@ GameObject:
   - component: {fileID: 7387236936099712756}
   - component: {fileID: 1582770552334160585}
   - component: {fileID: 7296943588059608519}
+  - component: {fileID: 3009149811164001813}
   m_Layer: 0
   m_Name: CatNameInput
   m_TagString: Untagged
@@ -9649,6 +9665,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CatLifeInputFocus
   input: {fileID: 1582770552334160585}
   rings: {fileID: 5490625622840716468}
+--- !u!114 &3009149811164001813
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2586855534619672815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 215207611cff1904988bcc5ec4198e43, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CatLifeKeyboardAvoidance
+  input: {fileID: 1582770552334160585}
+  card: {fileID: 7115244451059887445}
 --- !u!1 &2645356442663402190
 GameObject:
   m_ObjectHideFlags: 0
@@ -11703,7 +11733,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Text
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4117647, g: 0.4117647, b: 0.39607844, a: 1}
+  m_Color: {r: 0.9882353, g: 0.9882353, b: 0.9843137, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -11711,7 +11741,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 12800000, guid: dc074aaf123f5e84cb749f8f808e4b02, type: 3}
+    m_Font: {fileID: 12800000, guid: 6e12770263224ac3840a436e38a430a6, type: 3}
     m_FontSize: 42
     m_FontStyle: 1
     m_BestFit: 1
@@ -14609,7 +14639,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
   m_UseReflectionProbes: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 7
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -14767,6 +14797,7 @@ MonoBehaviour:
   - {fileID: 2816544167165105599}
   - {fileID: 5644292714490321174}
   - {fileID: 1555733078056240112}
+  - {fileID: 4736917929181572234}
   - {fileID: 3144273164222092339}
   insightReveal: {fileID: 946192682344094551}
 --- !u!114 &8766102357868917040

@@ -19,6 +19,7 @@ public sealed class CatLifeInsightReveal : BaseMeshEffect
     private int elementCount;
     private bool queued;
     private double startedAt;
+    private static readonly Vector4[] GaussianOffsets = CreateGaussianOffsets();
     public bool IsRevealing { get; private set; }
     public bool AwaitingVisibility => queued;
     public int AnimatedElementCount => elementCount;
@@ -29,6 +30,18 @@ public sealed class CatLifeInsightReveal : BaseMeshEffect
 
     public void Configure(Shader shader, float duration, float stagger, float blur, Vector4 curve)
     { revealShader = shader; characterSeconds = duration; staggerSeconds = stagger; blurDesignPx = blur; bezier = curve; }
+
+    private static Vector4[] CreateGaussianOffsets()
+    {
+        var offsets = new Vector4[64];
+        for (int i = 0; i < offsets.Length; i++)
+        {
+            double radius = Math.Sqrt(-2 * Math.Log(1 - ((i + .5) / offsets.Length) * .988891));
+            double angle = i * 2.39996323;
+            offsets[i] = new Vector4((float)(Math.Cos(angle) * radius), (float)(Math.Sin(angle) * radius), 0, 0);
+        }
+        return offsets;
+    }
 
     public void Present(object owner, string fullText, bool ready)
     {
@@ -79,13 +92,14 @@ public sealed class CatLifeInsightReveal : BaseMeshEffect
         ownedMaterial.SetFloat("_StaggerSeconds", staggerSeconds);
         ownedMaterial.SetFloat("_BlurPx", blurDesignPx);
         ownedMaterial.SetVector("_Bezier", bezier);
-        label.canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1
-            | AdditionalCanvasShaderChannels.TexCoord2 | AdditionalCanvasShaderChannels.TexCoord3;
+        ownedMaterial.SetFloat("_SampleCount", GaussianOffsets.Length);
+        ownedMaterial.SetVectorArray("_GaussianOffsets", GaussianOffsets);
         startedAt = Time.unscaledTimeAsDouble;
 #if UNITY_EDITOR
         reviewElapsed = null;
 #endif
         IsRevealing = true; label.material = ownedMaterial; WriteElapsed(0); label.SetVerticesDirty();
+        Debug.Log($"[CatLifeUI] insight_reveal_started elements={elementCount}");
     }
     private void Update()
     {
@@ -111,6 +125,7 @@ public sealed class CatLifeInsightReveal : BaseMeshEffect
         IsRevealing = false;
         label.material = originalMaterial; label.SetVerticesDirty();
         Destroy(ownedMaterial); ownedMaterial = null;
+        Debug.Log("[CatLifeUI] insight_reveal_finished");
     }
     public void StopForBackground()
     { suppressedRecord = record; Finish(); }

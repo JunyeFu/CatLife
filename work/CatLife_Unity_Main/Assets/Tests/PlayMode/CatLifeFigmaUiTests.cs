@@ -72,7 +72,7 @@ public sealed class CatLifeFigmaUiTests
         Seed(); yield return null;
         Font expected = Field<Font>(Presentation(), "darkBodyFont");
         Assert.That(expected, Is.Not.Null);
-        foreach (string name in new[] { "FocusTitle", "TimerText", "TransitionText", "DebugText" })
+        foreach (string name in new[] { "FocusTitle", "TimerText", "TransitionText", "DebugText", "DebugTitle" })
             Assert.That(View(name).GetComponent<Text>().font, Is.SameAs(expected), name);
         expected.RequestCharactersInTexture("专注中0123456789:", 96, FontStyle.Normal);
         int? advance = null;
@@ -109,6 +109,43 @@ public sealed class CatLifeFigmaUiTests
             input.DeactivateInputField(); EventSystem.current.SetSelectedGameObject(null);
             yield return null; yield return null;
             Assert.That(rings.enabled, Is.False, name);
+        }
+    }
+
+    [UnityTest]
+    public IEnumerator BothInputsAvoidTheKeyboardAndRestoreTheirCardsAtBothSizes()
+    {
+        foreach (Vector2Int size in new[] { new Vector2Int(1080, 2424), new Vector2Int(720, 1280) })
+        {
+            System.Type builder = System.Type.GetType("CatLifePreviewSceneBuilder, Assembly-CSharp-Editor");
+            builder.GetMethod("SetGameViewFixedResolution", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, new object[] { size.x, size.y });
+            Seed(); yield return null; yield return null;
+            foreach (string name in new[] { "CatNameInput", "CustomMinutes" })
+            {
+                if (name == "CatNameInput") View("AdoptionPanel").gameObject.SetActive(true);
+                else { View("AdoptionPanel").gameObject.SetActive(false); Click("StartButton"); }
+                var field = View(name).GetComponent<InputField>();
+                var card = (RectTransform)field.transform.parent; Vector2 resting = card.anchoredPosition;
+                var avoidance = field.GetComponent("CatLifeKeyboardAvoidance");
+                Assert.That(avoidance, Is.Not.Null);
+                field.ActivateInputField(); yield return null; yield return null;
+                Assert.That(field.isFocused, Is.True);
+                foreach (float portion in new[] { .36f, .5f })
+                {
+                    float inset = Screen.height * portion;
+                    avoidance.GetType().GetMethod("SetReviewInset").Invoke(avoidance, new object[] { inset });
+                    yield return null; yield return null;
+                    var corners = new Vector3[4]; ((RectTransform)field.transform).GetWorldCorners(corners);
+                    Assert.That(RectTransformUtility.WorldToScreenPoint(null, corners[0]).y,
+                        Is.GreaterThanOrEqualTo(inset + 16 * field.GetComponentInParent<Canvas>().scaleFactor - .5f), name);
+                    Vector2 lifted = card.anchoredPosition;
+                    for (int frame = 0; frame < 5; frame++) yield return null;
+                    Assert.That(Vector2.Distance(card.anchoredPosition, lifted), Is.LessThan(.001f), "Avoidance must not accumulate every frame.");
+                }
+                field.DeactivateInputField(); EventSystem.current.SetSelectedGameObject(null);
+                yield return null; yield return null;
+                Assert.That(card.anchoredPosition, Is.EqualTo(resting), name + " normal layout restore");
+            }
         }
     }
 

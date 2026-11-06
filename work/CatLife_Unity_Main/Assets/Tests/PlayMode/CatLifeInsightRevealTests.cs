@@ -50,6 +50,8 @@ public sealed class CatLifeInsightRevealTests
         app.GetType().GetMethod("ShowOnly", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(app, new object[] { "RewardPanel" });
         View("RewardCard").gameObject.SetActive(true);
         Assert.That(effect, Is.Not.Null);
+        var channels = AdditionalCanvasShaderChannels.TexCoord1 | AdditionalCanvasShaderChannels.TexCoord2 | AdditionalCanvasShaderChannels.TexCoord3;
+        Assert.That(text.canvas.additionalShaderChannels & channels, Is.EqualTo(channels), "Serialize the glyph channels before the first reveal; do not rebuild the whole Canvas at first use.");
         Assert.That(text.GetComponents<BaseMeshEffect>().Length, Is.EqualTo(1), "No Shadow/Outline quads may precede glyph mapping.");
     }
 

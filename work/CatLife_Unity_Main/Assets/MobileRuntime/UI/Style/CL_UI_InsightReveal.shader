@@ -14,6 +14,7 @@ Shader "CatLife/UI/InsightReveal"
         _CharacterSeconds ("Character seconds", Float) = 0.09
         _StaggerSeconds ("Stagger seconds", Float) = 0.03
         _BlurPx ("Blur in design pixels", Float) = 6
+        _SampleCount ("Gaussian samples", Float) = 64
         _Bezier ("Cubic Bezier", Vector) = (0.215,0.61,0.355,1)
     }
     SubShader
@@ -37,7 +38,8 @@ Shader "CatLife/UI/InsightReveal"
             struct v2f { float4 vertex:SV_POSITION; fixed4 color:COLOR; float2 local:TEXCOORD0; float4 basisX:TEXCOORD1; float4 basisY:TEXCOORD2; float order:TEXCOORD3; float2 world:TEXCOORD4; UNITY_VERTEX_OUTPUT_STEREO };
             sampler2D _MainTex;
             float4 _ClipRect, _Bezier;
-            float _Elapsed, _CharacterSeconds, _StaggerSeconds, _BlurPx;
+            float _Elapsed, _CharacterSeconds, _StaggerSeconds, _BlurPx, _SampleCount;
+            float4 _GaussianOffsets[64];
             v2f vert(appdata v)
             {
                 v2f o; UNITY_SETUP_INSTANCE_ID(v); UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
@@ -72,15 +74,11 @@ Shader "CatLife/UI/InsightReveal"
                 else
                 {
                     alpha=0;
-                    // Gaussian importance samples on a golden-angle disk avoid a visible grid
-                    // on thin CJK strokes. The disk is truncated at the padded three-sigma edge.
-                    [unroll] for(int n=0;n<64;n++)
-                    {
-                        float radius=sqrt(-2*log(1-((n+0.5)/64)*0.988891));
-                        float angle=n*2.39996323;
-                        alpha+=glyph(i,i.local+float2(cos(angle),sin(angle))*radius*sigma*i.basisY.zw);
-                    }
-                    alpha/=64;
+                    // Keep the original 64-sample quality. Uniform loop bound prevents
+                    // mobile drivers from expanding a large shader; offsets are prepared on CPU.
+                    [loop] for(int n=0;n<(int)_SampleCount;n++)
+                        alpha+=glyph(i,i.local+_GaussianOffsets[n].xy*sigma*i.basisY.zw);
+                    alpha/=_SampleCount;
                 }
                 fixed4 color=i.color; color.a*=alpha;
                 #ifdef UNITY_UI_CLIP_RECT

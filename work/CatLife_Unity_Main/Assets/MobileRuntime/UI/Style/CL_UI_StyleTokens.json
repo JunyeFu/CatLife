@@ -19,7 +19,7 @@
   "typography": {
     "softwareDarkWeight": 460,
     "softwareDarkFont": "Assets/MobileRuntime/UI/Fonts/NotoSansSC-CatLifeDark460.ttf",
-    "softwareDarkObjects": ["FocusTitle", "TimerText", "TransitionText", "DebugText"],
+    "softwareDarkObjects": ["FocusTitle", "TimerText", "TransitionText", "DebugText", "DebugTitle"],
     "webDarkWeightOffset": -40,
     "inlineIconOffsetEm": -0.125,
     "numericVariant": "tabular-nums",
