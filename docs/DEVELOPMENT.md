@@ -2,7 +2,7 @@
 
 [产品主页](../README.md) · [当前进展](STATUS.md)
 
-本轮UI按[增量开发控制](development/2026-11-06-ui-style-repair-plan.md)执行：[WP06.6静态UI/G1](development/2026-11-06-ui-static-results.md)已通过，包含12项功能/资源回归及24张实际Game view截图。[WP06.7/G2](development/2026-11-07-ui-motion-results.md)也已通过：16核心、33功能及1项画面采集。运行实现留在独立分支，当前正以BuildUiStyleReviewApk构建独立r42；Android验收和用户视觉仍待G3。
+本轮UI按[增量开发控制](development/2026-11-06-ui-style-repair-plan.md)执行：[WP06.6静态UI/G1](development/2026-11-06-ui-static-results.md)已通过，包含12项功能/资源回归及24张实际Game view截图。[WP06.7/G2](development/2026-11-07-ui-motion-results.md)也已通过：16核心、33功能及1项画面采集。运行实现留在独立分支，首r42由BuildUiStyleReviewApk构建成功，但[Android检查发现失败](development/2026-11-07-r42-android-acceptance.md)，修复候选r42b继续沿同入口构建；Android和用户视觉仍待G3。
 
 ## 环境
 
