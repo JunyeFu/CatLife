@@ -2,6 +2,8 @@
 
 [产品主页](../README.md) · [当前进展](STATUS.md)
 
+本轮UI修复按[双端视觉增量开发控制](development/2026-11-06-ui-style-repair-plan.md)执行：三个产品取舍已确认，五包顺序与G0–G4已定义；此阶段仅完成计划，未修改软件或生成新候选。
+
 ## 环境
 
 - Unity **6000.4.9f1**，以[ProjectVersion.txt](../work/CatLife_Unity_Main/ProjectSettings/ProjectVersion.txt)为准。

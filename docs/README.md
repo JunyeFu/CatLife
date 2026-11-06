@@ -7,6 +7,8 @@
 | [当前进展](STATUS.md) | 最近运行版本、真实验证范围、未完成项 |
 | [开发与资产准备](DEVELOPMENT.md) | Unity 入口、依赖、源码状态、资产与配置要求 |
 | [真实画面及来源](showcase/README.md) | 截图、动态图的版本与来源区间 |
+| [双端设计自查](audits/2026-11-06-ui-design-self-review.md) | 软件/GitHub十条设计规范的实际缺口与平台边界 |
+| [视觉修复与增量开发控制](development/2026-11-06-ui-style-repair-plan.md) | 已确认三项取舍、五包顺序、文件白名单及G0–G4验收 |
 | [五类追问与缺陷实测](audits/2026-11-05-interview-audit.md) | 61项Unity测试、4类新问题及2项既有缺口 |
 | [追加五题：会话、UI、统计、生命周期与发布](audits/2026-11-05-interview-audit-round2.md) | 新增16项测试，5项新增问题；累计77项 |
 | [逐项修复方案与执行顺序](audits/2026-11-05-repair-plan.md) | IA-01～11修改范围、步骤、验收及五批排期 |
