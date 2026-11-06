@@ -7,7 +7,7 @@ const path = require('node:path');
   const browser = await chromium.launch({ headless: true, channel: 'chrome' });
   try {
     const page = await browser.newPage({ viewport: { width: 1600, height: 1200 }, deviceScaleFactor: 1 });
-    for (const [board, output] of Object.entries({ hero: 'hero-r42b', journey: 'journey-r42b', ai: 'ai-history-r41' })) {
+    for (const [board, output] of Object.entries({ hero: 'hero-commercial-r42b', journey: 'journey-r42b', care: 'care-r42b', everyday: 'everyday-r42b', ai: 'ai-history-r41' })) {
       const url = pathToFileURL(path.resolve(__dirname, '../../docs/showcase/layout.html'));
       url.searchParams.set('board', board);
       await page.goto(url.href);

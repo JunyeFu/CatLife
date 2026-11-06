@@ -4,6 +4,10 @@
 
 | 文件 | 来源 | 范围 |
 |---|---|---|
+| hero-commercial-r42b.png | 新版商业首屏，r42b主页/专注实录 | 新文案与产品叙事；原hero-r42b.png保留历史引用 |
+| care-r42b.png、exit-confirm-r42b.png | r42b真实结束确认及原片第12秒手势局部 | 挽留、继续与确认结束的实际界面；完整截图等比缩放 |
+| contact-detail-r42b.png、exit-contact-r42b.gif | r42b `1080/gesture.mp4`第12秒原帧/第9秒起约5秒，8fps | 原始1080×2424中裁取1080×900区域（x0/y850），缩为640px宽；没有重绘猫爪或滑块 |
+| everyday-r42b.png | r42b记录/成长/设置原图 | 将新前端剩余三页纳入主体展示，数据均为实际测试会话 |
 | hero-r42b.png | layout.html新样式＋r42b主页/专注实录 | 中性色层、无硬描边容器；应用截图内容不改写 |
 | journey-r42b.png | r42b准备、专注、离线完成图 | 同一候选普通1分钟，结果明确为本地洞察 |
 | ai-history-r41.png | 新展示样式＋原ai-reward-r41.png | 明确标注r41历史真实MiMo，不冒称新候选云请求 |
@@ -25,6 +29,6 @@
 
 ## 维护展示排版
 
-`layout.html`是三张展示图的可编辑源文件，可在浏览器中打开，并用`?board=hero`、`?board=journey`、`?board=ai`切换画板。图中应用界面为现有PNG原图，通过缩放、边框和排版展示；不改写按钮、文字、数据或猫咪姿态，不是新的APP版本。
+`layout.html`是五张展示图的可编辑源文件，可在浏览器中打开，用`?board=hero`、`journey`、`care`、`everyday`、`ai`切换画板。应用界面来自实际PNG及标明的录屏局部，通过缩放和排版展示；不改写按钮、文字、数据或猫咪姿态。
 
-先用`tools/showcase/prepare-style.py --font-source <本地官方变量字体> --report-dir <本地结果目录>`生成小型WOFF与同源色值，再在已有Playwright与Chrome的Node环境中执行`node tools/showcase/render-showcase.cjs`更新三张PNG。工具不安装依赖，也不启动Unity或调用模型。GitHub原生字体、按钮与details交互由平台控制，网页排版CSS只用于生成展示图，不宣称控制整个GitHub页面。
+先用`tools/showcase/prepare-style.py --font-source <本地官方变量字体> --report-dir <本地结果目录>`生成小型WOFF与同源色值，再在已有Playwright与Chrome的Node环境中执行`node tools/showcase/render-showcase.cjs`更新五张PNG。商业页补充文案后字体为87,220字节/321码点，缺字0；旧G4报告的73KB为当时三板版本。工具不安装依赖，也不启动Unity或调用模型。GitHub原生字体、按钮与details交互由平台控制，网页排版CSS只用于生成展示图。
