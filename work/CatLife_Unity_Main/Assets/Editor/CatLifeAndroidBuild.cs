@@ -80,6 +80,11 @@ namespace CatLife.Editor
                 "com.catlife.review.ui", "CatLife UI Review");
         }
 
+        public static void BuildUiStyleReviewApk()
+        {
+            BuildExitReviewApk(CatLifeUiStyleInstaller.ScenePath, "com.catlife.review.uistyle", "CatLife UI Style Review");
+        }
+
         private static void BuildExitReviewApk(string scenePath, string reviewPackage = "com.catlife.review.wp04", string reviewProduct = "CatLife Exit Review")
         {
             string originalPackage = PlayerSettings.GetApplicationIdentifier(NamedBuildTarget.Android);

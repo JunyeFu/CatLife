@@ -27,6 +27,7 @@ def build():
         "SkinProgressTrack": (256, 24, 12, c["lightInset"]),
         "SkinSecondary": (256, 140, 32, c["lightInset"]),
         "SkinTrack": (256, 180, 90, c["lightBase"]),
+        "SkinSwipeFill": (256, 52, 26, c["brandOrange"]),
     }
     documents = {}
     for name, (w, h, r, fill) in skins.items():

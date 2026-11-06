@@ -18,7 +18,9 @@ public static class CatLifeUiStyleInstaller
         public string ink, mutedInk, onDark, brandOrange, brandGreen, danger;
     }
     [Serializable] private sealed class Typography { public string softwareDarkFont; public string[] softwareDarkObjects; }
-    [Serializable] private sealed class Tokens { public Colors colors; public Typography typography; }
+    [Serializable] private sealed class Reveal { public float characterSeconds, staggerSeconds, blurDesignPx; public float[] bezier; }
+    [Serializable] private sealed class Spring { public float stiffness, damping; }
+    [Serializable] private sealed class Tokens { public Colors colors; public Typography typography; public Reveal textReveal; public Spring exitGesture; }
     private static Color Parse(string value) { ColorUtility.TryParseHtmlString(value, out Color color); return color; }
     private static Sprite Sprite(string name) => AssetDatabase.LoadAssetAtPath<Sprite>(Art + name + ".png")
         ?? throw new InvalidOperationException("Missing prepared UI skin: " + name);
@@ -77,7 +79,7 @@ public static class CatLifeUiStyleInstaller
             float border = path.Contains("PrimaryShadow") ? 122 : path.Contains("CardShadow") ? 64
                 : path.Contains("SkinPrimary") || path.Contains("SkinTrack") ? 88
                 : path.Contains("SkinSheet") ? 56 : path.Contains("SkinIconCircle") ? 70
-                : path.Contains("SkinProgress") ? 10 : path.Contains("Toggle") ? 0 : 32;
+                : path.Contains("SkinProgress") ? 10 : path.Contains("Toggle") || path.Contains("SkinSwipeFill") ? 0 : 32;
             importer.spriteBorder = new Vector4(border, border, border, border);
             var android = importer.GetPlatformTextureSettings("Android"); android.overridden = true;
             android.maxTextureSize = 512; android.format = TextureImporterFormat.ASTC_4x4;
@@ -95,6 +97,10 @@ public static class CatLifeUiStyleInstaller
         foreach (Image image in root.GetComponentsInChildren<Image>(true))
         {
             image.sprite = StyleSprite(image.sprite);
+            // These three pre-Figma surfaces were still using the original outlined artwork.
+            if (image.name == "SwipeFill") { image.sprite = Sprite("SkinSwipeFill"); image.color = Color.white; }
+            if (image.name == "ExitInterventionPrompt" || image.name == "BubbleTextCard")
+            { image.sprite = Sprite("SkinCard"); image.type = Image.Type.Sliced; image.color = Color.white; }
             Color c = image.color;
             if (image.name == "FocusPanel" || image.name == "TransitionPanel" || c.r == 0 && c.g == 0 && c.b == 0)
             { Color neutral = Parse(colors.darkBase); neutral.a = c.a; image.color = neutral; }
@@ -133,6 +139,13 @@ public static class CatLifeUiStyleInstaller
         ui.darkBodyFont = AssetDatabase.LoadAssetAtPath<Font>(tokens.typography.softwareDarkFont);
         ui.darkBodyTexts = nodes.Where(t => tokens.typography.softwareDarkObjects.Contains(t.name)).Select(t => t.GetComponent<Text>()).ToArray();
         ui.ApplyTypography();
+        var reveal = ui.rewardInsight.GetComponent<CatLifeInsightReveal>() ?? ui.rewardInsight.gameObject.AddComponent<CatLifeInsightReveal>();
+        var timing = tokens.textReveal;
+        reveal.Configure(AssetDatabase.LoadAssetAtPath<Shader>("Assets/MobileRuntime/UI/Style/CL_UI_InsightReveal.shader"),
+            timing.characterSeconds, timing.staggerSeconds, timing.blurDesignPx,
+            new Vector4(timing.bezier[0], timing.bezier[1], timing.bezier[2], timing.bezier[3]));
+        ui.insightReveal = reveal;
+        root.GetComponentInChildren<CatLifeSwipeToEnd>(true).ConfigureSpring(tokens.exitGesture.stiffness, tokens.exitGesture.damping);
         foreach (var field in root.GetComponentsInChildren<InputField>(true))
         {
             field.transition = Selectable.Transition.None;

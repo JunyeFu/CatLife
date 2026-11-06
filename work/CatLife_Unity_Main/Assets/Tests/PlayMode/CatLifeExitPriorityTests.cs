@@ -32,7 +32,7 @@ public sealed class CatLifeExitPriorityTests
     [SetUp] public void Preserve() { hadData = PlayerPrefs.HasKey(Key); saved = PlayerPrefs.GetString(Key); }
     [UnityTearDown] public IEnumerator Restore()
     {
-        var scene = SceneManager.GetSceneByName("CatLifeMobile");
+        var scene = SceneManager.GetActiveScene();
         if (scene.isLoaded)
         {
             SceneManager.SetActiveScene(SceneManager.CreateScene("ExitPriorityCleanup"));
@@ -50,7 +50,12 @@ public sealed class CatLifeExitPriorityTests
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         seed.BeginTransition(900, now); seed.EnterFocus(now);
         PlayerPrefs.SetString(Key, CatLifeDataJson.Serialize(seedData));
-        SceneManager.LoadScene("CatLifeMobile");
+        if (candidate)
+        {
+            var installer = Type.GetType("CatLifeUiStyleInstaller, Assembly-CSharp-Editor");
+            yield return (AsyncOperation)installer.GetMethod("LoadReviewForCapture").Invoke(null, null);
+        }
+        else SceneManager.LoadScene("CatLifeMobile");
         yield return new WaitForSeconds(3);
         app = GameObject.Find("CatLifeMobileApp").GetComponent("CatLifeMobileApp");
         data = (CatLifeAppData)app.GetType().GetField("data", Private).GetValue(app);
@@ -59,23 +64,6 @@ public sealed class CatLifeExitPriorityTests
         var cat = GameObject.Find("CatLifeMobileCat");
         presenter = cat.GetComponent("CatLifeMobileCatPresenter");
         animator = cat.GetComponent<Animator>();
-#if UNITY_EDITOR
-        if (candidate)
-        {
-            var prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
-                "Assets/Editor/CatProneReview/ExitCandidate/RuntimeIntegration/PF_CL_CAT_ExitIntegration_candidate.prefab");
-            var skin = cat.GetComponentInChildren<SkinnedMeshRenderer>();
-            var sourceSkin = prefab.GetComponentInChildren<SkinnedMeshRenderer>();
-            var bones = cat.GetComponentsInChildren<Transform>().ToDictionary(t => t.name);
-            skin.bones = sourceSkin.bones.Select(b => bones[b.name]).ToArray();
-            skin.sharedMesh = sourceSkin.sharedMesh;
-            for (int i = 0; i < skin.sharedMesh.blendShapeCount; i++) skin.SetBlendShapeWeight(i, 0);
-            animator.runtimeAnimatorController = prefab.GetComponent<Animator>().runtimeAnimatorController;
-            presenter.GetType().GetMethod("ShowPhase", new[] { typeof(CatLifeSessionPhase) })
-                .Invoke(presenter, new object[] { CatLifeSessionPhase.Focus });
-            yield return new WaitForSeconds(.3f);
-        }
-#endif
         track = (RectTransform)views["SwipeTrack"].transform;
         swipe = track.GetComponent("CatLifeSwipeToEnd");
         Canvas.ForceUpdateCanvases();
@@ -88,6 +76,19 @@ public sealed class CatLifeExitPriorityTests
     void Drag(float progress) { pointer.position = start + delta * progress; ExecuteEvents.Execute(track.gameObject, pointer, ExecuteEvents.dragHandler); }
     void Up(float progress) { pointer.position = start + delta * progress; ExecuteEvents.Execute(track.gameObject, pointer, ExecuteEvents.pointerUpHandler); }
     CatLifeExitGesturePhase Gesture => (CatLifeExitGesturePhase)swipe.GetType().GetProperty("GesturePhase").GetValue(swipe);
+    float Progress => (float)swipe.GetType().GetProperty("Progress").GetValue(swipe);
+    IEnumerator WaitForPhase(CatLifeExitGesturePhase expected)
+    {
+        double until = Time.realtimeSinceStartupAsDouble + 1.6;
+        while (Gesture != expected && Time.realtimeSinceStartupAsDouble < until) yield return null;
+        Assert.That(Gesture, Is.EqualTo(expected));
+    }
+    IEnumerator WaitForProgress(float minimum)
+    {
+        double until = Time.realtimeSinceStartupAsDouble + .5;
+        while (Progress < minimum && Time.realtimeSinceStartupAsDouble < until) yield return null;
+        Assert.That(Progress, Is.GreaterThanOrEqualTo(minimum));
+    }
     bool Playing => (bool)presenter.GetType().GetProperty("IsExitGesturePlaying").GetValue(presenter);
     void InvokePrivate(Component component, string method, params object[] args) => component.GetType().GetMethod(method, Private).Invoke(component, args);
 
@@ -98,12 +99,12 @@ public sealed class CatLifeExitPriorityTests
     {
         yield return Load();
         Down(); Drag(.5f);
+        yield return WaitForPhase(CatLifeExitGesturePhase.Preparing);
         Assert.That(data.activeSession.exitInterventionShown, Is.True, "Must use the actual App binding, not a test-only subscriber.");
-        if (phase == CatLifeExitGesturePhase.Holding) yield return new WaitForSecondsRealtime(.45f);
-        if (phase == CatLifeExitGesturePhase.Released) yield return new WaitForSecondsRealtime(1.25f);
+        if (phase != CatLifeExitGesturePhase.Preparing) yield return WaitForPhase(phase);
         Assert.That(Gesture, Is.EqualTo(phase));
         // Synthetic clock arrangement only: make a one-minute session due in the actual App.Update.
-        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        long now = (long)app.GetType().GetMethod("SessionNow", Private).Invoke(app, null);
         data.activeSession.plannedSeconds = 60;
         data.activeSession.focusStartedAt = now - 60;
         data.activeSession.stableSegmentStartedAt = now - 60;
@@ -141,7 +142,8 @@ public sealed class CatLifeExitPriorityTests
         yield return Load();
         long deadline = data.activeSession.targetEndAt;
         Down(); Drag(.5f);
-        yield return new WaitForSecondsRealtime(.45f);
+        yield return WaitForPhase(CatLifeExitGesturePhase.Holding);
+        yield return null; // Observe the Animator after it has evaluated the new phase.
         Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName(Hold), Is.True);
         InvokePrivate(app, "OnApplicationPause", true);
         InvokePrivate(swipe, "OnApplicationPause", true);
@@ -160,7 +162,7 @@ public sealed class CatLifeExitPriorityTests
         var reloaded = CatLifeDataJson.Deserialize(PlayerPrefs.GetString(Key));
         Assert.That(new CatLifeSessionController(reloaded).CanShowExitIntervention, Is.False);
         Assert.That(reloaded.activeSession.targetEndAt, Is.EqualTo(deadline));
-        Down(); Drag(.75f); Up(.75f);
+        Down(); Drag(.75f); yield return WaitForProgress(.65f); Up(.75f);
         Assert.That(views["ExitConfirm"].activeSelf, Is.True, "The next attempt must remain available without another block.");
         Debug.Log("EXIT_PAUSE cancelled=true deadlineUnchanged=true consumedAfterReload=true nextAttemptDirect=true");
     }
@@ -170,7 +172,7 @@ public sealed class CatLifeExitPriorityTests
     {
         yield return Load();
         Down(); Drag(.25f);
-        yield return new WaitForSeconds(.03f);
+        yield return WaitForPhase(CatLifeExitGesturePhase.Reaching);
         var probe = new GameObject("Exit preparation ownership probe").AddComponent<CatTerrainLateProbe>();
         int ownershipLosses = 0;
         probe.sample = () =>
@@ -178,7 +180,8 @@ public sealed class CatLifeExitPriorityTests
             if (Gesture == CatLifeExitGesturePhase.Preparing && (!Playing ||
                 (string)presenter.GetType().GetProperty("LastAnimationCommand").GetValue(presenter) != Reach)) ownershipLosses++;
         };
-        Drag(.1f); Drag(.5f);
+        Drag(.1f); yield return WaitForPhase(CatLifeExitGesturePhase.Dragging);
+        Drag(.5f); yield return WaitForPhase(CatLifeExitGesturePhase.Preparing);
         Assert.That(Gesture, Is.EqualTo(CatLifeExitGesturePhase.Preparing));
         yield return new WaitForSeconds(.12f);
         Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName(Reach), Is.True,
@@ -203,9 +206,15 @@ public sealed class CatLifeExitPriorityTests
         Down(); Drag(.25f); Up(.25f);
         yield return new WaitForSeconds(.03f);
         var state = animator.GetCurrentAnimatorStateInfo(0);
+        Assert.That(state.IsName(Rest), Is.True, "A zero-time drag has no visible reach to reverse.");
+        Assert.That(Playing, Is.False);
+        Down(); Drag(.3f); yield return WaitForProgress(.24f);
+        float releaseStart = 1 - Mathf.InverseLerp(.15f, .35f, Progress);
+        Up(.3f); yield return null;
+        state = animator.GetCurrentAnimatorStateInfo(0);
         Assert.That(state.IsName("CL_CAT_ProneExitRelease_v01_24f"), Is.True);
-        Assert.That(state.normalizedTime, Is.GreaterThanOrEqualTo(.49f),
-            "Half-reaching must reverse from its matching half-release, even before Animator evaluates the command.");
+        Assert.That(state.normalizedTime, Is.GreaterThanOrEqualTo(releaseStart - .01f),
+            "Visible reaching must reverse from its matching release phase.");
         yield return new WaitForSeconds(.5f);
         Assert.That(Playing, Is.False);
         Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName(Rest), Is.True);
@@ -223,6 +232,7 @@ public sealed class CatLifeExitPriorityTests
     {
         yield return Load();
         Down(); Drag(.5f);
+        yield return WaitForPhase(CatLifeExitGesturePhase.Preparing);
         Assert.That(Playing, Is.True);
         // UnityTearDown unloads the actual scene while the gesture is still active.
     }
@@ -232,6 +242,7 @@ public sealed class CatLifeExitPriorityTests
     {
         yield return Load();
         Down(); Drag(.25f);
+        yield return WaitForPhase(CatLifeExitGesturePhase.Reaching);
         yield return null;
         Assert.That(animator.GetCurrentAnimatorStateInfo(0).IsName(Reach), Is.True);
         Assert.That(animator.speed, Is.Zero);
@@ -244,7 +255,7 @@ public sealed class CatLifeExitPriorityTests
         Assert.That(data.activeSession.exitInterventionShown, Is.False);
         yield return Load(false);
         Assert.That((bool)presenter.GetType().GetProperty("CanBeginExitGesture").GetValue(presenter), Is.False);
-        Down(); Drag(.75f); Up(.75f);
+        Down(); Drag(.75f); yield return WaitForProgress(.65f); Up(.75f);
         Assert.That(views["ExitConfirm"].activeSelf, Is.True);
         Assert.That(data.activeSession.exitInterventionShown, Is.False);
         Debug.Log("EXIT_EARLY_RETURN rest=true markerNotConsumed=true originalModelDirect=true");

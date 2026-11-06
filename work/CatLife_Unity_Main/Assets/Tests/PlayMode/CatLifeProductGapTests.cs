@@ -109,6 +109,7 @@ public sealed class CatLifeProductGapTests
         swipe.GetType().GetMethod("OnPointerDown").Invoke(swipe, new object[] { pointer });
         pointer.position = RectTransformUtility.WorldToScreenPoint(null, rect.TransformPoint(new Vector3(rect.rect.width * .30f, 0, 0)));
         swipe.GetType().GetMethod("OnDrag").Invoke(swipe, new object[] { pointer });
+        yield return new WaitForSecondsRealtime(.25f);
         swipe.GetType().GetMethod("OnPointerUp").Invoke(swipe, new object[] { pointer });
         Assert.That(View("ExitConfirm").activeSelf, Is.True);
     }

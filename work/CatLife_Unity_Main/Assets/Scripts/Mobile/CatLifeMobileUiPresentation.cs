@@ -30,6 +30,10 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
     public Color ink, mutedInk, onDark;
     public Font darkBodyFont;
     public Text[] darkBodyTexts = Array.Empty<Text>();
+    public CatLifeInsightReveal insightReveal;
+    private object insightRecord;
+    private string rawInsight, displayInsight;
+    private Vector2 insightViewportSize;
 
     public void ApplyTypography()
     {
@@ -119,14 +123,25 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
         rewardGrowth.text = $"Lv.{stats.Level}   {stats.LevelProgress}/100                          成长 +{record.GrowthAwarded}";
         rewardPaws.text = "爪印 +" + record.PawsAwarded;
         rewardProgress.fillAmount = stats.LevelProgress / 100f;
-        rewardInsight.text = insight;
         rewardInsight.fontSize = 34;
         SetRewardViewport(670, 170);
-        ResizeInsight();
+        Canvas.ForceUpdateCanvases();
+        if (!ReferenceEquals(insightRecord, record) || rawInsight != insight || insightViewportSize != rewardViewport.rect.size)
+        {
+            insightReveal.Finish();
+            insightRecord = record; rawInsight = insight; insightViewportSize = rewardViewport.rect.size;
+            rewardInsight.text = insight;
+            ResizeInsight();
+            displayInsight = rewardInsight.text;
+        }
+        else rewardInsight.text = displayInsight;
+        insightReveal.Present(record, rewardInsight.text, record.aiRequestStatus != "requesting");
     }
 
     public void ShowLocalAction()
     {
+        insightReveal.Finish();
+        insightRecord = null; rawInsight = null;
         rewardInsight.fontSize = 34;
         rewardStats.SetActive(false);
         SetRewardViewport(210, 630);

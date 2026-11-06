@@ -5393,6 +5393,7 @@ MonoBehaviour:
   - {fileID: 1304376285076925691}
   - {fileID: 1445786417912997971}
   - {fileID: 8431343058481014314}
+  insightReveal: {fileID: 7599541284081626586}
 --- !u!1 &1511341008413710117
 GameObject:
   m_ObjectHideFlags: 0
@@ -7491,14 +7492,14 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.97, b: 0.89, a: 0.92}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 79b28a01592ed9147a239cecd2b1ccf1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c2891dd9e54a2af4dab316bf4415c3fa, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -12537,6 +12538,7 @@ GameObject:
   - component: {fileID: 5277147879122386945}
   - component: {fileID: 2085539911238125964}
   - component: {fileID: 5637173267630704950}
+  - component: {fileID: 7599541284081626586}
   m_Layer: 0
   m_Name: RewardText
   m_TagString: Untagged
@@ -12605,6 +12607,23 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text:
+--- !u!114 &7599541284081626586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3539543791601511808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4152ea59039cedc4b91a9f498d291a34, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::CatLifeInsightReveal
+  revealShader: {fileID: 4800000, guid: ef63a149fae1eb446b023651be12d89d, type: 3}
+  characterSeconds: 0.09
+  staggerSeconds: 0.03
+  blurDesignPx: 6
+  bezier: {x: 0.215, y: 0.61, z: 0.355, w: 1}
 --- !u!1 &3539957468088150158
 GameObject:
   m_ObjectHideFlags: 0
@@ -14707,6 +14726,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CatLifeSwipeToEnd
   handle: {fileID: 4363232324229323447}
   fill: {fileID: 7270090359947197026}
+  springStiffness: 1200
+  springDamping: 80
 --- !u!114 &3283157912550514220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16160,14 +16181,14 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.5411765, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f15df8ede708a8e4da265fce1feb8795, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ccb8731282fc4184d85f00520c00d047, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
