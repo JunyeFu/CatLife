@@ -2,7 +2,7 @@
 
 [产品主页](../README.md) · [当前进展](STATUS.md)
 
-本轮UI修复按[双端视觉增量开发控制](development/2026-11-06-ui-style-repair-plan.md)执行：[WP06.5基础准备](development/2026-11-06-ui-style-foundation.md)已完成、G0通过；颜色参数/派生460字库在独立分支，下一项WP06.6.1。运行代码和Prefab未改，尚未生成新候选。
+本轮UI按[增量开发控制](development/2026-11-06-ui-style-repair-plan.md)执行：[WP06.6静态UI/G1](development/2026-11-06-ui-static-results.md)已通过，包含12项功能/资源回归及24张实际Game view截图。运行实现留在独立分支，下一项WP06.7.1；新APK与Android验收仍待G2后进行。
 
 ## 环境
 
