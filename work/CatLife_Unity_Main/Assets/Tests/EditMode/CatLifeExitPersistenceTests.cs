@@ -11,11 +11,11 @@ public sealed class CatLifeExitPersistenceTests
         var data = new CatLifeAppData();
         var session = new CatLifeSessionController(data);
         session.BeginTransition(60, 100); session.EnterFocus(102);
-        var gesture = new CatLifeExitGesture();
-        gesture.Begin(0, session.CanShowExitIntervention, false);
-        gesture.Step(.4f, 0);
+        var gesture = new CatLifeExitGesture(1200, 80);
+        gesture.Begin(0, 0, session.CanShowExitIntervention, false);
+        gesture.Step(.9f, .1);
         Assert.That(session.MarkExitInterventionShown(), Is.True);
-        if (elapsed > 0) gesture.Step(.4f, elapsed);
+        if (elapsed > 0) gesture.Step(.9f, .1 + elapsed);
         Assert.That(gesture.Phase, Is.EqualTo(expected));
         Assert.That(data.activeSession.targetEndAt, Is.EqualTo(162));
         Assert.That(session.TryComplete(162, out var record), Is.True);

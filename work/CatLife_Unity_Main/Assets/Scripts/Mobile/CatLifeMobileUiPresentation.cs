@@ -27,6 +27,18 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
     public Image rewardProgress;
     public RectTransform rewardViewport, rewardContent;
     public ScrollRect rewardScroll;
+    public Color ink, mutedInk, onDark;
+    public Font darkBodyFont;
+    public Text[] darkBodyTexts = Array.Empty<Text>();
+    public CatLifeInsightReveal insightReveal;
+    private object insightRecord;
+    private string rawInsight, displayInsight;
+    private Vector2 insightViewportSize;
+
+    public void ApplyTypography()
+    {
+        foreach (Text text in darkBodyTexts) text.font = darkBodyFont;
+    }
 
     public void RenderSetup(int minutes, bool quiet, bool ai, string today)
     {
@@ -37,11 +49,11 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
             bool selected = choices[i] == minutes;
             minuteImages[i].sprite = selected ? chipSelected : chipNormal;
             minuteImages[i].color = Color.white;
-            minuteTexts[i].color = selected ? Color.white : Color.black;
+            minuteTexts[i].color = selected ? onDark : ink;
         }
         quietImage.sprite = gentleImage.sprite = secondary;
         quietImage.color = gentleImage.color = Color.white;
-        quietText.color = gentleText.color = Color.black;
+        quietText.color = gentleText.color = ink;
         focusMode.text = quiet ? "安静陪伴" : "轻提醒";
         setupAiToggle.sprite = ai ? toggleOn : toggleOff;
         setupAiToggle.color = Color.white;
@@ -70,7 +82,7 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
             bool unlocked = stats.Paws >= required[i];
             growthCards[i].color = Color.white;
             growthIcons[i].color = new Color(1, 1, 1, unlocked ? 1 : .58f);
-            growthLabels[i].color = new Color(0, 0, 0, unlocked ? 1 : .58f);
+            growthLabels[i].color = new Color(ink.r, ink.g, ink.b, unlocked ? 1 : .58f);
         }
     }
 
@@ -111,14 +123,25 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
         rewardGrowth.text = $"Lv.{stats.Level}   {stats.LevelProgress}/100                          成长 +{record.GrowthAwarded}";
         rewardPaws.text = "爪印 +" + record.PawsAwarded;
         rewardProgress.fillAmount = stats.LevelProgress / 100f;
-        rewardInsight.text = insight;
         rewardInsight.fontSize = 34;
         SetRewardViewport(670, 170);
-        ResizeInsight();
+        Canvas.ForceUpdateCanvases();
+        if (!ReferenceEquals(insightRecord, record) || rawInsight != insight || insightViewportSize != rewardViewport.rect.size)
+        {
+            insightReveal.Finish();
+            insightRecord = record; rawInsight = insight; insightViewportSize = rewardViewport.rect.size;
+            rewardInsight.text = insight;
+            ResizeInsight();
+            displayInsight = rewardInsight.text;
+        }
+        else rewardInsight.text = displayInsight;
+        insightReveal.Present(record, rewardInsight.text, record.aiRequestStatus != "requesting");
     }
 
     public void ShowLocalAction()
     {
+        insightReveal.Finish();
+        insightRecord = null; rawInsight = null;
         rewardInsight.fontSize = 34;
         rewardStats.SetActive(false);
         SetRewardViewport(210, 630);
@@ -135,6 +158,7 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
     private void ResizeInsight()
     {
         Canvas.ForceUpdateCanvases();
+        rewardInsight.text = CatLifeTextWrap.WithoutSingleCharacterTail(rewardInsight, rewardInsight.text);
         float contentHeight = rewardInsight.preferredHeight + 48;
         rewardContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
             Mathf.Max(rewardViewport.rect.height, contentHeight));

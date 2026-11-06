@@ -32,7 +32,7 @@ class ReleasePackageAudit(unittest.TestCase):
         self.assertEqual(unexpected, set())
 
     def test_04_review_package_and_version_are_explicit(self):
-        self.assertIn("name='com.catlife.review.ui' versionCode='3' versionName='0.3.0'", self.badging)
+        self.assertIn(f"name='{OPTIONS.package}' versionCode='3' versionName='0.3.0'", self.badging)
 
     def test_05_internet_is_declared_without_explicit_cleartext_opt_in(self):
         self.assertIn("android.permission.INTERNET", self.permissions)
@@ -48,6 +48,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--apk", required=True)
     parser.add_argument("--aapt", required=True)
+    parser.add_argument("--package", default="com.catlife.review.ui")
     parser.add_argument("--output", required=True)
     OPTIONS = parser.parse_args()
     result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(ReleasePackageAudit))

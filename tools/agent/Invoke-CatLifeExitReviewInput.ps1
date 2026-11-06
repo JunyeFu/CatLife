@@ -22,8 +22,8 @@ function Adb([string[]]$Arguments) {
     if ($LASTEXITCODE -ne 0) { throw ('adb failed: ' + ($Arguments -join ' ')) }
     return $result
 }
-$avd = Adb -Arguments @('emu','avd','name')
-if (($avd -join '').Trim() -notmatch '^CatLifeInterview20261008\s*OK$') { throw 'Not the dedicated CatLife AVD.' }
+$avd = Adb -Arguments @('shell','getprop','ro.boot.qemu.avd_name')
+if (($avd -join '').Trim() -ne 'CatLifeInterview20261008') { throw 'Not the dedicated CatLife AVD.' }
 $dump = & $adbExe -s $reviewSerial shell uiautomator dump /sdcard/catlife-wp04-review-ui.xml 2>&1
 if ($LASTEXITCODE -ne 0 -or ($dump -join "`n") -match 'ERROR:') {
     throw 'UI hierarchy capture failed; no input was sent and the previous XML was not reused.'

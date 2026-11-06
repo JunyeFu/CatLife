@@ -68,7 +68,7 @@ public sealed class CatLifePawContactView : MonoBehaviour
                 interventionPrompt.anchoredPosition = promptPoint;
             }
         }
-        if (swipe.GesturePhase != CatLife.Mobile.CatLifeExitGesturePhase.Idle) return;
+        if (swipe.GesturePhase != CatLife.Mobile.CatLifeExitGesturePhase.Idle || swipe.IsSettling) return;
         var parent = (RectTransform)track.parent;
         Vector2 contact = worldCamera.WorldToScreenPoint(catRoot.TransformPoint(contactInCatRoot));
         RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, contact, uiCamera, out var local);

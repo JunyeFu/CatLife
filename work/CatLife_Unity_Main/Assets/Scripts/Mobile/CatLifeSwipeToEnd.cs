@@ -9,7 +9,8 @@ public sealed class CatLifeSwipeToEnd : MonoBehaviour, IPointerDownHandler, IDra
     [SerializeField] private RectTransform handle;
     [SerializeField] private Image fill;
     private RectTransform track;
-    private readonly CatLifeExitGesture gesture = new CatLifeExitGesture();
+    [SerializeField] private float springStiffness = 1200, springDamping = 80;
+    private CatLifeExitGesture gesture;
     private bool dragging;
     private int activePointerId;
     private float pointerPosition;
@@ -22,14 +23,16 @@ public sealed class CatLifeSwipeToEnd : MonoBehaviour, IPointerDownHandler, IDra
     public event Action<CatLifeExitGesturePhase, float> GestureChanged;
     public event Action GestureCancelled;
     public float Progress => gesture.Progress;
+    public bool IsSettling => gesture.IsSettling;
     public CatLifeExitGesturePhase GesturePhase => gesture.Phase;
-    private void Awake() { track = (RectTransform)transform; ResetTrack(); }
+    private void Awake() { track = (RectTransform)transform; gesture = new CatLifeExitGesture(springStiffness, springDamping); ResetTrack(); }
+    public void ConfigureSpring(float stiffness, float damping) { springStiffness = stiffness; springDamping = damping; }
     public void Configure(RectTransform sliderHandle, Image sliderFill) { handle = sliderHandle; fill = sliderFill; }
     public void ConfigureIntervention(Func<bool> eligibility) { canIntervene = eligibility; }
     public void SetMinimumHandleSize(float minimum) { handleSize = Mathf.Max(128, minimum); if (handle != null) handle.sizeDelta = Vector2.one * handleSize; }
     private void Update()
     {
-        if (!dragging) return;
+        if (!dragging && !gesture.IsSettling) return;
         gesture.Step(pointerPosition, Time.unscaledTimeAsDouble);
         ReportIntervention();
         Apply();
@@ -43,8 +46,7 @@ public sealed class CatLifeSwipeToEnd : MonoBehaviour, IPointerDownHandler, IDra
         dragging = true;
         interventionReported = false;
         pointerPosition = point.x / (track.rect.width * .84f);
-        // The production view remains direct-slide until its layout opts in.
-        gesture.Begin(pointerPosition, canIntervene != null && canIntervene(), false);
+        gesture.Begin(pointerPosition, Time.unscaledTimeAsDouble, canIntervene != null && canIntervene(), false);
         Apply();
     }
     public void OnDrag(PointerEventData eventData)
@@ -54,7 +56,7 @@ public sealed class CatLifeSwipeToEnd : MonoBehaviour, IPointerDownHandler, IDra
     public void OnPointerUp(PointerEventData eventData)
     {
         if (!dragging || eventData.pointerId != activePointerId) return;
-        UpdateProgress(eventData);
+        // The already drawn handle is authoritative. UP never catches up to the raw pointer.
         bool confirm = gesture.End();
         dragging = false;
         Apply();

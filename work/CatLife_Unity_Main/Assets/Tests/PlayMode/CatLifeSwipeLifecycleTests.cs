@@ -29,6 +29,12 @@ public sealed class CatLifeSwipeLifecycleTests
     private void Send(string method, int id, float x) => swipe.GetType().GetMethod(method).Invoke(swipe,
         new object[] { new PointerEventData(null) { pointerId = id, position = new Vector2(x, 0) } });
     private float Progress => (float)swipe.GetType().GetProperty("Progress").GetValue(swipe);
+    private IEnumerator WaitForProgress(float minimum)
+    {
+        double until = Time.realtimeSinceStartupAsDouble + .5;
+        while (Progress < minimum && Time.realtimeSinceStartupAsDouble < until) yield return null;
+        Assert.That(Progress, Is.GreaterThanOrEqualTo(minimum));
+    }
 
     [UnityTest]
     public IEnumerator SecondPointerCannotTakeOverOrConfirmAndReleaseConfirmsOnlyOnce()
@@ -40,12 +46,15 @@ public sealed class CatLifeSwipeLifecycleTests
         Assert.That(Progress, Is.Zero);
         Assert.That(interactions, Is.Zero);
         Send("OnDrag", 1, 600);
+        yield return WaitForProgress(.65f);
         Assert.That(Progress, Is.GreaterThan(.65f));
         Assert.That(confirmations, Is.Zero);
         Send("OnPointerUp", 1, 600);
         Send("OnPointerUp", 1, 600);
         Assert.That(confirmations, Is.EqualTo(1));
         Assert.That(interactions, Is.EqualTo(1));
+        Assert.That((bool)swipe.GetType().GetProperty("IsSettling").GetValue(swipe), Is.True);
+        yield return new WaitForSecondsRealtime(.6f);
         Assert.That(Progress, Is.Zero);
         yield return null;
     }
@@ -57,6 +66,7 @@ public sealed class CatLifeSwipeLifecycleTests
         {
             Send("OnPointerDown", 1, 0);
             Send("OnDrag", 1, 600);
+            yield return WaitForProgress(.2f);
             swipe.GetType().GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic).Invoke(swipe,
                 method == "OnDisable" ? null : new object[] { method == "OnApplicationPause" });
             Send("OnPointerUp", 1, 600);
@@ -68,14 +78,20 @@ public sealed class CatLifeSwipeLifecycleTests
     }
 
     [UnityTest]
-    public IEnumerator FinalReleasePositionOverridesEarlierThresholdCrossing()
+    public IEnumerator ReleaseUsesTheVisibleProgressAndNeverAnUnseenPointerPosition()
     {
         Send("OnPointerDown", 1, 0);
-        Send("OnDrag", 1, 600);
-        Send("OnPointerUp", 1, 100);
+        Send("OnDrag", 1, .649f * 840);
+        yield return new WaitForSecondsRealtime(.4f);
+        Assert.That(Progress, Is.LessThan(.65f));
+        Send("OnPointerUp", 1, 900);
         Assert.That(confirmations, Is.Zero);
         Assert.That(interactions, Is.EqualTo(1));
-        yield return null;
+        yield return new WaitForSecondsRealtime(.6f);
+        Send("OnPointerDown", 1, 0); Send("OnDrag", 1, 600);
+        yield return WaitForProgress(.65f);
+        Send("OnPointerUp", 1, 100);
+        Assert.That(confirmations, Is.EqualTo(1), "An UP event without a rendered reverse drag must use the last visible handle.");
     }
 
     [UnityTest]
@@ -86,6 +102,7 @@ public sealed class CatLifeSwipeLifecycleTests
         swipe.GetType().GetEvent("InterventionStarted").AddEventHandler(swipe, (Action)(() => interventions++));
         Send("OnPointerDown", 1, 0);
         Send("OnDrag", 1, 420);
+        yield return WaitForProgress(.35f);
         Assert.That(Progress, Is.EqualTo(.35f).Within(.0001));
         Assert.That((CatLifeExitGesturePhase)swipe.GetType().GetProperty("GesturePhase").GetValue(swipe), Is.EqualTo(CatLifeExitGesturePhase.Preparing));
         yield return new WaitForSecondsRealtime(.45f);
@@ -98,6 +115,7 @@ public sealed class CatLifeSwipeLifecycleTests
         Assert.That(confirmations, Is.Zero);
         Send("OnPointerDown", 1, 0);
         Send("OnDrag", 1, 600);
+        yield return WaitForProgress(.65f);
         Send("OnPointerUp", 1, 600);
         Assert.That(confirmations, Is.EqualTo(1));
         Assert.That(interventions, Is.EqualTo(1));
@@ -110,6 +128,7 @@ public sealed class CatLifeSwipeLifecycleTests
         swipe.GetType().GetMethod("ConfigureIntervention").Invoke(swipe, new object[] { (Func<bool>)(() => true) });
         swipe.GetType().GetEvent("GestureCancelled").AddEventHandler(swipe, (Action)(() => cancelled++));
         Send("OnPointerDown", 7, 0); Send("OnDrag", 7, 420);
+        yield return WaitForProgress(.35f);
         swipe.GetType().GetMethod("OnApplicationFocus", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(swipe, new object[] { false });
         Send("OnPointerUp", 7, 1000);
         Assert.That(cancelled, Is.EqualTo(1));

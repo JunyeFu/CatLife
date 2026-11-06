@@ -4,6 +4,7 @@ using System.Reflection;
 using CatLife.Mobile;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
@@ -33,30 +34,158 @@ public sealed class CatLifeFigmaUiTests
     private static T Field<T>(Component component, string name) => (T)component.GetType().GetField(name).GetValue(component);
 
     [UnityTest]
-    public IEnumerator BlackTextAndCenteredButtonsSurviveSetupSelection()
+    public IEnumerator NeutralInkAndCenteredButtonsSurviveSetupSelection()
     {
         Seed(); yield return null;
         var ui = Presentation();
         Assert.That(ui, Is.Not.Null);
-        Assert.That(View("BrandTitle").GetComponent<Text>().color, Is.EqualTo(Color.black));
+        Color ink = new Color32(32, 32, 30, 255), onDark = new Color32(252, 252, 251, 255);
+        Assert.That(View("BrandTitle").GetComponent<Text>().color, Is.EqualTo(ink));
         foreach (string name in new[] { "StartButton", "SetupStart", "RewardAgain" })
         {
-            var text = View(name).GetComponentInChildren<Text>(true);
+            var button = View(name).GetComponent<Button>();
+            var text = button.GetComponentInChildren<Text>(true);
+            Assert.That(button.spriteState.pressedSprite.name, Does.StartWith("S_CL_UI_Style_"));
+            Assert.That(button.spriteState.disabledSprite.name, Does.StartWith("S_CL_UI_Style_"));
             Assert.That(text.fontSize, Is.EqualTo(name == "RewardAgain" ? 40 : 52));
             Assert.That(text.alignment, Is.EqualTo(TextAnchor.MiddleCenter));
             Assert.That(text.resizeTextForBestFit, Is.False);
             Assert.That(text.rectTransform.offsetMin, Is.EqualTo(-text.rectTransform.offsetMax));
         }
         Click("StartButton"); Click("Minutes45"); Click("ReminderGentleButton"); yield return null;
-        Assert.That(View("Minutes45Text").GetComponent<Text>().color, Is.EqualTo(Color.white));
-        Assert.That(View("Minutes15Text").GetComponent<Text>().color, Is.EqualTo(Color.black));
-        Assert.That(View("ReminderGentleButtonText").GetComponent<Text>().color, Is.EqualTo(Color.black));
+        Assert.That(View("Minutes45Text").GetComponent<Text>().color, Is.EqualTo(onDark));
+        Assert.That(View("Minutes15Text").GetComponent<Text>().color, Is.EqualTo(ink));
+        Assert.That(View("ReminderGentleButtonText").GetComponent<Text>().color, Is.EqualTo(ink));
         Assert.That(View("Minutes45").GetComponent<Image>().sprite.name, Does.EndWith("SkinChipSelected"));
         foreach (var text in ui.GetComponentsInChildren<Text>(true))
         {
             var c = text.color;
             Assert.That(c.g > c.r + .02f && c.g > c.b + .02f, Is.False, text.name);
+            if (c.a > 0) Assert.That(c.r == 0 && c.g == 0 && c.b == 0, Is.False, text.name + " pure black");
             Assert.That(text.font.name, Does.Contain("NotoSansSC"), text.name);
+        }
+    }
+
+    [UnityTest]
+    public IEnumerator DarkFontSurvivesStartupAndHasCompleteEqualWidthDigits()
+    {
+        Seed(); yield return null;
+        Font expected = Field<Font>(Presentation(), "darkBodyFont");
+        Assert.That(expected, Is.Not.Null);
+        foreach (string name in new[] { "FocusTitle", "TimerText", "TransitionText", "DebugText", "DebugTitle" })
+            Assert.That(View(name).GetComponent<Text>().font, Is.SameAs(expected), name);
+        expected.RequestCharactersInTexture("专注中0123456789:", 96, FontStyle.Normal);
+        int? advance = null;
+        foreach (char c in "0123456789")
+        {
+            Assert.That(expected.GetCharacterInfo(c, out CharacterInfo info, 96, FontStyle.Normal), Is.True, c.ToString());
+            if (advance.HasValue) Assert.That(info.advance, Is.EqualTo(advance.Value));
+            advance = info.advance;
+        }
+        foreach (char c in "专注中:") Assert.That(expected.HasCharacter(c), Is.True, c.ToString());
+        for (int tap = 0; tap < 5; tap++) Click("TitleButton");
+        foreach (char c in View("DebugText").GetComponent<Text>().text + View("TransitionText").GetComponent<Text>().text)
+            if (!char.IsWhiteSpace(c)) Assert.That(expected.HasCharacter(c), Is.True, c.ToString());
+        Click("DebugClose");
+        Click("StartButton"); Click("Minutes45"); yield return null;
+        Assert.That(View("TimerText").GetComponent<Text>().font, Is.SameAs(expected));
+    }
+
+    [UnityTest]
+    public IEnumerator BothInputsShowPassiveInnerRingsOnlyWhileFocused()
+    {
+        Seed(); yield return null;
+        foreach (string name in new[] { "CatNameInput", "CustomMinutes" })
+        {
+            if (name == "CatNameInput") View("AdoptionPanel").gameObject.SetActive(true);
+            else { View("AdoptionPanel").gameObject.SetActive(false); Click("StartButton"); }
+            var input = View(name).GetComponent<InputField>();
+            var rings = input.transform.Find("StyleFocusRings").GetComponent<Image>();
+            Assert.That(rings.raycastTarget, Is.False);
+            Assert.That(input.transition, Is.EqualTo(Selectable.Transition.None));
+            input.ActivateInputField(); yield return null; yield return null;
+            Assert.That(input.isFocused, Is.True, name);
+            Assert.That(rings.enabled, Is.True, name);
+            input.DeactivateInputField(); EventSystem.current.SetSelectedGameObject(null);
+            yield return null; yield return null;
+            Assert.That(rings.enabled, Is.False, name);
+        }
+    }
+
+    [UnityTest]
+    public IEnumerator BothInputsAvoidTheKeyboardAndRestoreTheirCardsAtBothSizes()
+    {
+        foreach (Vector2Int size in new[] { new Vector2Int(1080, 2424), new Vector2Int(720, 1280) })
+        {
+            System.Type builder = System.Type.GetType("CatLifePreviewSceneBuilder, Assembly-CSharp-Editor");
+            builder.GetMethod("SetGameViewFixedResolution", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, new object[] { size.x, size.y });
+            Seed(); yield return null; yield return null;
+            foreach (string name in new[] { "CatNameInput", "CustomMinutes" })
+            {
+                if (name == "CatNameInput") View("AdoptionPanel").gameObject.SetActive(true);
+                else { View("AdoptionPanel").gameObject.SetActive(false); Click("StartButton"); }
+                var field = View(name).GetComponent<InputField>();
+                var card = (RectTransform)field.transform.parent; Vector2 resting = card.anchoredPosition;
+                var avoidance = field.GetComponent("CatLifeKeyboardAvoidance");
+                Assert.That(avoidance, Is.Not.Null);
+                field.ActivateInputField(); yield return null; yield return null;
+                Assert.That(field.isFocused, Is.True);
+                foreach (float portion in new[] { .36f, .5f })
+                {
+                    float inset = Screen.height * portion;
+                    avoidance.GetType().GetMethod("SetReviewInset").Invoke(avoidance, new object[] { inset });
+                    yield return null; yield return null;
+                    var corners = new Vector3[4]; ((RectTransform)field.transform).GetWorldCorners(corners);
+                    Assert.That(RectTransformUtility.WorldToScreenPoint(null, corners[0]).y,
+                        Is.GreaterThanOrEqualTo(inset + 16 * field.GetComponentInParent<Canvas>().scaleFactor - .5f), name);
+                    Vector2 lifted = card.anchoredPosition;
+                    for (int frame = 0; frame < 5; frame++) yield return null;
+                    Assert.That(Vector2.Distance(card.anchoredPosition, lifted), Is.LessThan(.001f), "Avoidance must not accumulate every frame.");
+                }
+                field.DeactivateInputField(); EventSystem.current.SetSelectedGameObject(null);
+                yield return null; yield return null;
+                Assert.That(card.anchoredPosition, Is.EqualTo(resting), name + " normal layout restore");
+            }
+        }
+    }
+
+    [UnityTest]
+    public IEnumerator SingleCharacterTailBalancesWithoutChangingOriginalTextOrExplicitBreaks()
+    {
+        Seed(); yield return null;
+        Text label = Field<Text>(Presentation(), "rewardInsight");
+        label.fontSize = 34;
+        var generator = new TextGenerator();
+        float width = generator.GetPreferredWidth("甲乙丙丁", label.GetGenerationSettings(Vector2.zero)) / label.pixelsPerUnit;
+        label.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width + .1f);
+        Canvas.ForceUpdateCanvases();
+        var app = GameObject.Find("CatLifeMobileApp").GetComponent("CatLifeMobileApp");
+        var method = app.GetType().Assembly.GetType("CatLifeTextWrap").GetMethod("WithoutSingleCharacterTail");
+        const string original = "甲乙丙丁戊";
+        string display = (string)method.Invoke(null, new object[] { label, original });
+        Assert.That(display, Is.EqualTo("甲乙丙\n丁戊"));
+        Assert.That(display.Replace("\n", ""), Is.EqualTo(original));
+        const string intentional = "甲乙丙丁\n戊";
+        Assert.That((string)method.Invoke(null, new object[] { label, intentional }), Is.EqualTo(intentional));
+    }
+
+    [UnityTest]
+    public IEnumerator ReapplyingStyleKeepsInkAndControlGeometry()
+    {
+        Seed(); yield return null;
+        GameObject root = GameObject.Find("CatLifeMobileView");
+        var buttons = root.GetComponentsInChildren<Button>(true);
+        var rectangles = buttons.Select(b => (RectTransform)b.transform).ToArray();
+        var before = rectangles.Select(r => new[] { r.anchorMin, r.anchorMax, r.anchoredPosition, r.sizeDelta }).ToArray();
+        System.Type installer = System.Type.GetType("CatLifeUiStyleInstaller, Assembly-CSharp-Editor");
+        var apply = installer.GetMethod("Apply");
+        apply.Invoke(null, new object[] { root }); apply.Invoke(null, new object[] { root });
+        Assert.That(View("BrandTitle").GetComponent<Text>().color, Is.EqualTo((Color)new Color32(32, 32, 30, 255)));
+        Assert.That(root.GetComponentsInChildren<Button>(true).Length, Is.EqualTo(buttons.Length));
+        for (int i = 0; i < rectangles.Length; i++)
+        {
+            var r = rectangles[i];
+            CollectionAssert.AreEqual(before[i], new[] { r.anchorMin, r.anchorMax, r.anchoredPosition, r.sizeDelta }, r.name);
         }
     }
 

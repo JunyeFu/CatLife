@@ -138,6 +138,7 @@ public sealed class CatLifeMobileApp : MonoBehaviour
 
     private void OnApplicationPause(bool paused)
     {
+        if (paused) uiPresentation?.insightReveal.StopForBackground();
         autoFocusPolicy?.ResetDwell();
         runtimeCoordinator?.RecordUiEvent(paused ? "app_pause" : "app_resume");
         if (saveRecovery || clockRecovery || session == null || session.Phase != CatLifeSessionPhase.Focus) return;
@@ -164,6 +165,7 @@ public sealed class CatLifeMobileApp : MonoBehaviour
         Font font = todayText.font;
         if (font == null) font = Font.CreateDynamicFontFromOSFont(new[] { "Noto Sans CJK SC", "Noto Sans SC", "Microsoft YaHei" }, 36);
         foreach (Text text in viewRoot.GetComponentsInChildren<Text>(true)) text.font = font;
+        uiPresentation?.ApplyTypography();
         Text consentText = TextOf("AiConsentPanelText");
         consentText.resizeTextForBestFit = false;
         consentText.fontSize = 30;
@@ -603,13 +605,17 @@ public sealed class CatLifeMobileApp : MonoBehaviour
         if (record.aiRequestStatus == "requesting") insight = "正在生成陪伴建议……\n仅发送本次会话聚合值\n你可以随时返回小镇";
         else if (record.aiRequestStatus == "succeeded") insight = $"MiMo 生成 · 仅使用会话聚合值\n温和提醒：{record.aiGentleReminder}\n下一小步：{record.aiReturnSuggestion}\n猫咪回应：{CatLifeUnlocks.ReactionLabel(record.aiReaction)}\n{record.aiReactionReason}";
         else if (record.aiRequestAttempted) insight = record.localInsight + (record.aiRequestStatus == "cancelled" ? "\n本地洞察 · 本次 AI 建议已取消" : "\n本地洞察 · 本次 AI 建议未生成");
+        if (uiPresentation != null)
+        {
+            uiPresentation.RenderReward(record, insight, CatLifeStats.Derive(data, Now()));
+            return;
+        }
         rewardText.fontSize = 30;
         rewardText.resizeTextForBestFit = false;
         rewardText.horizontalOverflow = HorizontalWrapMode.Wrap;
         rewardText.supportRichText = false;
         string behaviorSummary = record.behaviorStatsDisabled ? "行为统计未采集" : $"后台返回 {record.BackgroundCount} 次  ·  稳定度 {record.StabilityPercent}%";
         rewardText.text = $"完成 {record.ActualSeconds / 60} 分钟\n{behaviorSummary}\n成长 +{record.GrowthAwarded}  ·  爪印 +{record.PawsAwarded}\n\n{insight}";
-        uiPresentation?.RenderReward(record, insight, CatLifeStats.Derive(data, Now()));
     }
     private string RecentRecords()
     {

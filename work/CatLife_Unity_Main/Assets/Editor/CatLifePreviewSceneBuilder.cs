@@ -1566,9 +1566,9 @@ public static class CatLifePreviewSceneBuilder
             return;
         }
 
-        object standaloneGroup = System.Enum.Parse(gameViewSizeGroupType, "Standalone");
+        object currentGroup = gameViewSizesType.GetProperty("currentGroupType", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(sizesInstance, null);
         System.Reflection.MethodInfo getGroupMethod = gameViewSizesType.GetMethod("GetGroup", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        object group = getGroupMethod != null ? getGroupMethod.Invoke(sizesInstance, new[] { standaloneGroup }) : null;
+        object group = getGroupMethod != null ? getGroupMethod.Invoke(sizesInstance, new[] { currentGroup }) : null;
         if (group == null)
         {
             return;
