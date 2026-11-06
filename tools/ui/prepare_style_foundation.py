@@ -12,6 +12,7 @@ from pathlib import Path
 
 from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
+from fontTools import subset
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -36,6 +37,19 @@ def prepare(args):
     font_path = ROOT / "work/CatLife_Unity_Main" / tokens["typography"]["softwareDarkFont"]
     font_path.parent.mkdir(parents=True, exist_ok=True)
     source = TTFont(args.font_source)
+    coverage_files = [ASSETS / "Scripts/Mobile/CatLifeMobileApp.cs", ASSETS / "Editor/CatLifeMobileUiPrefabBuilder.cs"]
+    coverage_files += list((ASSETS / "MobileRuntime/Core").glob("*.cs"))
+    coverage_files += list((ASSETS / "Scripts/Recognition").glob("*.cs"))
+    coverage = set(range(32, 127))
+    for code in coverage_files:
+        coverage.update(ord(c) for c in code.read_text(encoding="utf-8") if ord(c) > 127 and not c.isspace())
+    unavailable = sorted(coverage - set(source.getBestCmap()))
+    options = subset.Options()
+    options.layout_features = ["*"]
+    options.ignore_missing_unicodes = False
+    cutter = subset.Subsetter(options=options)
+    cutter.populate(unicodes=coverage.intersection(source.getBestCmap()))
+    cutter.subset(source)
     font = instantiateVariableFont(source, {"wght": weight}, inplace=False)
     names = {
         1: "CatLife UI", 2: f"Dark{weight}",
@@ -69,13 +83,16 @@ def prepare(args):
         "digit_advance": widths,
         "units_per_em": exported["head"].unitsPerEm,
         "output_bytes": font_path.stat().st_size,
+        "glyph_coverage_files": [str(p.relative_to(ROOT)) for p in coverage_files],
+        "included_codepoints": len(cmap),
+        "unavailable_source_codepoints": [f"U+{cp:04X}" for cp in unavailable],
         "unity_import_verified": False,
         "prefab_binding_changed": False,
     }
     (report_dir / "font-preparation.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8",
     )
-    license_path = font_path.parent / "OFL-NotoSansSC.txt"
+    license_path = font_path.parent / "OFL-CatLifeUI-Dark460.txt"
     license_text = (args.font_source.parent / "OFL-NotoSansSC.txt").read_text(encoding="utf-8")
     license_path.write_text("\n".join(line.rstrip() for line in license_text.splitlines()) + "\n", encoding="utf-8")
     write_meta(font_path, """TrueTypeFontImporter:
@@ -102,6 +119,9 @@ def prepare(args):
     write_meta(token_path, importer)
     style_dir = token_path.parent
     write_meta(style_dir, "folderAsset: yes\nDefaultImporter:\n  externalObjects: {}\n  userData:\n  assetBundleName:\n  assetBundleVariant:")
+    if args.font_only:
+        print(json.dumps(summary, ensure_ascii=False))
+        return
 
     # Real captures remain unchanged. The right column is a component specimen,
     # never an altered device capture or a claim that the new UI is installed.
@@ -142,4 +162,5 @@ if __name__ == "__main__":
     parser.add_argument("--baseline-font", type=Path, required=True)
     parser.add_argument("--baseline-dir", type=Path, required=True)
     parser.add_argument("--report-dir", type=Path, required=True)
+    parser.add_argument("--font-only", action="store_true")
     prepare(parser.parse_args())

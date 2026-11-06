@@ -164,6 +164,7 @@ public sealed class CatLifeMobileApp : MonoBehaviour
         Font font = todayText.font;
         if (font == null) font = Font.CreateDynamicFontFromOSFont(new[] { "Noto Sans CJK SC", "Noto Sans SC", "Microsoft YaHei" }, 36);
         foreach (Text text in viewRoot.GetComponentsInChildren<Text>(true)) text.font = font;
+        uiPresentation?.ApplyTypography();
         Text consentText = TextOf("AiConsentPanelText");
         consentText.resizeTextForBestFit = false;
         consentText.fontSize = 30;

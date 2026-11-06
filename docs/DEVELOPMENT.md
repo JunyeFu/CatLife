@@ -2,7 +2,7 @@
 
 [产品主页](../README.md) · [当前进展](STATUS.md)
 
-本轮UI修复按[双端视觉增量开发控制](development/2026-11-06-ui-style-repair-plan.md)执行：三个产品取舍已确认，五包顺序与G0–G4已定义；此阶段仅完成计划，未修改软件或生成新候选。
+本轮UI按[增量开发控制](development/2026-11-06-ui-style-repair-plan.md)执行：[WP06.6静态UI/G1](development/2026-11-06-ui-static-results.md)已通过，包含12项功能/资源回归及24张实际Game view截图。运行实现留在独立分支，下一项WP06.7.1；新APK与Android验收仍待G2后进行。
 
 ## 环境
 

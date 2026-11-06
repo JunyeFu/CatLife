@@ -11,13 +11,15 @@
     "mutedInk": "#696965",
     "onDark": "#fcfcfb",
     "brandOrange": "#ff8a00",
+    "brandOrangeTop": "#ffb942",
+    "brandOrangePressed": "#f17b00",
     "brandGreen": "#174a2a",
     "danger": "#ef3e36"
   },
   "typography": {
     "softwareDarkWeight": 460,
     "softwareDarkFont": "Assets/MobileRuntime/UI/Fonts/NotoSansSC-CatLifeDark460.ttf",
-    "softwareDarkObjects": ["FocusTitle", "TimerText"],
+    "softwareDarkObjects": ["FocusTitle", "TimerText", "TransitionText", "DebugText"],
     "webDarkWeightOffset": -40,
     "inlineIconOffsetEm": -0.125,
     "numericVariant": "tabular-nums",

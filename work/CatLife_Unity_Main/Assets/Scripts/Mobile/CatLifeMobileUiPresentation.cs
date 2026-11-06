@@ -27,6 +27,14 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
     public Image rewardProgress;
     public RectTransform rewardViewport, rewardContent;
     public ScrollRect rewardScroll;
+    public Color ink, mutedInk, onDark;
+    public Font darkBodyFont;
+    public Text[] darkBodyTexts = Array.Empty<Text>();
+
+    public void ApplyTypography()
+    {
+        foreach (Text text in darkBodyTexts) text.font = darkBodyFont;
+    }
 
     public void RenderSetup(int minutes, bool quiet, bool ai, string today)
     {
@@ -37,11 +45,11 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
             bool selected = choices[i] == minutes;
             minuteImages[i].sprite = selected ? chipSelected : chipNormal;
             minuteImages[i].color = Color.white;
-            minuteTexts[i].color = selected ? Color.white : Color.black;
+            minuteTexts[i].color = selected ? onDark : ink;
         }
         quietImage.sprite = gentleImage.sprite = secondary;
         quietImage.color = gentleImage.color = Color.white;
-        quietText.color = gentleText.color = Color.black;
+        quietText.color = gentleText.color = ink;
         focusMode.text = quiet ? "安静陪伴" : "轻提醒";
         setupAiToggle.sprite = ai ? toggleOn : toggleOff;
         setupAiToggle.color = Color.white;
@@ -70,7 +78,7 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
             bool unlocked = stats.Paws >= required[i];
             growthCards[i].color = Color.white;
             growthIcons[i].color = new Color(1, 1, 1, unlocked ? 1 : .58f);
-            growthLabels[i].color = new Color(0, 0, 0, unlocked ? 1 : .58f);
+            growthLabels[i].color = new Color(ink.r, ink.g, ink.b, unlocked ? 1 : .58f);
         }
     }
 
@@ -135,6 +143,7 @@ public sealed class CatLifeMobileUiPresentation : MonoBehaviour
     private void ResizeInsight()
     {
         Canvas.ForceUpdateCanvases();
+        rewardInsight.text = CatLifeTextWrap.WithoutSingleCharacterTail(rewardInsight, rewardInsight.text);
         float contentHeight = rewardInsight.preferredHeight + 48;
         rewardContent.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical,
             Mathf.Max(rewardViewport.rect.height, contentHeight));

@@ -74,5 +74,6 @@ public static class CatLifeRepairUiInstaller
             panel.GetComponent<Image>().raycastTarget = true;
             panel.SetActive(false);
         }
+        CatLifeUiStyleInstaller.Apply(root);
     }
 }

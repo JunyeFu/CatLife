@@ -125,6 +125,7 @@ public static class CatLifeFigmaUiInstaller
             StyleButton(Named(name), false, 40);
         if (root.GetComponentsInChildren<Button>(true).Length < buttonsBefore)
             throw new InvalidOperationException("The frontend must preserve every existing button.");
+        CatLifeUiStyleInstaller.Apply(root);
         EditorUtility.SetDirty(root);
     }
 
