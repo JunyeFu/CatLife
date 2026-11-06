@@ -1,0 +1,77 @@
+{
+  "prefab": "work\\CatLife_Unity_Main\\Assets\\Editor\\CatProneReview\\FigmaUiCandidate\\PF_CL_UI_FigmaReview.prefab",
+  "textComponents": 125,
+  "opaqueBlackTextComponents": 76,
+  "blackExamples": [
+    "SetupTitle",
+    "VisitRewardTreeText",
+    "VisitPlazaText",
+    "AiConsentPanelText",
+    "GrowthBackText",
+    "RecordsBackText",
+    "SettingsDurationText",
+    "AiConsentCancelText",
+    "\"\\u8BBE\\u7F6ETitle\"",
+    "SettingsAutoFocusText",
+    "FigmaPrivacyCopy",
+    "AiLabel"
+  ],
+  "timerBinding": [
+    {
+      "name": "TimerText",
+      "fontFile": "NotoSansSC-Medium.ttf",
+      "color": [
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "inputFields": [
+    {
+      "name": "CustomMinutes",
+      "transition": "1"
+    },
+    {
+      "name": "CatNameInput",
+      "transition": "1"
+    }
+  ],
+  "fonts": [
+    {
+      "file": "NotoSansSC-Medium.ttf",
+      "digitAdvance": {
+        "0": 570,
+        "1": 570,
+        "2": 570,
+        "3": 570,
+        "4": 570,
+        "5": 570,
+        "6": 570,
+        "7": 570,
+        "8": 570,
+        "9": 570
+      },
+      "equalAdvance": true,
+      "variableWeight": false
+    },
+    {
+      "file": "NotoSansSC-CatLifeSubset.ttf",
+      "digitAdvance": {
+        "0": 521,
+        "1": 521,
+        "2": 521,
+        "3": 521,
+        "4": 521,
+        "5": 521,
+        "6": 521,
+        "7": 521,
+        "8": 521,
+        "9": 521
+      },
+      "equalAdvance": true,
+      "variableWeight": true
+    }
+  ]
+}

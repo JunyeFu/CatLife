@@ -1,0 +1,425 @@
+[
+  {
+    "board": "hero",
+    "background": "rgb(246, 244, 237)",
+    "borders": [
+      {
+        "element": "pill",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "pill",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "pill",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "phone hero-main",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgb(251, 250, 244)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "phone hero-second",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgb(251, 250, 244)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      }
+    ],
+    "paragraphs": [
+      {
+        "element": "P",
+        "color": "rgb(103, 118, 101)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      }
+    ],
+    "headings": [
+      {
+        "element": "H1",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "650",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      }
+    ],
+    "numbers": [
+      {
+        "element": "footer-line",
+        "color": "rgb(122, 130, 118)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      }
+    ]
+  },
+  {
+    "board": "journey",
+    "background": "rgb(250, 249, 244)",
+    "borders": [
+      {
+        "element": "step",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgb(255, 254, 250)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "phone",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgb(251, 250, 244)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "step",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgb(233, 237, 223)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "phone",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgb(251, 250, 244)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "step",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgb(255, 254, 250)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "phone",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgb(251, 250, 244)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      }
+    ],
+    "paragraphs": [
+      {
+        "element": "journey-desc",
+        "color": "rgb(116, 129, 115)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "P",
+        "color": "rgb(108, 121, 104)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "P",
+        "color": "rgb(108, 121, 104)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "P",
+        "color": "rgb(108, 121, 104)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      }
+    ],
+    "headings": [
+      {
+        "element": "journey-title",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "700",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "H3",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "600",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "H3",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "600",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "H3",
+        "color": "rgb(32, 63, 52)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "600",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      }
+    ],
+    "numbers": [
+      {
+        "element": "step-number",
+        "color": "rgb(155, 125, 80)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "step-number",
+        "color": "rgb(155, 125, 80)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "step-number",
+        "color": "rgb(155, 125, 80)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      }
+    ]
+  },
+  {
+    "board": "ai",
+    "background": "rgb(36, 75, 61)",
+    "borders": [
+      {
+        "element": "ai-circle",
+        "color": "rgb(251, 247, 237)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "ai-number",
+        "color": "rgb(232, 193, 139)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "ai-number",
+        "color": "rgb(232, 193, 139)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "ai-number",
+        "color": "rgb(232, 193, 139)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "phone ai-phone",
+        "color": "rgb(251, 247, 237)",
+        "background": "rgb(251, 250, 244)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "ai-permission",
+        "color": "rgb(246, 223, 185)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "footer-line ai-footer",
+        "color": "rgb(159, 182, 162)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      }
+    ],
+    "paragraphs": [
+      {
+        "element": "P",
+        "color": "rgb(184, 200, 183)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "P",
+        "color": "rgb(184, 200, 183)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "P",
+        "color": "rgb(184, 200, 183)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      }
+    ],
+    "headings": [
+      {
+        "element": "H2",
+        "color": "rgb(251, 247, 237)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "700",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "H3",
+        "color": "rgb(251, 247, 237)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "500",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "H3",
+        "color": "rgb(251, 247, 237)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "500",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "H3",
+        "color": "rgb(251, 247, 237)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "500",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      }
+    ],
+    "numbers": [
+      {
+        "element": "ai-number",
+        "color": "rgb(232, 193, 139)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "ai-number",
+        "color": "rgb(232, 193, 139)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "ai-number",
+        "color": "rgb(232, 193, 139)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      },
+      {
+        "element": "footer-line ai-footer",
+        "color": "rgb(159, 182, 162)",
+        "background": "rgba(0, 0, 0, 0)",
+        "fontWeight": "400",
+        "numeric": "normal",
+        "textWrapStyle": "auto",
+        "verticalAlign": "baseline"
+      }
+    ]
+  }
+]
