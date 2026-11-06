@@ -57,6 +57,6 @@ r42b独立目录保存，沿用同一个隔离包名，旧r42原包保留。安�
 
 恢复原分辨率时冷启再次出现白屏等待；早拍的`cold-*`不是最终读档证据，保留后使用`settled-*`实际页面复验。未设定或宣称冷启动速度达标。网络恢复时Shell广播被拒，改用`cmd connectivity airplane-mode disable`；最终1080×2424/420、airplane=0/wifi=1，review已停止，AVD与MVP/r41保留。
 
-下一项为G4最终GitHub远端桌面/手机复核与同步；主页/流程采用r42b真实图，AI保留标明r41的历史MiMo实录。
+随后[G4 GitHub交付](2026-11-07-ui-style-delivery.md)也已通过：main合并推送、真实桌面/手机复核完成；主页/流程采用r42b真实图，AI保留标明r41的历史MiMo实录。
 
 原始证据位于本机`F:/AgentTools/CatLifeBuilds/ui-style-20261106/r42/`，修复过程与Unity结果在`Reports/ui-style-20261106/WP07.4/`。此文随实际结果更新；没有全功能或真机完成声明。

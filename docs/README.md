@@ -13,6 +13,7 @@
 | [WP06.6静态UI/G1](development/2026-11-06-ui-static-results.md) | 去描边、中性色、四暗底字重、焦点/排版及实际双画幅检查 |
 | [WP06.7字显与手势/G2](development/2026-11-07-ui-motion-results.md) | 真模糊与Unicode、唯一可见Spring、125帧接触/归位及实际失败修复 |
 | [r42 / r42b Android实测/G3](development/2026-11-07-r42-android-acceptance.md) | 首包失败保留；修复候选同包双画幅/核心流程/10分钟与本人视觉通过 |
+| [WP08.4双端样式交付/G4](development/2026-11-07-ui-style-delivery.md) | 十条规则适用范围、r42b真实图、r41历史AI及线上1440/390检查 |
 | [五类追问与缺陷实测](audits/2026-11-05-interview-audit.md) | 61项Unity测试、4类新问题及2项既有缺口 |
 | [追加五题：会话、UI、统计、生命周期与发布](audits/2026-11-05-interview-audit-round2.md) | 新增16项测试，5项新增问题；累计77项 |
 | [逐项修复方案与执行顺序](audits/2026-11-05-repair-plan.md) | IA-01～11修改范围、步骤、验收及五批排期 |

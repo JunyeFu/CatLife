@@ -1,0 +1,98 @@
+{
+  "url": "https://github.com/JunyeFu/CatLife",
+  "mainCommit": "2b2180a",
+  "scope": "Real GitHub main README, anonymous Chrome, light scheme; native GitHub chrome is platform controlled",
+  "screens": [
+    {
+      "label": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "images": [
+        {
+          "source": "https://github.com/JunyeFu/CatLife/raw/main/docs/showcase/hero-r42b.png",
+          "alt": "CatLife：专注这件小事，一起慢慢来。r42b真实主页与专注画面。",
+          "width": 1600,
+          "height": 900,
+          "renderedWidth": 838
+        },
+        {
+          "source": "https://github.com/JunyeFu/CatLife/raw/main/docs/showcase/journey-r42b.png",
+          "alt": "r42b真实三步流程：选择时长、猫咪趴卧陪伴、离线完成后收获成长和爪印。",
+          "width": 1600,
+          "height": 1160,
+          "renderedWidth": 838
+        },
+        {
+          "source": "https://github.com/JunyeFu/CatLife/raw/main/docs/showcase/ai-history-r41.png",
+          "alt": "可选会后AI：本地先结算、同意后发送本次聚合值、建议映射为已解锁的猫咪动作。右侧保留r41历史真实MiMo结果页。",
+          "width": 1600,
+          "height": 940,
+          "renderedWidth": 838
+        },
+        {
+          "source": "https://github.com/JunyeFu/CatLife/raw/main/docs/showcase/session-r42b.gif",
+          "alt": "r42b真实连续录屏：准备、到位与趴卧专注。",
+          "width": 320,
+          "height": 718,
+          "renderedWidth": 260
+        }
+      ],
+      "dimensions": {
+        "viewport": 1440,
+        "document": 1440
+      },
+      "aiAnchor": "#%E5%8F%AF%E9%80%89-ai",
+      "detailsOpen": true,
+      "engineeringLink": 3,
+      "r42bLabel": true,
+      "historicalCloudLabel": true,
+      "nativeConstraints": "README font/outline/details animation controlled by GitHub"
+    },
+    {
+      "label": "mobile",
+      "width": 390,
+      "height": 844,
+      "images": [
+        {
+          "source": "https://github.com/JunyeFu/CatLife/raw/main/docs/showcase/hero-r42b.png",
+          "alt": "CatLife：专注这件小事，一起慢慢来。r42b真实主页与专注画面。",
+          "width": 1600,
+          "height": 900,
+          "renderedWidth": 324
+        },
+        {
+          "source": "https://github.com/JunyeFu/CatLife/raw/main/docs/showcase/journey-r42b.png",
+          "alt": "r42b真实三步流程：选择时长、猫咪趴卧陪伴、离线完成后收获成长和爪印。",
+          "width": 1600,
+          "height": 1160,
+          "renderedWidth": 324
+        },
+        {
+          "source": "https://github.com/JunyeFu/CatLife/raw/main/docs/showcase/ai-history-r41.png",
+          "alt": "可选会后AI：本地先结算、同意后发送本次聚合值、建议映射为已解锁的猫咪动作。右侧保留r41历史真实MiMo结果页。",
+          "width": 1600,
+          "height": 940,
+          "renderedWidth": 324
+        },
+        {
+          "source": "https://github.com/JunyeFu/CatLife/raw/main/docs/showcase/session-r42b.gif",
+          "alt": "r42b真实连续录屏：准备、到位与趴卧专注。",
+          "width": 320,
+          "height": 718,
+          "renderedWidth": 260
+        }
+      ],
+      "dimensions": {
+        "viewport": 390,
+        "document": 390
+      },
+      "aiAnchor": "#%E5%8F%AF%E9%80%89-ai",
+      "detailsOpen": true,
+      "engineeringLink": 3,
+      "r42bLabel": true,
+      "historicalCloudLabel": true,
+      "nativeConstraints": "README font/outline/details animation controlled by GitHub"
+    }
+  ],
+  "result": "passed"
+}

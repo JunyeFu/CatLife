@@ -2,7 +2,7 @@
 
 [产品主页](../README.md) · [当前进展](STATUS.md)
 
-本轮UI按[增量开发控制](development/2026-11-06-ui-style-repair-plan.md)执行：[G1静态UI](development/2026-11-06-ui-static-results.md)、[G2字显/手势](development/2026-11-07-ui-motion-results.md)及[r42b/G3真实同包与本人视觉](development/2026-11-07-r42-android-acceptance.md)已通过。首r42失败保留，r42b沿BuildUiStyleReviewApk构建，83.54MiB且本候选无凭据。G4正在进行展示同步与远端复核，运行资产/本机配置不随主页提交。
+本轮UI按[增量开发控制](development/2026-11-06-ui-style-repair-plan.md)执行：[G1静态UI](development/2026-11-06-ui-static-results.md)、[G2字显/手势](development/2026-11-07-ui-motion-results.md)、[r42b/G3真实同包与本人视觉](development/2026-11-07-r42-android-acceptance.md)和[G4 GitHub交付](development/2026-11-07-ui-style-delivery.md)已通过。首r42失败保留，r42b沿BuildUiStyleReviewApk构建，83.54MiB且本候选无凭据。运行修改已合并main，运行资产/本机配置不随主页提交。
 
 ## 环境
 
